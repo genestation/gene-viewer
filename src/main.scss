@@ -29,15 +29,22 @@ div.roguebuilder {
 			font-family: $beleren;
 			font-size: 1.4em;
 		}
-		ul {
-			list-style: none;
+		table {
+			border-collapse: collapse;
+			margin: 1em 1em 1em 1.5em;
 		}
-		li {
+		tr {
 			cursor: pointer;
-			padding: 0.2em 0.1em;
 		}
-		li:hover {
+		tr:hover {
 			background: $dark-background_color;
+		}
+		td {
+			padding: 0.25em;
+			padding-right: 0.1em;
+		}
+		td:first-child {
+			text-align: right;
 		}
 	}
 	div.preview {

@@ -15,15 +15,16 @@ class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
 		return <div className="card-list">
 			{this.props.title?<div className="title">{this.props.title}</div>:null}
-			<ul> {
+			<table> {
 				Object.keys(this.props.cards).map((card: string, idx: number)=>{
-					return <li key={idx}
+					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
-						{this.props.cards[card] + "×"}&nbsp;{card}
-					</li>
+						<td>{this.props.cards[card] + "×"}</td>
+						<td>{card}</td>
+					</tr>
 				})
-			} </ul>
+			} </table>
 		</div>
 	}
 }
