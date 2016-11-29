@@ -22,16 +22,20 @@ div.roguebuilder {
 		font-size: 0.9em;
 		display: flex;
 		columns: 3;
+		@media (max-width: 47em) {
+			flex-direction: column;
+		}
 	}
 	div.card-list {
-		padding: 1em;
+		max-width: 17em;
+		padding: 0.75em 1em 0.25em;
 		div.title {
 			font-family: $beleren;
 			font-size: 1.4em;
 		}
 		table {
 			border-collapse: collapse;
-			margin: 1em 1em 1em 1.5em;
+			margin: 0.5em 1em 0.5em 1.5em;
 		}
 		tr {
 			cursor: pointer;
@@ -49,7 +53,12 @@ div.roguebuilder {
 	}
 	div.preview {
 		width: 18em;
-		margin-top: 1em;
+		margin: 1em;
+		@media (min-width: 33em) and (max-width: 47em) {
+			position: absolute;
+			right: 2em;
+			width: 15em;
+		}
 	}
 	img {
 		width: 100%;
