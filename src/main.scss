@@ -13,9 +13,17 @@ div.roguebuilder {
 		font-family: $sans-serif;
 		color: $text-color;
 	}
-	div.title {
+	h1 {
 		font-family: $beleren;
 		font-size: 2em;
+	}
+	h2 {
+		font-family: $beleren;
+		font-size: 1.4em;
+	}
+	h3 {
+		font-family: $beleren;
+		font-size: 1.2em;
 	}
 	div.body {
 		background: $background-color;
@@ -41,14 +49,6 @@ div.roguebuilder {
 	div.card-list {
 		width: 16em;
 		padding: 0.5em 1em 0.25em;
-		div.title {
-			font-family: $beleren;
-			font-size: 1.4em;
-		}
-		div.subtitle {
-			font-family: $beleren;
-			font-size: 1.2em;
-		}
 		table {
 			border-collapse: collapse;
 			margin: 0.5em;

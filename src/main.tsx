@@ -15,7 +15,7 @@ interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
 		return <div className="card-list">
-			{this.props.title?<div className={this.props.sublist?"subtitle":"title"}>{this.props.title}</div>:null}
+			{this.props.title?(this.props.sublist?<h3>{this.props.title}</h3>:<h2>{this.props.title}</h2>):null}
 			<table><tbody>{
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					return <tr key={idx}
@@ -316,7 +316,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		case Sort.Name:
 		case Sort.Keyword: //TODO
 			sortByName = true;
-			let piece = 1.5 * Object.keys(this.props.mainboard[item]).length;
+			let piece = 1.5 * Object.keys(this.props.mainboard).length;
 			height += piece;
 			if(piece > maxblock) {
 				maxblock = piece;
@@ -324,7 +324,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			break;
 		}
 		return <div className="decklist">
-			<div className="title">{this.props.name}</div>
+			<div className="head"><h1>{this.props.name}</h1></div>
 			<div className="body">
 				<div className="lists" style={{height: Math.max(maxblock,height/1.8) + 'em'}}>
 				{sortByName?
