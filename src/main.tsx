@@ -7,6 +7,7 @@ import './main.scss';
 
 interface CardListProps{
 	cards: string[];
+	setCurr: (card: string)=>any;
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
@@ -17,7 +18,11 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		});
 		return <ul> {
 			Object.keys(counts).map((card: string, idx: number)=>{
-				return <li key={idx}>{counts[card] + "×"}&nbsp;{card}</li>
+				return <li key={idx}
+					onMouseOver={()=>this.props.setCurr(card)}
+					onClick={()=>this.props.setCurr(card)} >
+					{counts[card] + "×"}&nbsp;{card}
+				</li>
 			})
 		} </ul>;
 	}
@@ -148,10 +153,22 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				})
 		})
 	}
+	setCurr = (curr: string)=>{
+		if(this.state.cardinfo[curr]) {
+			this.setState({
+				curr: curr,
+				img: this.state.cardinfo[curr].image_uri,
+			});
+		} else {
+			this.setState({
+				curr: curr,
+			});
+		}
+	}
 	render() {
 		return <div className="roguebuilder">
-			<CardList cards={this.props.mainboard}/>
-			<CardList cards={this.props.sideboard}/>
+			<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>
+			<CardList cards={this.props.sideboard} setCurr={this.setCurr}/>
 			{this.state.img?<img src={this.state.img}/>:null}
 		</div>
 	}
@@ -165,6 +182,6 @@ export interface MainState{
 }
 export default class extends React.Component<MainProps,MainState> {
 	render() {
-		return <DeckList mainboard={["Force of Will"]}/>
+		return <DeckList mainboard={["Force of Will", "Fireblast"]}/>
 	}
 }
