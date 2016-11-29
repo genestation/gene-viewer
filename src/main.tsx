@@ -200,6 +200,25 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	componentDidMount() {
 		let previewR = this.child.preview.getClientRects()[0];
+		this.setState({
+			startY: previewR.top + document.body.scrollTop,
+		});
+		window.addEventListener('scroll', this.handleScroll);
+	}
+	componentWillUnmount() {
+		window.removeEventListener('scroll', this.handleScroll);
+	}
+	handleScroll = (event)=>{
+		let previewR = this.child.preview.getClientRects()[0];
+		let bodyR = this.child.body.getClientRects()[0];
+		this.setState({
+			translateY: Math.min(bodyR.height - previewR.height - this.state.startY,
+				Math.max(event.srcElement.body.scrollTop - this.state.startY, 0)),
+		});
+	}
+	/*
+	componentDidMount() {
+		let previewR = this.child.preview.getClientRects()[0];
 		let bodyR = this.child.body.getClientRects()[0];
 		this.setState({
 			startY: previewR.top + document.body.scrollTop,
@@ -211,10 +230,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		window.removeEventListener('scroll', this.handleScroll);
 	}
 	handleScroll = (event)=>{
+		console.log(this.state.maxY);
 		this.setState({
 			translateY: Math.min(this.state.maxY, Math.max(event.srcElement.body.scrollTop - this.state.startY, 0)),
 		});
 	}
+	*/
 	updateInfo() {
 		if(!this.state.setOrder) return;
 		let missingInfo = Object.keys(this.state.cardinfo)
