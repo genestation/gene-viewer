@@ -114,7 +114,6 @@ interface DeckListProps{
 	name?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	sort?: Sort;
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -122,18 +121,19 @@ interface DeckListState{
 	price?: {[key: string]: {usd: number, tix: number}};
 	curr?: string;
 	img?: string;
+	sort?: Sort;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
 		name: "",
 		mainboard: {},
 		sideboard: {},
-		sort: Sort.Type,
 	}
 	constructor(props: DeckListProps) {
 		super(props);
 		this.state = {
 			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
+			sort: Sort.Type,
 		};
 		fetch('https://api.scryfall.com/sets').then((response: Promise<Response>)=>{
 			if(response.status !== 200) {
@@ -250,7 +250,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let maxblock = 5 + 1.8 * Object.keys(this.props.sideboard).length;
 		let sortByName = !this.state.cardinfo;
 		if(!sortByName) {
-			switch (this.props.sort) {
+			switch (this.state.sort) {
 			case Sort.Type:
 				Object.keys(this.props.mainboard).forEach((card: string)=>{
 					if(!this.state.cardinfo[card]) {
@@ -423,6 +423,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="head">
 				<h1>{this.props.name}</h1>
 				<span>&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span>
+				<select value={this.state.sort.toString()} onChange={(e)=>this.setState({sort:e.target.value})}>
+					<option value={Sort.Type.toString()}>Type</option>
+					<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
+					<option value={Sort.Color.toString()}>Color</option>
+					<option value={Sort.Name.toString()}>Name</option>
+				</select>
 			</div>
 			<div className="body">
 				<div className="lists" style={{height: Math.max(maxblock,height/2) + 'em'}}>
