@@ -28,21 +28,26 @@ div.roguebuilder {
 				display: block;
 			}
 		}
-		span {
+		span.price {
 			@media (max-width: 36em) {
 				display: block;
 				margin-bottom: 1em;
 			}
 		}
-		select {
+		div.select {
+			width: 14em;
 			position: absolute;
 			bottom: 0.4em;
-			left: 58.5em;
+			left: 37em;
+			span {
+				font-size: 0.8em;
+			}
 			@media (max-width: 52em) {
-				left: 35em;
+				left: 21.5em;
 			}
 			@media (max-width: 36em) {
 				position: relative;
+				margin-left: 0.5em;
 				left: auto;
 			}
 		}

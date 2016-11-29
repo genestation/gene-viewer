@@ -431,13 +431,17 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		return <div className="decklist">
 			<div className="head">
 				<h1>{this.props.name}</h1>
-				<span>&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span>
-				<select value={this.state.sort.toString()} onChange={(e)=>this.setState({sort:parseInt(e.target.value)})}>
-					<option value={Sort.Type.toString()}>Type</option>
-					<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
-					<option value={Sort.Color.toString()}>Color</option>
-					<option value={Sort.Name.toString()}>Name</option>
-				</select>
+				<span className="price">&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span>
+				<div className="select">
+					<span>Sort by </span>
+					<select value={this.state.sort.toString()}
+						onChange={(e)=>this.setState({sort:parseInt(e.target.value)})}>
+						<option value={Sort.Type.toString()}>Type</option>
+						<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
+						<option value={Sort.Color.toString()}>Color</option>
+						<option value={Sort.Name.toString()}>Name</option>
+					</select>
+				</div>
 			</div>
 			<div className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
