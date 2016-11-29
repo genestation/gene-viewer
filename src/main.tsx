@@ -246,8 +246,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		let height = 5 + 1.5 * Object.keys(this.props.sideboard).length;
-		let maxblock = 5 + 1.5 * Object.keys(this.props.sideboard).length;
+		let height = 5 + 1.8 * Object.keys(this.props.sideboard).length;
+		let maxblock = 5 + 1.8 * Object.keys(this.props.sideboard).length;
 		let sortByName = !this.state.cardinfo;
 		if(!sortByName) {
 			switch (this.props.sort) {
@@ -277,7 +277,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: item,
 								list: buckets[item],
 							});
-							let piece = 3 + 1.5 * Object.keys(buckets[item]).length;
+							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
 							height += piece;
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -307,7 +307,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: item.toString() + " drop",
 								list: buckets[item.toString()],
 							});
-							let piece = 3 + 1.5 * Object.keys(buckets[item.toString()]).length;
+							let piece = 3 + 1.8 * Object.keys(buckets[item.toString()]).length;
 							height += piece;
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -370,7 +370,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: name,
 								list: buckets[item],
 							});
-							let piece = 3 + 1.5 * Object.keys(buckets[item]).length;
+							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
 							height += piece;
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -386,17 +386,17 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			}
 		}
 		if(sortByName) {
-			let piece = 1.5 * Object.keys(this.props.mainboard).length;
+			let piece = 1.8 * Object.keys(this.props.mainboard).length;
 			height += piece;
 			if(piece > maxblock) {
 				maxblock = piece;
 			}
 		}
 		// Calculate price
-		let price: {usd: number, tix: number} = {
-			usd: null,
-			tix: null,
+		let price: {usd: string, tix: string} = {
+			usd: null, tix: null,
 		}
+		let priceImg: {usd: string, tix: string};
 		if(this.state.price) {
 			Object.keys(this.props.mainboard).forEach((card: string)=>{
 				price.usd += this.props.mainboard[card] * this.state.price[card].usd;
@@ -406,14 +406,26 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				price.usd += this.props.sideboard[card] * this.state.price[card].usd;
 				price.tix += this.props.sideboard[card] * this.state.price[card].tix;
 			});
+			price.usd = Number(Math.round(parseFloat(price.usd.toString()+'e2'))+'e-2').toFixed(2);
+			price.tix = Number(Math.round(parseFloat(price.tix.toString()+'e2'))+'e-2').toFixed(2);
+			priceImg = {
+				usd: this.state.price[this.state.curr].usd.toFixed(2),
+				tix: this.state.price[this.state.curr].tix.toFixed(2),
+			};
+		} else {
+			price = {
+				usd: null,
+				tix: null,
+			}
 		}
-		price.usd = Number(Math.round(price.usd+'e2')+'e-2');
-		price.tix = Number(Math.round(price.tix+'e2')+'e-2');
 		// Return DOM
 		return <div className="decklist">
-			<div className="head"><h1>{this.props.name}</h1><span>&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span></div>
+			<div className="head">
+				<h1>{this.props.name}</h1>
+				<span>&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span>
+			</div>
 			<div className="body">
-				<div className="lists" style={{height: Math.max(maxblock,height/1.8) + 'em'}}>
+				<div className="lists" style={{height: Math.max(maxblock,height/2) + 'em'}}>
 				{sortByName?
 					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
@@ -422,8 +434,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				}
 				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				</div>
-				<div className="preview">
-					{this.state.img?<img src={this.state.img}/>:null}
+				<div className="preview-frame">
+					<div className="preview">
+						{this.state.img?<img src={this.state.img}/>:null}
+					</div>
+					{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
 				</div>
 			</div>
 		</div>

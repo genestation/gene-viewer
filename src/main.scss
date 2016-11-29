@@ -78,9 +78,17 @@ div.roguebuilder {
 	}
 	div.preview {
 		width: 18em;
-		margin: 1em;
+		height: 25.1em;
+		overflow: hidden;
+		margin: 1em 1em 0.2em 1em;
+		img {
+			width: 100%;
+		}
 	}
-	img {
-		width: 100%;
+	div.preview-frame {
+		span {
+			padding-left: 3em;
+			font-size: 0.8em;
+		}
 	}
 }
