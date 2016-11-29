@@ -8,50 +8,43 @@ $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 
 
-div.roguebuilder div.decklist {
-	font-family: $sans-serif;
-	color: $text-color;
-}
-
-div.roguebuilder div.title {
-	font-family: $beleren;
-	font-size: 2em;
-}
-
-div.roguebuilder div.body {
-	background: $background-color;
-	font-size: 0.9em;
-	display: flex;
-	columns: 3;
-}
-
-div.roguebuilder div.card-list {
-	padding: 1em;
-}
-
-div.roguebuilder div.card-list div.title {
-	font-family: $beleren;
-	font-size: 1.4em;
-}
-
-
-div.roguebuilder div.card-list ul {
-	list-style: none;
-}
-
-div.roguebuilder div.card-list li {
-	cursor: pointer;
-	padding: 0.2em 0.1em;
-}
-
-div.roguebuilder div.body li:hover {
-	background: $dark-background_color;
-}
-
-div.roguebuilder div.preview {
-	width: 18em;
-}
-
-div.roguebuilder img {
-	width: 100%;
+div.roguebuilder {
+	div.decklist {
+		font-family: $sans-serif;
+		color: $text-color;
+	}
+	div.title {
+		font-family: $beleren;
+		font-size: 2em;
+	}
+	div.body {
+		background: $background-color;
+		font-size: 0.9em;
+		display: flex;
+		columns: 3;
+	}
+	div.card-list {
+		padding: 1em;
+		div.title {
+			font-family: $beleren;
+			font-size: 1.4em;
+		}
+		ul {
+			list-style: none;
+		}
+		li {
+			cursor: pointer;
+			padding: 0.2em 0.1em;
+		}
+		li:hover {
+			background: $dark-background_color;
+		}
+	}
+	div.preview {
+		width: 18em;
+		margin-top: 1em;
+	}
+	img {
+		width: 100%;
+	}
 }
