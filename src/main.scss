@@ -16,14 +16,17 @@ div.roguebuilder {
 	h1 {
 		font-family: $beleren;
 		font-size: 2em;
+		margin: 0.2em
 	}
 	h2 {
 		font-family: $beleren;
 		font-size: 1.4em;
+		margin: 0.2em
 	}
 	h3 {
 		font-family: $beleren;
 		font-size: 1.2em;
+		margin: 0.1em;
 	}
 	div.body {
 		background: $background-color;
@@ -48,7 +51,7 @@ div.roguebuilder {
 	}
 	div.card-list {
 		width: 16em;
-		padding: 0.5em 1em 0.25em;
+		padding: 0.25em 1em;
 		table {
 			border-collapse: collapse;
 			margin: 0.5em;
