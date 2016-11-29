@@ -205,7 +205,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							let latestSet = Number.NEGATIVE_INFINITY;
 							let state = this.state;
 							json.data.forEach((info: ScryfallCard)=>{
-								if(latestSet < state.setOrder[info.set]) {
+								if(!info.digital && latestSet < state.setOrder[info.set]) {
 									state.cardinfo[info.name] = info;
 									latestSet = state.setOrder[info.set];
 									if(this.state.curr == info.name) {
