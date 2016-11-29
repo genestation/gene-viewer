@@ -21,21 +21,38 @@ div.roguebuilder {
 		background: $background-color;
 		font-size: 0.9em;
 		display: flex;
-		columns: 3;
-		@media (max-width: 47em) {
+		@media (max-width: 36em) {
 			flex-direction: column;
+		}
+		div.lists {
+			margin-top: 0.5em;
+			width: 36em;
+			display: flex;
+			flex-direction: column;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: flex-start;
+			@media (max-width: 52em) {
+				width: 18em;
+				height: auto !important;
+			}
 		}
 	}
 	div.card-list {
-		max-width: 17em;
-		padding: 0.75em 1em 0.25em;
+		width: 16em;
+		padding: 0.5em 1em 0.25em;
 		div.title {
 			font-family: $beleren;
 			font-size: 1.4em;
 		}
+		div.subtitle {
+			font-family: $beleren;
+			font-size: 1.2em;
+		}
 		table {
 			border-collapse: collapse;
-			margin: 0.5em 1em 0.5em 1.5em;
+			margin: 0.5em;
+			width: 15em;
 		}
 		tr {
 			cursor: pointer;
@@ -49,16 +66,13 @@ div.roguebuilder {
 		}
 		td:first-child {
 			text-align: right;
+			padding-left: 1em;
+			width: 1.5em;
 		}
 	}
 	div.preview {
 		width: 18em;
 		margin: 1em;
-		@media (min-width: 33em) and (max-width: 47em) {
-			position: absolute;
-			right: 2em;
-			width: 15em;
-		}
 	}
 	img {
 		width: 100%;

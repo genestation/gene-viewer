@@ -7,6 +7,7 @@ import './main.scss';
 
 interface CardListProps{
 	title?: string;
+	sublist?: boolean;
 	cards: {[key: string]: number};
 	setCurr: (card: string)=>any;
 }
@@ -14,7 +15,7 @@ interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
 		return <div className="card-list">
-			{this.props.title?<div className="title">{this.props.title}</div>:null}
+			{this.props.title?<div className={this.props.sublist?"subtitle":"title"}>{this.props.title}</div>:null}
 			<table><tbody>{
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					return <tr key={idx}
@@ -123,7 +124,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 		this.state = {
 			cardinfo: cardinfo,
-			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard)[0]:null,
+			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
 		}
 		this.updateInfo();
 	}
@@ -180,6 +181,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
+		let height = 5 + 1.5 * Object.keys(this.props.sideboard).length;
+		let maxblock = 5 + 1.5 * Object.keys(this.props.sideboard).length;
 		let sortByName = false;
 		switch (this.props.sort) {
 		case Sort.Type:
@@ -208,6 +211,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							name: item,
 							list: buckets[item],
 						});
+						let piece = 3 + 1.5 * Object.keys(buckets[item]).length;
+						height += piece;
+						if(piece > maxblock) {
+							maxblock = piece;
+						}
 					}
 				}
 			}
@@ -233,6 +241,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							name: item.toString() + " drop",
 							list: buckets[item.toString()],
 						});
+						let piece = 3 + 1.5 * Object.keys(buckets[item.toString()]).length;
+						height += piece;
+						if(piece > maxblock) {
+							maxblock = piece;
+						}
 					}
 				}
 			}
@@ -291,27 +304,37 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							name: name,
 							list: buckets[item],
 						});
+						let piece = 3 + 1.5 * Object.keys(buckets[item]).length;
+						height += piece;
+						if(piece > maxblock) {
+							maxblock = piece;
+						}
 					}
 				}
 			}
 			break;
 		case Sort.Name:
-			sortByName = true;
-			break;
 		case Sort.Keyword: //TODO
 			sortByName = true;
+			let piece = 1.5 * Object.keys(this.props.mainboard[item]).length;
+			height += piece;
+			if(piece > maxblock) {
+				maxblock = piece;
+			}
 			break;
 		}
 		return <div className="decklist">
 			<div className="title">{this.props.name}</div>
 			<div className="body">
+				<div className="lists" style={{height: Math.max(maxblock,height/1.8) + 'em'}}>
 				{sortByName?
 					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
-						return <CardList title={item.name} cards={item.list} setCurr={this.setCurr}/>
+						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} setCurr={this.setCurr}/>
 					})
 				}
 				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
+				</div>
 				<div className="preview">
 					{this.state.img?<img src={this.state.img}/>:null}
 				</div>
