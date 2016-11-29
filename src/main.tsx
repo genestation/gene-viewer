@@ -122,9 +122,9 @@ interface DeckListState{
 	curr?: string;
 	img?: string;
 	sort?: Sort;
-	translateY?: number;
 	startY?: number;
 	maxY?: number;
+	scrollY?: number;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
@@ -200,42 +200,24 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	componentDidMount() {
 		let previewR = this.child.preview.getClientRects()[0];
+		let bodyR = this.child.body.getClientRects()[0];
 		this.setState({
 			startY: previewR.top + document.body.scrollTop,
+			maxY: bodyR.height - previewR.height,
 		});
 		window.addEventListener('scroll', this.handleScroll);
 	}
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.handleScroll);
 	}
-	handleScroll = (event)=>{
+	handleScroll = (event: SyntheticEvent)=>{
 		let previewR = this.child.preview.getClientRects()[0];
 		let bodyR = this.child.body.getClientRects()[0];
 		this.setState({
-			translateY: Math.min(bodyR.height - previewR.height - this.state.startY,
-				Math.max(event.srcElement.body.scrollTop - this.state.startY, 0)),
+			maxY: bodyR.height - previewR.height,
+			scrollY: event.srcElement.body.scrollTop
 		});
 	}
-	/*
-	componentDidMount() {
-		let previewR = this.child.preview.getClientRects()[0];
-		let bodyR = this.child.body.getClientRects()[0];
-		this.setState({
-			startY: previewR.top + document.body.scrollTop,
-			maxY: bodyR.height - bodyR.bottom + previewR.bottom + previewR.top + document.body.scrollTop,
-		});
-		window.addEventListener('scroll', this.handleScroll);
-	}
-	componentWillUnmount() {
-		window.removeEventListener('scroll', this.handleScroll);
-	}
-	handleScroll = (event)=>{
-		console.log(this.state.maxY);
-		this.setState({
-			translateY: Math.min(this.state.maxY, Math.max(event.srcElement.body.scrollTop - this.state.startY, 0)),
-		});
-	}
-	*/
 	updateInfo() {
 		if(!this.state.setOrder) return;
 		let missingInfo = Object.keys(this.state.cardinfo)
@@ -344,9 +326,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 						buckets[cmc] = {}
 					}
 					buckets[cmc][card] = this.props.mainboard[card];
-				})
+				});
 				if(!sortByName) {
-					for(let item of Object.keys(buckets).sort() {
+					for(let item of Object.keys(buckets).sort()) {
 						if(buckets.hasOwnProperty(item)) {
 							lists.push({
 								name: parseFloat(item).toString() + " drop",
@@ -472,6 +454,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			}
 		});
 		let cutoff = Math.max(accum, sum-accum);
+		// Translate preview
+		let translateY = Math.min(this.state.maxY - this.state.startY, Math.max(this.state.scrollY - this.state.startY, 0));
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
@@ -480,7 +464,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="select">
 					<span>Sort by </span>
 					<select value={this.state.sort.toString()}
-						onChange={(e)=>this.setState({sort:parseInt(e.target.value)})}>
+						onChange={(e: SyntheticEvent)=>this.setState({sort:parseInt(e.target.value)})}>
 						<option value={Sort.Type.toString()}>Type</option>
 						<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
 						<option value={Sort.Color.toString()}>Color</option>
@@ -498,7 +482,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				}
 				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				</div>
-				<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+this.state.translateY+"px)"}} className="preview-frame">
+				<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
 					<div className="preview">
 						{this.state.img?<img src={this.state.img}/>:null}
 					</div>
