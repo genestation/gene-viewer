@@ -1,15 +1,15 @@
 {
-  "name": "gene-visualizer",
+  "name": "RogueBuilder",
   "version": "0.0.1",
-  "description": "Gene location visualizer",
-  "homepage": "https://autochthe.github.io/react-console/",
-  "repository": "git+https://github.com/autochthe/visualizer.git",
+  "description": "Rogue Deckbuilder",
+  "homepage": "http://roguedeckbuilder.com/",
+  "repository": "git+https://github.com/autochthe/",
   "keywords": [
     "react-component"
   ],
   "author": "Mara Kim <mara@autochthe.net> (https://github.com/autochthe)",
   "license": "GPL-3.0",
-  "bugs": "https://github.com/autochthe/react-console/issues",
+  "bugs": "https://github.com/autochthe/issues",
   "main": "main.js",
   "style": "main.css",
   "typings": "main.d.ts",
