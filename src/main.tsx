@@ -122,6 +122,9 @@ interface DeckListState{
 	curr?: string;
 	img?: string;
 	sort?: Sort;
+	translateY?: number;
+	startY?: number;
+	maxY?: number;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
@@ -129,6 +132,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		mainboard: {},
 		sideboard: {},
 	}
+	child: {
+		preview?: Element;
+		body?: Element;
+	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
 		this.state = {
@@ -191,6 +198,23 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			cardinfo: cardinfo
 		}, this.updateInfo)
 	}
+	componentDidMount() {
+		let previewR = this.child.preview.getClientRects()[0];
+		let bodyR = this.child.body.getClientRects()[0];
+		this.setState({
+			startY: previewR.top + document.body.scrollTop,
+			maxY: bodyR.height - bodyR.bottom + previewR.bottom + previewR.top + document.body.scrollTop,
+		});
+		window.addEventListener('scroll', this.handleScroll);
+	}
+	componentWillUnmount() {
+		window.removeEventListener('scroll', this.handleScroll);
+	}
+	handleScroll = (event)=>{
+		this.setState({
+			translateY: Math.min(this.state.maxY, Math.max(event.srcElement.body.scrollTop - this.state.startY, 0)),
+		});
+	}
 	updateInfo() {
 		if(!this.state.setOrder) return;
 		let missingInfo = Object.keys(this.state.cardinfo)
@@ -232,7 +256,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		})
 	}
 	setCurr = (curr: string)=>{
-		if(this.state.cardinfo[curr]) {
+		if(this.state.cardinfo && this.state.cardinfo[curr]) {
 			this.setState({
 				curr: curr,
 				img: this.state.cardinfo[curr].image_uri,
@@ -443,7 +467,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					</select>
 				</div>
 			</div>
-			<div className="body">
+			<div ref={(ref)=>{this.child.body=ref}} className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{sortByName?
 					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
@@ -453,7 +477,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				}
 				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				</div>
-				<div className="preview-frame">
+				<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+this.state.translateY+"px)"}} className="preview-frame">
 					<div className="preview">
 						{this.state.img?<img src={this.state.img}/>:null}
 					</div>
@@ -503,6 +527,40 @@ export default class extends React.Component<MainProps,MainState> {
 					"Vandalblast": 1,
 				}}
 				/>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
+				<p>abab</p>
 		</div>
 	}
 }
