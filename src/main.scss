@@ -10,9 +10,15 @@ $text-color: #333;
 
 div.roguebuilder {
 	div.decklist {
-		max-width: 53em;
 		font-family: $sans-serif;
 		color: $text-color;
+		max-width: 51em;
+		@media (max-width: 52em) {
+			max-width: 35em;
+		}
+		@media (max-width: 36em) {
+			max-width: 24em;
+		}
 	}
 	div.head {
 		position: relative;
@@ -20,6 +26,12 @@ div.roguebuilder {
 			display: inline;
 			@media (max-width: 52em) {
 				display: block;
+			}
+		}
+		span {
+			@media (max-width: 36em) {
+				display: block;
+				margin-bottom: 1em;
 			}
 		}
 		select {
@@ -30,7 +42,8 @@ div.roguebuilder {
 				left: 35em;
 			}
 			@media (max-width: 36em) {
-				left: 24em;
+				position: relative;
+				left: auto;
 			}
 		}
 	}
