@@ -2,8 +2,8 @@
 
 // Project settings
 
-let project = 'react-console';
-let library = 'Console';
+let project = 'visualizer';
+let library = 'Visualizer';
 let externals = {
 	"react": "React",
 	"react-dom": "ReactDOM",
@@ -30,7 +30,7 @@ let options = {
 
 let base = {
 	context: __dirname + "/src",
-	entry: './' + project + '.tsx',
+	entry: './main.tsx',
 	module: {
 		loaders: [
 			{
@@ -116,13 +116,13 @@ let development = Object.assign({},base, {
 	entry: '../dev/dev.tsx',
 	output: {
 		path: __dirname + '/dev/dist',
-		filename: project + '.dev.js',
+		filename: 'dev.js',
 		library: "Dev",
 		libraryTarget: "var",
 	},
 	plugins: [
 		FailPlugin,
-		new ExtractTextPlugin(project + '.dev.css'),
+		new ExtractTextPlugin('dev.css'),
 	],
 });
 

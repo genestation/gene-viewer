@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import './react-console.scss';
+import './main.scss';
 
 interface ConsolePromptProps {
 	point?: number;

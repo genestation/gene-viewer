@@ -1,12 +1,11 @@
 {
-  "name": "react-console-component",
-  "version": "0.6.1",
-  "description": "Simple react console emulator",
+  "name": "gene-visualizer",
+  "version": "0.0.1",
+  "description": "Gene location visualizer",
   "homepage": "https://autochthe.github.io/react-console/",
-  "repository": "git+https://github.com/autochthe/react-console.git",
+  "repository": "git+https://github.com/autochthe/visualizer.git",
   "keywords": [
-    "react-component",
-    "console"
+    "react-component"
   ],
   "author": "Mara Kim <mara@autochthe.net> (https://github.com/autochthe)",
   "license": "GPL-3.0",

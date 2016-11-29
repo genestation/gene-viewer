@@ -1,5 +1,5 @@
 import * as React from 'react';
-import './react-console.scss';
+import './main.scss';
 export interface LogMessage {
     type?: string;
     value: any[];

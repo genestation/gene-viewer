@@ -8,7 +8,7 @@ import {
 	ConsolePrompt,
 	ConsoleMessage,
 	default as Console
-} from 'exports?ConsolePrompt&ConsoleMessage!../src/react-console.tsx';
+} from 'exports?HelloWorld!../src/main.tsx';
 
 
 describe('<ConsolePrompt />', function() {
