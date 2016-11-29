@@ -7,24 +7,20 @@ import './main.scss';
 
 interface CardListProps{
 	title?: string;
-	cards: string[];
+	cards: {[key: string]: number};
 	setCurr: (card: string)=>any;
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
-		let counts: {[key: string]: number} = {}
-		this.props.cards.forEach((card: string)=>{
-			counts[card] = (counts[card] || 0) + 1;
-		});
 		return <div className="card-list">
 			{this.props.title?<div className="title">{this.props.title}</div>:null}
 			<ul> {
-				Object.keys(counts).map((card: string, idx: number)=>{
+				Object.keys(this.props.cards).map((card: string, idx: number)=>{
 					return <li key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
-						{counts[card] + "×"}&nbsp;{card}
+						{this.props.cards[card] + "×"}&nbsp;{card}
 					</li>
 				})
 			} </ul>
@@ -92,8 +88,8 @@ interface ScryfallList {
 }
 interface DeckListProps{
 	name?: string;
-	mainboard?: string[];
-	sideboard?: string[];
+	mainboard?: {[key: string]: number};
+	sideboard?: {[key: string]: number};
 }
 interface DeckListState{
 	cardinfo?: {[key: string]: ScryfallCard};
@@ -103,32 +99,32 @@ interface DeckListState{
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
 		name: "",
-		mainboard: [],
-		sideboard: [],
+		mainboard: {},
+		sideboard: {},
 	}
 	constructor(props: DeckListProps) {
 		super(props);
 		let cardinfo: {[key: string]: ScryfallCard} = {}
-		props.mainboard.forEach((card: string)=>{
+		Object.keys(props.mainboard).forEach((card: string)=>{
 			cardinfo[card] = null
 		});
-		props.sideboard.forEach((card: string)=>{
+		Object.keys(props.sideboard).forEach((card: string)=>{
 			cardinfo[card] = null
 		});
 		this.state = {
 			cardinfo: cardinfo,
-			curr: props.mainboard.length > 0?props.mainboard[0]:null,
+			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard)[0]:null,
 		}
 		this.updateInfo();
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
 		let cardinfo: {[key: string]: ScryfallCard} = this.state.cardinfo
-		nextProps.mainboard.forEach((card: string)=>{
+		Object.keys(nextProps.mainboard).forEach((card: string)=>{
 			if(!cardinfo.hasOwnProperty(card)) {
 				cardinfo[card] = null
 			}
 		});
-		nextProps.sideboard.forEach((card: string)=>{
+		Object.keys(nextProps.sideboard).forEach((card: string)=>{
 			if(!cardinfo.hasOwnProperty(card)) {
 				cardinfo[card] = null
 			}
@@ -195,46 +191,34 @@ export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
 			<DeckList name="Skred Red"
-				mainboard={[
-					"Lightning Bolt",
-					"Lightning Bolt",
-					"Lightning Bolt",
-					"Lightning Bolt",
-					"Magma Jet",
-					"Skred",
-					"Anger of the Gods",
-					"Anger of the Gods",
-					"Anger of the Gods",
-					"Mizzium Mortars",
-					"Roast",
-					"Batterskull",
-					"Mind Stone",
-					"Mind Stone",
-					"Mind Stone",
-					"Mind Stone",
-					"Relic of Progenitus",
-					"Relic of Progenitus",
-					"Relic of Progenitus",
-					"Relic of Progenitus",
-					"Chandra, Pyromaster",
-					"Koth of the Hammer",
-					"Koth of the Hammer",
-					"Koth of the Hammer",
-					"Koth of the Hammer",
-					"Scrying Sheets",
-					"Scrying Sheets",
-					"Scrying Sheets",
-					"Snow-Covered Mountain",
-					"Eternal Scourge",
-					"Eternal Scourge",
-					"Pia and Kiran Nalaar",
-					"Pia and Kiran Nalaar",
-					"Pia and Kiran Nalaar",
-					"Pia and Kiran Nalaar",
-					"Blood Moon",
-					"Blood Moon",
-					"Blood Moon",
-				]}
+				mainboard={{
+					"Lightning Bolt": 4,
+					"Magma Jet": 1,
+					"Skred": 4,
+					"Anger of the Gods": 3,
+					"Mizzium Mortars": 1,
+					"Roast": 1,
+					"Batterskull": 1,
+					"Mind Stone": 4,
+					"Relic of Progenitus": 4,
+					"Chandra, Pyromaster": 1,
+					"Koth of the Hammer": 4,
+					"Scrying Sheets": 3,
+					"Snow-Covered Mountain": 20,
+					"Eternal Scourge": 2,
+					"Pia and Kiran Nalaar": 4,
+					"Blood Moon": 3,
+				}}
+				sideboard={{
+					"Anger of the Gods": 1,
+					"Dragon's Claw": 3,
+					"Molten Rain": 3,
+					"Pyrite Spellbomb": 2,
+					"Shattering Spree": 1,
+					"Stormbreath Dragon": 2,
+					"Sudden Shock": 2,
+					"Vandalblast": 1,
+				}}
 				/>
 		</div>
 	}
