@@ -246,7 +246,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		let height = 5 + 1.8 * Object.keys(this.props.sideboard).length;
+		let height = [5 + 1.8 * Object.keys(this.props.sideboard).length]
 		let maxblock = 5 + 1.8 * Object.keys(this.props.sideboard).length;
 		let sortByName = !this.state.cardinfo;
 		if(!sortByName) {
@@ -278,7 +278,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								list: buckets[item],
 							});
 							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
-							height += piece;
+							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
 							}
@@ -301,14 +301,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					buckets[cmc][card] = this.props.mainboard[card];
 				})
 				if(!sortByName) {
-					for(let item of Object.keys(buckets).map((cmc: string)=>parseFloat(cmc)).sort((a: number, b: number)=>a-b)) {
-						if(buckets.hasOwnProperty(item.toString())) {
+					for(let item of Object.keys(buckets).sort() {
+						if(buckets.hasOwnProperty(item)) {
 							lists.push({
-								name: item.toString() + " drop",
+								name: parseFloat(item).toString() + " drop",
 								list: buckets[item.toString()],
 							});
 							let piece = 3 + 1.8 * Object.keys(buckets[item.toString()]).length;
-							height += piece;
+							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
 							}
@@ -371,7 +371,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								list: buckets[item],
 							});
 							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
-							height += piece;
+							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
 							}
@@ -387,7 +387,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 		if(sortByName) {
 			let piece = 1.8 * Object.keys(this.props.mainboard).length;
-			height += piece;
+			height.push(piece);
 			if(piece > maxblock) {
 				maxblock = piece;
 			}
@@ -418,12 +418,21 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				tix: null,
 			}
 		}
+		// Calculate height
+		let accum = 0;
+		let sum = height.reduce((a: number, b: number)=>{return a+b});
+		height.forEach((piece: number)=>{
+			if(accum + piece < sum/2) {
+				accum += piece;
+			}
+		});
+		let cutoff = Math.max(accum, sum-accum);
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
 				<h1>{this.props.name}</h1>
 				<span>&mdash;&nbsp;{price.usd} USD / {price.tix} TIX</span>
-				<select value={this.state.sort.toString()} onChange={(e)=>this.setState({sort:e.target.value})}>
+				<select value={this.state.sort.toString()} onChange={(e)=>this.setState({sort:parseInt(e.target.value)})}>
 					<option value={Sort.Type.toString()}>Type</option>
 					<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
 					<option value={Sort.Color.toString()}>Color</option>
@@ -431,7 +440,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				</select>
 			</div>
 			<div className="body">
-				<div className="lists" style={{height: Math.max(maxblock,height/2) + 'em'}}>
+				<div className="lists" style={{height: cutoff + 'em'}}>
 				{sortByName?
 					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
