@@ -113,7 +113,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 		this.state = {
 			cardinfo: cardinfo,
-			curr: props.mainboard.length > 0?props.mainboard[0]:null
+			curr: props.mainboard.length > 0?props.mainboard[0]:null,
 		}
 		this.updateInfo();
 	}
