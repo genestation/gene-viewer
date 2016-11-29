@@ -87,6 +87,7 @@ interface ScryfallList {
 	warnings: string[];
 }
 interface DeckListProps{
+	name?: string;
 	mainboard?: string[];
 	sideboard?: string[];
 }
@@ -97,6 +98,7 @@ interface DeckListState{
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
+		name: "",
 		mainboard: [],
 		sideboard: [],
 	}
@@ -166,10 +168,15 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	render() {
-		return <div className="roguebuilder">
-			<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>
-			<CardList cards={this.props.sideboard} setCurr={this.setCurr}/>
-			{this.state.img?<img src={this.state.img}/>:null}
+		return <div className="decklist">
+			<div className="title">{this.props.name}</div>
+			<div className="body">
+				<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>
+				<CardList cards={this.props.sideboard} setCurr={this.setCurr}/>
+				<div className="preview">
+					{this.state.img?<img src={this.state.img}/>:null}
+				</div>
+			</div>
 		</div>
 	}
 }
@@ -182,6 +189,8 @@ export interface MainState{
 }
 export default class extends React.Component<MainProps,MainState> {
 	render() {
-		return <DeckList mainboard={["Force of Will", "Fireblast"]}/>
+		return <div className="roguebuilder">
+			<DeckList name="Test Deck" mainboard={["Force of Will", "Fireblast"]}/>
+		</div>
 	}
 }

@@ -1,69 +1,42 @@
-$monospace: 'Menlo', 'Andale Mono', 'DejaVu Sans Mono', 'Droid Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', Courier, monospace;
+@import url("http://gatherer.wizards.com/Styles/fonts/Beleren/Beleren-Bold.css");
 
-$background-color: #efefef;
-$prompt-color: #444;
-$message-color: #999;
-$cursor-color: #333;
-$cursor-text-color: #eee;
+$sans-serif: Ariel, sans-serif;
+$beleren: 'beleren-bold', $sans-serif;
+
+$background-color: rgba(168, 168, 168, 0.3);
+$dark-background-color: rgba(100, 100, 100, 0.3);
+$text-color: #eee;
 
 
-div.react-console-container {
-	font-size: 0.85em;
-	font-family: $monospace;
-	width: 60em;
-	max-width: 100%;
-	box-sizing: border-box;
-	height: 20em;
+div.roguebuilder div.decklist {
+	font-family: $sans-serif;
+	text-color: $text-color;
+}
+
+div.roguebuilder div.title {
+	font-family: $beleren;
+	font-size: 2em;
+}
+
+div.roguebuilder div.body {
 	background: $background-color;
-	padding: 0.5em;
-	overflow: auto;
-	white-space: pre;
+	font-size: 1em;
+	display: flex;
 }
 
-div.react-console-prompt-box {
-	color: $prompt-color;
+div.roguebuilder div.body li {
+	cursor: pointer;
+}
+div.roguebuilder div.body li:hover {
+	background: $dark-background_color;
 }
 
-span.react-console-prompt-label {
-	font-weight: bold;
+div.roguebuilder div.preview {
+	width: 18em;
+	cursor: zoom-in;
 }
 
-div.react-console-focus span.react-console-cursor {
-	background: $cursor-color;
-	color: $cursor-text-color;
-}
-
-div.react-console-nofocus span.react-console-cursor {
-	background: none;
-	color: $prompt-color;
-	outline: 0.1em solid $cursor-color;
-	outline-offset: -0.1em;
-}
-
-div.react-console-focus span.react-console-cursor-idle {
-	animation: react-console-cursor-animation 1s infinite;
-}
-
-@keyframes react-console-cursor-animation {
-	0% {
-		background: $cursor-color;
-		color: $cursor-text-color;
-	}
-	50% {
-		background: $cursor-color;
-		color: $cursor-text-color;
-	}
-	51% {
-		background: none;
-		color: $prompt-color;
-	}
-	100% {
-		background: none;
-		color: $prompt-color;
-	}
-}
-
-div.react-console-message {
-	color: $message-color;
-	padding: 0.1em;
+div.roguebuilder img {
+	max-width: 100%;
+	max-height: 100%;
 }
