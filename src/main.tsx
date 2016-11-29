@@ -6,6 +6,7 @@ import 'whatwg-fetch'; // HOPE remove window.fetch polyfill
 import './main.scss';
 
 interface CardListProps{
+	title?: string;
 	cards: string[];
 	setCurr: (card: string)=>any;
 }
@@ -16,15 +17,18 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		this.props.cards.forEach((card: string)=>{
 			counts[card] = (counts[card] || 0) + 1;
 		});
-		return <ul> {
-			Object.keys(counts).map((card: string, idx: number)=>{
-				return <li key={idx}
-					onMouseOver={()=>this.props.setCurr(card)}
-					onClick={()=>this.props.setCurr(card)} >
-					{counts[card] + "×"}&nbsp;{card}
-				</li>
-			})
-		} </ul>;
+		return <div className="card-list">
+			{this.props.title?<div className="title">{this.props.title}</div>:null}
+			<ul> {
+				Object.keys(counts).map((card: string, idx: number)=>{
+					return <li key={idx}
+						onMouseOver={()=>this.props.setCurr(card)}
+						onClick={()=>this.props.setCurr(card)} >
+						{counts[card] + "×"}&nbsp;{card}
+					</li>
+				})
+			} </ul>
+		</div>
 	}
 }
 
@@ -172,7 +176,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="title">{this.props.name}</div>
 			<div className="body">
 				<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>
-				<CardList cards={this.props.sideboard} setCurr={this.setCurr}/>
+				<CardList title="sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				<div className="preview">
 					{this.state.img?<img src={this.state.img}/>:null}
 				</div>
@@ -190,7 +194,48 @@ export interface MainState{
 export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
-			<DeckList name="Test Deck" mainboard={["Force of Will", "Fireblast"]}/>
+			<DeckList name="Skred Red"
+				mainboard={[
+					"Lightning Bolt",
+					"Lightning Bolt",
+					"Lightning Bolt",
+					"Lightning Bolt",
+					"Magma Jet",
+					"Skred",
+					"Anger of the Gods",
+					"Anger of the Gods",
+					"Anger of the Gods",
+					"Mizzium Mortars",
+					"Roast",
+					"Batterskull",
+					"Mind Stone",
+					"Mind Stone",
+					"Mind Stone",
+					"Mind Stone",
+					"Relic of Progenitus",
+					"Relic of Progenitus",
+					"Relic of Progenitus",
+					"Relic of Progenitus",
+					"Chandra, Pyromaster",
+					"Koth of the Hammer",
+					"Koth of the Hammer",
+					"Koth of the Hammer",
+					"Koth of the Hammer",
+					"Scrying Sheets",
+					"Scrying Sheets",
+					"Scrying Sheets",
+					"Snow-Covered Mountain",
+					"Eternal Scourge",
+					"Eternal Scourge",
+					"Pia and Kiran Nalaar",
+					"Pia and Kiran Nalaar",
+					"Pia and Kiran Nalaar",
+					"Pia and Kiran Nalaar",
+					"Blood Moon",
+					"Blood Moon",
+					"Blood Moon",
+				]}
+				/>
 		</div>
 	}
 }

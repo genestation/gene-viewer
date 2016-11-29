@@ -20,16 +20,28 @@ div.roguebuilder div.title {
 
 div.roguebuilder div.body {
 	background: $background-color;
-	font-size: 1em;
+	font-size: 0.9em;
 	display: flex;
+	columns: 3;
 }
 
-div.roguebuilder div.body ul {
+div.roguebuilder div.card-list {
+	padding: 1em;
+}
+
+div.roguebuilder div.card-list div.title {
+	font-family: $beleren;
+	font-size: 1.4em;
+}
+
+
+div.roguebuilder div.card-list ul {
 	list-style: none;
 }
 
-div.roguebuilder div.body li {
+div.roguebuilder div.card-list li {
 	cursor: pointer;
+	padding: 0.2em 0.1em;
 }
 
 div.roguebuilder div.body li:hover {
@@ -37,10 +49,9 @@ div.roguebuilder div.body li:hover {
 }
 
 div.roguebuilder div.preview {
-	width: 16em;
+	width: 18em;
 }
 
 div.roguebuilder img {
 	width: 100%;
-	height: 100%;
 }
