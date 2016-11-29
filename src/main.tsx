@@ -29,9 +29,13 @@ interface CardListProps{
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
+		let counts: {[key: string]: number} = {}
+		this.props.cards.forEach((card: CardProps)=>{
+			counts[card.name] = (counts[card.name] || 0) + 1;
+		});
 		return <ul> {
-			this.props.cards.map((card: CardProps)=>{
-				return <li>{card.name}</li>
+			Object.keys(counts).map((card: string)=>{
+				return <li>{counts[card] + "x"}&nbsp;{card}</li>
 			})
 		} </ul>;
 	}
