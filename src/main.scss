@@ -13,15 +13,18 @@ div.roguebuilder {
 		font-family: $sans-serif;
 		color: $text-color;
 	}
+	div.head h1 {
+		display: inline;
+	}
 	h1 {
 		font-family: $beleren;
 		font-size: 2em;
-		margin: 0.2em
+		margin: 0.2em;
 	}
 	h2 {
 		font-family: $beleren;
 		font-size: 1.4em;
-		margin: 0.2em
+		margin: 0.2em;
 	}
 	h3 {
 		font-family: $beleren;
