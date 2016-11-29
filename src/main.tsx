@@ -15,8 +15,8 @@ class CardList extends React.Component<CardListProps,CardListState> {
 	render() {
 		return <div className="card-list">
 			{this.props.title?<div className="title">{this.props.title}</div>:null}
-			<table> {
-				Object.keys(this.props.cards).map((card: string, idx: number)=>{
+			<table><tbody>{
+				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
@@ -24,7 +24,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						<td>{card}</td>
 					</tr>
 				})
-			} </table>
+			}</tbody></table>
 		</div>
 	}
 }
@@ -87,10 +87,18 @@ interface ScryfallList {
 	total_cards?: number;
 	warnings: string[];
 }
+enum Sort {
+	Type,
+	CMC,
+	Color,
+	Name,
+	Keyword
+}
 interface DeckListProps{
 	name?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
+	sort?: Sort;
 }
 interface DeckListState{
 	cardinfo?: {[key: string]: ScryfallCard};
@@ -102,6 +110,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		name: "",
 		mainboard: {},
 		sideboard: {},
+		sort: Sort.Type,
 	}
 	constructor(props: DeckListProps) {
 		super(props);
@@ -169,11 +178,140 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	render() {
+		let buckets: {[key: string]: {[key: string]: number}} = {}
+		let lists: {name: string, list: {[key: string]: number}}[] = []
+		let sortByName = false;
+		switch (this.props.sort) {
+		case Sort.Type:
+			Object.keys(this.props.mainboard).forEach((card: string)=>{
+				if(!this.state.cardinfo[card]) {
+					sortByName = true;
+				}
+				if(sortByName) {
+					return;
+				}
+				let type_line = this.state.cardinfo[card].type_line;
+				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
+					if(type_line.includes(item)) {
+						if(!buckets.hasOwnProperty(item)) {
+							buckets[item] = {}
+						}
+						buckets[item][card] = this.props.mainboard[card];
+						break;
+					}
+				}
+			})
+			if(!sortByName) {
+				for(let item of ["Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery","Land"]) {
+					if(buckets.hasOwnProperty(item)) {
+						lists.push({
+							name: item,
+							list: buckets[item],
+						});
+					}
+				}
+			}
+			break;
+		case Sort.CMC:
+			Object.keys(this.props.mainboard).forEach((card: string)=>{
+				if(!this.state.cardinfo[card]) {
+					sortByName = true;
+				}
+				if(sortByName) {
+					return;
+				}
+				let cmc = this.state.cardinfo[card].converted_mana_cost;
+				if(!buckets.hasOwnProperty(cmc)) {
+					buckets[cmc] = {}
+				}
+				buckets[cmc][card] = this.props.mainboard[card];
+			})
+			if(!sortByName) {
+				for(let item of Object.keys(buckets).map((cmc: string)=>parseFloat(cmc)).sort((a: number, b: number)=>a-b)) {
+					if(buckets.hasOwnProperty(item.toString())) {
+						lists.push({
+							name: item.toString() + " drop",
+							list: buckets[item.toString()],
+						});
+					}
+				}
+			}
+			break;
+		case Sort.Color:
+			Object.keys(this.props.mainboard).forEach((card: string)=>{
+				if(!this.state.cardinfo[card]) {
+					sortByName = true;
+				}
+				if(sortByName) {
+					return;
+				}
+				let colors = this.state.cardinfo[card].colors;
+				if(colors.length == 0) {
+					if(!buckets.hasOwnProperty("Colorless")) {
+						buckets["Colorless"] = {}
+					}
+					buckets["Colorless"][card] = this.props.mainboard[card];
+				} else if(colors.length > 1) {
+					if(!buckets.hasOwnProperty("Gold")) {
+						buckets["Gold"] = {}
+					}
+					buckets["Gold"][card] = this.props.mainboard[card];
+				} else {
+					let color = colors[0];
+					if(!buckets.hasOwnProperty(color)) {
+						buckets[color] = {}
+					}
+					buckets[color][card] = this.props.mainboard[card];
+				}
+			})
+			if(!sortByName) {
+				for(let item of ["W","U","B","R","G","Gold","Colorless"]) {
+					if(buckets.hasOwnProperty(item)) {
+						let name: string;
+						switch(item) {
+						case "W":
+							name = "White";
+							break;
+						case "U":
+							name = "Blue";
+							break;
+						case "B":
+							name = "Black";
+							break;
+						case "R":
+							name = "Red";
+							break;
+						case "G":
+							name = "Green";
+							break;
+						default:
+							name = item;
+						}
+						lists.push({
+							name: name,
+							list: buckets[item],
+						});
+					}
+				}
+			}
+			break;
+		case Sort.Name:
+			sortByName = true;
+			break;
+		case Sort.Keyword: //TODO
+			sortByName = true;
+			break;
+		}
 		return <div className="decklist">
 			<div className="title">{this.props.name}</div>
 			<div className="body">
-				<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>
-				<CardList title="sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
+				{sortByName?
+					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
+					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
+						return <CardList title={item.name} cards={item.list} setCurr={this.setCurr}/>
+					})
+				}
+				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				<div className="preview">
 					{this.state.img?<img src={this.state.img}/>:null}
 				</div>
