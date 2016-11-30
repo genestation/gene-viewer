@@ -4,6 +4,7 @@ $sans-serif: Ariel, sans-serif;
 $beleren: 'beleren-bold', $sans-serif;
 
 $background-color: rgba(168, 168, 168, 0.3);
+$opaque-background-color: #e5e5e5;
 $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 
@@ -74,6 +75,7 @@ div.roguebuilder {
 		display: flex;
 		@media (max-width: 36em) {
 			flex-direction: column;
+			padding-bottom: 30em;
 		}
 		div.lists {
 			margin-top: 0.5em;
@@ -113,6 +115,14 @@ div.roguebuilder {
 			width: 1.5em;
 		}
 	}
+	div.preview-track {
+		pointer-events: none;
+		@media (max-width: 36em) {
+			position: absolute;
+			top: 10em;
+			bottom: -55em;
+		}
+	}
 	div.preview {
 		width: 18em;
 		height: 25.1em;
@@ -123,6 +133,11 @@ div.roguebuilder {
 		}
 	}
 	div.preview-frame {
+		pointer-events: none;
+		//background: $opaque-background-color;
+		@media (max-width: 36em) {
+			padding-top:15em;
+		}
 		height: 28em;
 		span {
 			padding-left: 3em;
