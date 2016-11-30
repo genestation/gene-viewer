@@ -134,7 +134,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	child: {
 		preview?: Element;
-		body?: Element;
+		track?: Element;
 	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
@@ -200,10 +200,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	componentDidMount() {
 		let previewR = this.child.preview.getClientRects()[0];
-		let bodyR = this.child.body.getClientRects()[0];
+		let trackR = this.child.track.getClientRects()[0];
 		this.setState({
 			startY: previewR.top + document.body.scrollTop,
-			maxY: bodyR.height - previewR.height,
+			maxY: trackR.height - previewR.height,
 		});
 		window.addEventListener('scroll', this.handleScroll);
 	}
@@ -212,9 +212,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	handleScroll = (event: SyntheticEvent)=>{
 		let previewR = this.child.preview.getClientRects()[0];
-		let bodyR = this.child.body.getClientRects()[0];
+		let trackR = this.child.track.getClientRects()[0];
 		this.setState({
-			maxY: bodyR.height - previewR.height,
+			maxY: trackR.height - previewR.height,
 			scrollY: event.srcElement.body.scrollTop
 		});
 	}
@@ -472,7 +472,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					</select>
 				</div>
 			</div>
-			<div ref={(ref)=>{this.child.body=ref}} className="body">
+			<div className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{sortByName?
 					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
@@ -482,11 +482,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				}
 				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
 				</div>
-				<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
-					<div className="preview">
-						{this.state.img?<img src={this.state.img}/>:null}
+				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
+					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
+						<div className="preview">
+							{this.state.img?<img src={this.state.img}/>:null}
+						</div>
+						{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
 					</div>
-					{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
 				</div>
 			</div>
 		</div>
