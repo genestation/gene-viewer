@@ -202,7 +202,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
 		this.setState({
-			startY: previewR.top + document.body.scrollTop - 10,
+			startY: previewR.top + document.body.scrollTop,
 			maxY: trackR.height - previewR.height,
 		});
 		window.addEventListener('scroll', this.handleScroll);
@@ -536,35 +536,6 @@ export default class extends React.Component<MainProps,MainState> {
 					"Vandalblast": 1,
 				}}
 				/>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
-				<p>ewfwfewfq</p>
 		</div>
 	}
 }
