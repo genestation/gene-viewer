@@ -273,8 +273,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		let height = [5 + 1.8 * Object.keys(this.props.sideboard).length]
-		let maxblock = 5 + 1.8 * Object.keys(this.props.sideboard).length;
+		const headerSize = 3;
+		const lineSize = 1.6;
+		let height = [headerSize + 2 + lineSize * Object.keys(this.props.sideboard).length]
+		let maxblock = headerSize + 2 + lineSize * Object.keys(this.props.sideboard).length;
 		let sortByName = !this.state.cardinfo;
 		if(!sortByName) {
 			switch (this.state.sort) {
@@ -304,7 +306,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: item,
 								list: buckets[item],
 							});
-							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
+							let piece = headerSize + lineSize * Object.keys(buckets[item]).length;
 							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -334,7 +336,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: parseFloat(item).toString() + " drop",
 								list: buckets[item.toString()],
 							});
-							let piece = 3 + 1.8 * Object.keys(buckets[item.toString()]).length;
+							let piece = headerSize + lineSize * Object.keys(buckets[item.toString()]).length;
 							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -397,7 +399,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: name,
 								list: buckets[item],
 							});
-							let piece = 3 + 1.8 * Object.keys(buckets[item]).length;
+							let piece = headerSize + lineSize * Object.keys(buckets[item]).length;
 							height.push(piece);
 							if(piece > maxblock) {
 								maxblock = piece;
@@ -413,7 +415,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			}
 		}
 		if(sortByName) {
-			let piece = 1.8 * Object.keys(this.props.mainboard).length;
+			let piece = lineSize * Object.keys(this.props.mainboard).length;
 			height.push(piece);
 			if(piece > maxblock) {
 				maxblock = piece;
