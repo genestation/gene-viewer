@@ -455,7 +455,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 		let cutoff = Math.max(accum, sum-accum);
 		// Translate preview
-		let translateY = Math.min(this.state.maxY - this.state.startY, Math.max(this.state.scrollY - this.state.startY, 0));
+		let translateY = Math.min(this.state.maxY, Math.max(this.state.scrollY - this.state.startY, 0));
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
@@ -532,40 +532,6 @@ export default class extends React.Component<MainProps,MainState> {
 					"Vandalblast": 1,
 				}}
 				/>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
-				<p>abab</p>
 		</div>
 	}
 }
