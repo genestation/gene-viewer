@@ -4,7 +4,7 @@ $sans-serif: Ariel, sans-serif;
 $beleren: 'beleren-bold', $sans-serif;
 
 $background-color: rgba(168, 168, 168, 0.3);
-$opaque-background-color: #e5e5e5;
+$opaque-background-color: #c5c5c5;
 $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 
@@ -69,13 +69,14 @@ div.roguebuilder {
 		margin: 0.1em;
 	}
 	div.body {
+		position: relative;
 		min-height: 28em;
 		background: $background-color;
 		font-size: 0.9em;
 		display: flex;
 		@media (max-width: 36em) {
 			flex-direction: column;
-			padding-bottom: 30em;
+			padding-top: 65vh;
 		}
 		div.lists {
 			margin-top: 0.5em;
@@ -119,24 +120,37 @@ div.roguebuilder {
 		pointer-events: none;
 		@media (max-width: 36em) {
 			position: absolute;
-			top: 10em;
-			bottom: -55em;
+			top: 0;
+			bottom: 3vh;
 		}
 	}
-	div.preview {
+	div.preview-img{
 		width: 18em;
 		height: 25.1em;
 		overflow: hidden;
-		margin: 1em 1em 0.2em 1em;
+		@media (max-width: 36em) {
+			height:60vh;
+		}
 		img {
 			width: 100%;
+			@media (max-width: 36em) {
+				width: auto;
+				height:100%;
+			}
+		}
+	}
+	div.preview {
+		padding-bottom: 0.5em;
+		margin: 1em 1em 0.2em 1em;
+		@media (max-width: 36em) {
+			background: $opaque-background-color;
+			padding-bottom: 1vh;
 		}
 	}
 	div.preview-frame {
-		pointer-events: none;
-		//background: $opaque-background-color;
+		pointer-events: all;
 		@media (max-width: 36em) {
-			padding-top:15em;
+			height: auto;
 		}
 		height: 28em;
 		span {

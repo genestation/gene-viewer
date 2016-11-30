@@ -485,9 +485,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
 						<div className="preview">
-							{this.state.img?<img src={this.state.img}/>:null}
+							<div className="preview-img">
+								{this.state.img?<img src={this.state.img}/>:null}
+							</div>
+							{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
 						</div>
-						{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
 					</div>
 				</div>
 			</div>
