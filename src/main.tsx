@@ -440,6 +440,20 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let previewR = this.child.preview.getClientRects()[0];
 		this.startY = previewR.top + window.pageYOffset;
 		this.calculateScreenPosition();
+		//SAFARI IS DUMB
+		if(navigator.vendor == "Apple Computer, Inc.") {
+			console.log("Safari is dumb.");
+			let manacosts = document.getElementsByClassName('mana-cost')
+			for(let idx=0; idx<manacosts.length; idx++) {
+				manacosts[idx].style.cssText="position: relative";
+			};
+			window.setTimeout(()=>{
+				for(let idx=0; idx<manacosts.length; idx++) {
+					manacosts[idx].style.cssText="position: absolute";
+				};
+			},0);
+		}
+		// END DUMB
 	}
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.handleScroll);
