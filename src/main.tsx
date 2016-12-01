@@ -139,7 +139,6 @@ interface DeckListProps{
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
-	cardinfo?: {[key: string]: ScryfallCard};
 	price?: {[key: string]: {usd: number, tix: number}};
 	curr?: string;
 	img?: string;
@@ -147,6 +146,110 @@ interface DeckListState{
 	startY?: number;
 	maxY?: number;
 	scrollY?: number;
+}
+class CardInfo {
+	data: {[key: string]: ScryfallCard} = {};
+	price: {[key: string]: {usd: number, tix: number}} = {};
+	setOrder: {[key: string]: number} = null;
+	listener: {[key: string]: (string)=>any[]} = {};
+	static instance = new CardInfo;
+	constructor() {
+		fetch('https://api.scryfall.com/sets').then((response: Promise<Response>)=>{
+			if(response.status !== 200) {
+				console.log(response.status, response.url);
+			} else {
+				response.json().then((json: ScryfallSetList)=>{
+					// Sort sets
+					let sets: string[] = [];
+					function date(input: string) {
+						return input?new Date(...input.split('-')):0;
+					}
+					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
+						return date(a.released_at) - date(b.released_at)
+					}).forEach((set: ScryfallSet)=>{
+						sets.push(set.code)
+					});
+					this.setOrder = {};
+					sets.forEach((set: string, idx: number)=>{
+						this.setOrder[set] = idx;
+					});
+					// Trigger update for early listeners
+					this.updateInfo();
+				})
+			}
+		})
+	}
+	static get data() {
+		return CardInfo.instance.data;
+	}
+	static register(cards: string[], listener: (string)=>any) {
+		cards.forEach((card: string)=>{
+			if(!CardInfo.instance.data.hasOwnProperty(card)) {
+				CardInfo.instance.data[card] = null
+			}
+			if(!CardInfo.instance.price.hasOwnProperty(card)) {
+				CardInfo.instance.price[card] = {
+					usd: Number.POSITIVE_INFINITY,
+					tix: Number.POSITIVE_INFINITY,
+				};
+			}
+		});
+		cards.forEach((card: string)=>{
+			if(!CardInfo.instance.listener.hasOwnProperty(card)) {
+				CardInfo.instance.listener[card] = [];
+			}
+			CardInfo.instance.listener[card].push(listener);
+		});
+		if(!CardInfo.instance.setOrder) {
+			return;
+		} else {
+			CardInfo.instance.updateInfo();
+		}
+	}
+	updateInfo() {
+		let missing = Object.keys(this.data)
+			.filter((card: string)=> { return !this.data[card] });
+		missing.forEach((card: string)=>{
+			fetch('https://api.scryfall.com/cards/search?q='+encodeURIComponent('++!"'+card+'"'))
+				.then((response: Promise<Response>)=>{
+					if(response.status !== 200) {
+						console.log(response.status, response.url);
+					} else {
+						response.json().then((json: ScryfallCardList)=>{
+							let latestSet = Number.NEGATIVE_INFINITY;
+							let cards = new Set();
+							json.data.forEach((info: ScryfallCard)=>{
+								cards.add(info.name);
+								if(!info.digital && latestSet < this.setOrder[info.set]) {
+									this.data[info.name] = info;
+									latestSet = this.setOrder[info.set];
+								}
+								if(info.usd !== null) {
+									let usd = parseFloat(info.usd);
+									if (usd < this.price[info.name].usd) {
+										this.price[info.name].usd = usd;
+									}
+								}
+								if(info.tix !== null) {
+									let tix = parseFloat(info.tix);
+									if (tix < this.price[info.name].tix) {
+										this.price[info.name].tix = tix;
+									}
+								}
+							})
+							cards.forEach((card: string)=>{
+								if(this.listener.hasOwnProperty(card)) {
+									// listener Trigger if state.curr eq then update state.img = info.image_uri
+									this.listener[card].forEach((listener: (string)=>any)=>{
+										listener(card);
+									});
+								}
+							});
+						})
+					}
+				})
+		})
+	}
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
@@ -162,68 +265,16 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
+		CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
+		CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		this.state = {
 			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
 			sort: Sort.Type,
 		};
-		fetch('https://api.scryfall.com/sets').then((response: Promise<Response>)=>{
-			if(response.status !== 200) {
-				console.log(response.status, response.url);
-			} else {
-				response.json().then((json: ScryfallSetList)=>{
-					let sets: string[] = [];
-					function date(input: string) {
-						return input?new Date(...input.split('-')):0;
-					}
-					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
-						return date(a.released_at) - date(b.released_at)
-					}).forEach((set: ScryfallSet)=>{
-						sets.push(set.code)
-					});
-					let setMap: {[key: string]: number} = {};
-					sets.forEach((set: string, idx: number)=>{
-						setMap[set] = idx;
-					});
-					let cardinfo: {[key: string]: ScryfallCard} = {}
-					let price: {[key: string]: {usd: number, tix: number}} = {}
-					Object.keys(props.mainboard).forEach((card: string)=>{
-						cardinfo[card] = null
-						price[card] = {
-							usd: Number.POSITIVE_INFINITY,
-							tix: Number.POSITIVE_INFINITY,
-						};
-					});
-					Object.keys(props.sideboard).forEach((card: string)=>{
-						cardinfo[card] = null
-						price[card] = {
-							usd: Number.POSITIVE_INFINITY,
-							tix: Number.POSITIVE_INFINITY,
-						};
-					});
-					this.setState({
-						setOrder: setMap,
-						cardinfo: cardinfo,
-						price: price,
-					}, this.updateInfo);
-				})
-			}
-		})
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
-		let cardinfo: {[key: string]: ScryfallCard} = this.state.cardinfo
-		Object.keys(nextProps.mainboard).forEach((card: string)=>{
-			if(!cardinfo.hasOwnProperty(card)) {
-				cardinfo[card] = null
-			}
-		});
-		Object.keys(nextProps.sideboard).forEach((card: string)=>{
-			if(!cardinfo.hasOwnProperty(card)) {
-				cardinfo[card] = null
-			}
-		});
-		this.setState({
-			cardinfo: cardinfo
-		}, this.updateInfo)
+		CardInfo.register(Object.keys(nextProps.mainboard), this.handleInfo);
+		CardInfo.register(Object.keys(nextProps.sideboard), this.handleInfo);
 	}
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
@@ -236,6 +287,15 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	componentDidUpdate() {
 		this.calculateScreenPosition();
+	}
+	handleInfo = (card: string)=>{
+		if(this.state.curr == card) {
+			this.setState({
+				img: CardInfo.data[this.state.curr].image_uri,
+			});
+		} else {
+			this.forceUpdate();
+		}
 	}
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
@@ -251,51 +311,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			scrollY: (smallMedia?0:document.body.scrollTop),
 		});
 	}
-	updateInfo() {
-		if(!this.state.setOrder) return;
-		let missingInfo = Object.keys(this.state.cardinfo)
-			.filter((card: string)=> { return !this.state.cardinfo[card] });
-		missingInfo.forEach((card: string)=>{
-			fetch('https://api.scryfall.com/cards/search?q='+encodeURIComponent('++!"'+card+'"'))
-				.then((response: Promise<Response>)=>{
-					if(response.status !== 200) {
-						console.log(response.status, response.url);
-					} else {
-						response.json().then((json: ScryfallCardList)=>{
-							let latestSet = Number.NEGATIVE_INFINITY;
-							let state = this.state;
-							json.data.forEach((info: ScryfallCard)=>{
-								if(!info.digital && latestSet < state.setOrder[info.set]) {
-									state.cardinfo[info.name] = info;
-									latestSet = state.setOrder[info.set];
-									if(this.state.curr == info.name) {
-										state.img = info.image_uri;
-									}
-								}
-								if(info.usd !== null) {
-									let usd = parseFloat(info.usd);
-									if (usd < state.price[info.name].usd) {
-										state.price[info.name].usd = usd;
-									}
-								}
-								if(info.tix !== null) {
-									let tix = parseFloat(info.tix);
-									if (tix < state.price[info.name].tix) {
-										state.price[info.name].tix = tix;
-									}
-								}
-							})
-							this.setState(state);
-						})
-					}
-				})
-		})
-	}
 	setCurr = (curr: string)=>{
-		if(this.state.cardinfo && this.state.cardinfo[curr]) {
+		if(CardInfo.data[curr]) {
 			this.setState({
 				curr: curr,
-				img: this.state.cardinfo[curr].image_uri,
+				img: CardInfo.data[curr].image_uri,
 			});
 		} else {
 			this.setState({
@@ -306,18 +326,18 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		let sortByName = !this.state.cardinfo;
+		let sortByName = !CardInfo.data;
 		if(!sortByName) {
 			switch (this.state.sort) {
 			case Sort.Type:
 				Object.keys(this.props.mainboard).forEach((card: string)=>{
-					if(!this.state.cardinfo[card]) {
+					if(!CardInfo.data[card]) {
 						sortByName = true;
 					}
 					if(sortByName) {
 						return;
 					}
-					let type_line = this.state.cardinfo[card].type_line;
+					let type_line = CardInfo.data[card].type_line;
 					for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
 						if(type_line.includes(item)) {
 							if(!buckets.hasOwnProperty(item)) {
@@ -341,13 +361,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				break;
 			case Sort.CMC:
 				Object.keys(this.props.mainboard).forEach((card: string)=>{
-					if(!this.state.cardinfo[card]) {
+					if(!CardInfo.data[card]) {
 						sortByName = true;
 					}
 					if(sortByName) {
 						return;
 					}
-					let cmc = this.state.cardinfo[card].converted_mana_cost;
+					let cmc = CardInfo.data[card].converted_mana_cost;
 					if(!buckets.hasOwnProperty(cmc)) {
 						buckets[cmc] = {}
 					}
@@ -366,13 +386,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				break;
 			case Sort.Color:
 				Object.keys(this.props.mainboard).forEach((card: string)=>{
-					if(!this.state.cardinfo[card]) {
+					if(!CardInfo.data[card]) {
 						sortByName = true;
 					}
 					if(sortByName) {
 						return;
 					}
-					let colors = this.state.cardinfo[card].colors;
+					let colors = CardInfo.data[card].colors;
 					if(colors.length == 0) {
 						if(!buckets.hasOwnProperty("Colorless")) {
 							buckets["Colorless"] = {}
@@ -498,12 +518,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{sortByName?
-					<CardList cards={this.props.mainboard} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>:
+					<CardList cards={this.props.mainboard} cardinfo={CardInfo.data} setCurr={this.setCurr}/>:
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
-						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>
+						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={CardInfo.data} setCurr={this.setCurr}/>
 					})
 				}
-				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>
+				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={CardInfo.data} setCurr={this.setCurr}/>
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
