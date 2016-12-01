@@ -204,7 +204,6 @@ class CardInfo {
 							})
 							cards.forEach((card: string)=>{
 								if(this.listener.hasOwnProperty(card)) {
-									// listener Trigger if state.curr eq then update state.img = info.image_uri
 									this.listener[card].forEach((listener: (card: string)=>any)=>{
 										listener(card);
 									});
@@ -425,7 +424,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
 		CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		this.state = {
-			curr: Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
+			curr: props.cover?props.cover:Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
 			sort: Sort.Type,
 		};
 	}
@@ -579,6 +578,101 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 }
 
+interface DeckManagerProps{
+}
+interface DeckManagerState{
+	name?: string;
+	cover?: string;
+	mainboard?: {[key: string]: number};
+	sideboard?: {[key: string]: number};
+}
+class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
+	constructor(props: DeckListProps) {
+		super(props);
+		this.state = {
+			name: null,
+			cover: null,
+			mainboard?: null,
+			sideboard?: null,
+		}
+	}
+	handleFile = (event: FormEvent)=>{
+		let file = event.target.files[0];
+		let name = file.name.replace(/\.[a-z]*$/,"");
+		let cover = null;
+		let mainboard: {[key: string]: number} = {}
+		let sideboard: {[key: string]: number} = {}
+
+		let reader = new FileReader();
+		reader.onload = (event: FormEvent)=>{
+			const enum State {
+				Main,
+				Side,
+			};
+			let state = null;
+			event.target.result.split(/\r?\n/).forEach((line: string)=>{
+				line = line.trim();
+				let space = line.indexOf(' ');
+				if(space > -1) {
+					let count = line.slice(0,line.indexOf(' '));
+					let card = line.slice(line.indexOf(' ')+1);
+				}
+				console.log('{'+count+','+card+'}');
+				switch(state) {
+				case null:
+					if(line.length) {
+						state=State.Main;
+					} else {
+						break;
+					}
+					/* fall through */
+				case State.Main:
+					if(!line.length) {
+						state=State.Side;
+						break;
+					}
+					if(count && card) {
+						if(cover == null) {
+							cover = card;
+						}
+						mainboard[card] = parseInt(count);
+					}
+					break;
+				case State.Side:
+					if(!line.length) {
+						break;
+					}
+					if(count && card) {
+						if(cover == null) {
+							cover = card;
+						}
+						sideboard[card] = parseInt(count);
+					}
+				};
+			});
+			console.log(name,cover,mainboard,sideboard);
+			this.setState({
+				name: name,
+				cover: cover,
+				mainboard: mainboard,
+				sideboard: sideboard,
+			});
+		}
+		reader.readAsText(file);
+	}
+	render() {
+		if(this.state.name==null) {
+			return <input type="file" onChange={this.handleFile}/>
+		} else {
+			return <DeckList name={this.state.name}
+				cover={this.state.cover}
+				mainboard={this.state.mainboard}
+				sideboard={this.state.sideboard}
+			/>
+		}
+	}
+}
+
 export interface MainProps{
 	autofocus?: boolean;
 }
@@ -588,100 +682,7 @@ export interface MainState{
 export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-			<DeckList name="Skred Red"
-				mainboard={{
-					"Lightning Bolt": 4,
-					"Magma Jet": 1,
-					"Skred": 4,
-					"Anger of the Gods": 3,
-					"Mizzium Mortars": 1,
-					"Roast": 1,
-					"Batterskull": 1,
-					"Mind Stone": 4,
-					"Relic of Progenitus": 4,
-					"Chandra, Pyromaster": 1,
-					"Koth of the Hammer": 4,
-					"Scrying Sheets": 3,
-					"Snow-Covered Mountain": 20,
-					"Eternal Scourge": 2,
-					"Pia and Kiran Nalaar": 4,
-					"Blood Moon": 3,
-				}}
-				sideboard={{
-					"Anger of the Gods": 1,
-					"Dragon's Claw": 3,
-					"Molten Rain": 3,
-					"Pyrite Spellbomb": 2,
-					"Shattering Spree": 1,
-					"Stormbreath Dragon": 2,
-					"Sudden Shock": 2,
-					"Vandalblast": 1,
-					"Okina, Temple to the Grandfathers": 1,
-					"Progenitus": 1,
-					"Our Market Research Shows That Players Like Really Long Card Names So We Made this Card to Have the Absolute Longest Card Name Ever Elemental": 1,
-				}}
-				/>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
-				<p>abababa</p>
+			<DeckManager/>
 		</div>
 	}
 }
