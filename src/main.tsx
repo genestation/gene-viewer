@@ -4,7 +4,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'fetch-polyfill'; // HOPE remove window.fetch polyfill
 import './main.scss';
-import '../repo/mana-cost/css/mana-cost.css';
 
 interface CardListProps{
 	title?: string;
