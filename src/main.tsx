@@ -10,7 +10,7 @@ interface CardListProps{
 	sublist?: boolean;
 	cards: {[key: string]: number};
 	setCurr: (card: string)=>any;
-	cardinfo?: {[key: string]: ScryfallCard};
+	cardinfo: (key: string)=>ScryfallCard;
 	onClick: ()=>any;
 }
 interface CardListState{ }
@@ -30,7 +30,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 			return this.props.cards[card];
 		}).reduce((a: number, b: number)=>{
 			return a + b;
-		});
+		}, 0);
 		let title = this.props.title + " (" + count + ")";
 		return <div className="card-list">
 			{this.props.title?(this.props.sublist?<h3>{title}</h3>:<h2>{title}</h2>):null}
@@ -38,9 +38,9 @@ class CardList extends React.Component<CardListProps,CardListState> {
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					let info = false;
 					let mana_cost: string[] = null;
-					if(this.props.cardinfo && this.props.cardinfo[card]) {
+					if(this.props.cardinfo(card)) {
 						info = true;
-						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
+						mana_cost = this.parseManaCost(this.props.cardinfo(card).mana_cost);
 					}
 					// Calculate width
 					let ratio = (16/*table width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
@@ -214,10 +214,17 @@ class CardInfo {
 				})
 		})
 	}
-	static get data() {
-		return CardInfo.instance.data;
+	static splitCard(card: string) {
+		return card?card.replace(/ \/\/ .*$/,""):null;
 	}
-	static register(cards: string[], listener: (card: string)=>any) {
+	static data(card: string) {
+		return CardInfo.instance.data[CardInfo.splitCard(card)];
+	}
+	static price(card: string) {
+		return CardInfo.instance.price[CardInfo.splitCard(card)];
+	}
+	static register(rawCards: string[], listener: (card: string)=>any) {
+		let cards = rawCards.map(CardInfo.splitCard);
 		cards.forEach((card: string)=>{
 			if(!CardInfo.instance.data.hasOwnProperty(card)) {
 				CardInfo.instance.data[card] = null
@@ -241,25 +248,25 @@ class CardInfo {
 			CardInfo.instance.updateInfo();
 		}
 	}
-	static price(...cardss: ({[key: string]: number}|string)[]) {
+	static priceSet(...sets: {[key: string]: number}[]) {
 		// Calculate price
-		let price: {usd: string, tix: string} = {
-			usd: null, tix: null,
-		}
-		cardss.forEach((cards: {[key: string]: number}|string)=>{
-			if(typeof cards == "string") {
-				price.usd += CardInfo.instance.price[cards].usd;
-				price.tix += CardInfo.instance.price[cards].tix;
-			} else {
-				Object.keys(cards).forEach((card: string)=>{
-					price.usd += cards[card] * CardInfo.instance.price[card].usd;
-					price.tix += cards[card] * CardInfo.instance.price[card].tix;
-				});
-			}
+		let usd = null;
+		let tix = null;
+		sets.forEach((set: {[key: string]: number})=>{
+			Object.keys(set).forEach((card: string)=>{
+				if(CardInfo.price(card)) {
+					usd += set[card] * CardInfo.price(card).usd;
+					tix += set[card] * CardInfo.price(card).tix;
+				}
+			});
 		});
-		price.usd = Number(Math.round(parseFloat(price.usd.toString()+'e2'))+'e-2').toFixed(2);
-		price.tix = Number(Math.round(parseFloat(price.tix.toString()+'e2'))+'e-2').toFixed(2);
-		return price;
+		function roundOff(value: number) {
+			return value?Number(Math.round(parseFloat(value.toString()+'e2'))+'e-2').toFixed(2):value;
+		}
+		return {
+			usd: roundOff(usd),
+			tix: roundOff(tix),
+		};
 	}
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {[key: string]: number}}[] {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
@@ -268,13 +275,13 @@ class CardInfo {
 		switch (sort) {
 		case Sort.Type:
 			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data[card]) {
+				if(!CardInfo.data(card)) {
 					fallback = true;
 				}
 				if(fallback) {
 					return;
 				}
-				let type_line = CardInfo.data[card].type_line;
+				let type_line = CardInfo.data(card).type_line;
 				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
 					if(type_line.includes(item)) {
 						if(!buckets.hasOwnProperty(item)) {
@@ -298,13 +305,13 @@ class CardInfo {
 			break;
 		case Sort.CMC:
 			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data[card]) {
+				if(!CardInfo.data(card)) {
 					fallback = true;
 				}
 				if(fallback) {
 					return;
 				}
-				let cmc = CardInfo.data[card].converted_mana_cost;
+				let cmc = CardInfo.data(card).converted_mana_cost;
 				if(!buckets.hasOwnProperty(cmc)) {
 					buckets[cmc] = {}
 				}
@@ -323,13 +330,13 @@ class CardInfo {
 			break;
 		case Sort.Color:
 			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data[card]) {
+				if(!CardInfo.data(card)) {
 					fallback = true;
 				}
 				if(fallback) {
 					return;
 				}
-				let colors = CardInfo.data[card].colors;
+				let colors = CardInfo.data(card).colors;
 				if(colors.length == 0) {
 					if(!buckets.hasOwnProperty("Colorless")) {
 						buckets["Colorless"] = {}
@@ -396,6 +403,7 @@ class CardInfo {
 
 interface DeckListProps{
 	name?: string;
+	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
 }
@@ -409,7 +417,8 @@ interface DeckListState{
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
-		name: "",
+		name: null,
+		cover: null,
 		mainboard: {},
 		sideboard: {},
 	}
@@ -466,7 +475,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	handleInfo = (card: string)=>{
 		if(this.state.curr == card) {
 			this.setState({
-				img: CardInfo.data[this.state.curr].image_uri,
+				img: CardInfo.data(this.state.curr).image_uri,
 			});
 		} else {
 			this.forceUpdate();
@@ -484,7 +493,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			scroll = "fixed"
 		}
 		this.setState({
-			scroll: scroll;
+			scroll: scroll,
 		});
 	}
 	showPreview = ()=>{
@@ -502,10 +511,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	setCurr = (curr: string)=>{
-		if(CardInfo.data[curr]) {
+		if(CardInfo.data(curr)) {
 			this.setState({
 				curr: curr,
-				img: CardInfo.data[curr].image_uri,
+				img: CardInfo.data(curr).image_uri,
 			});
 		} else {
 			this.setState({
@@ -515,7 +524,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	render() {
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
-		let price = CardInfo.price(this.props.mainboard, this.props.sideboard);
+		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
 		let priceImg = CardInfo.price(this.state.curr);
 		// Calculate height
 		const headerSize = 4;
@@ -569,7 +578,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							<div className="preview-img">
 								{this.state.img?<img src={this.state.img}/>:null}
 							</div>
-							<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>
+							{priceImg?
+								<span>
+									{priceImg.usd} USD / {priceImg.tix} TIX
+								</span>
+							:null}
 						</div>
 					</div>
 				</div>
@@ -592,14 +605,14 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		this.state = {
 			name: null,
 			cover: null,
-			mainboard?: null,
-			sideboard?: null,
+			mainboard: null,
+			sideboard: null,
 		}
 	}
 	handleFile = (event: FormEvent)=>{
 		let file = event.target.files[0];
 		let name = file.name.replace(/\.[a-z]*$/,"");
-		let cover = null;
+		let cover: string = null;
 		let mainboard: {[key: string]: number} = {}
 		let sideboard: {[key: string]: number} = {}
 
@@ -609,15 +622,16 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 				Main,
 				Side,
 			};
-			let state = null;
+			let state: State = null;
 			event.target.result.split(/\r?\n/).forEach((line: string)=>{
 				line = line.trim();
 				let space = line.indexOf(' ');
+				let count: number = null;
+				let card: string = null;
 				if(space > -1) {
-					let count = line.slice(0,line.indexOf(' '));
-					let card = line.slice(line.indexOf(' ')+1);
+					count = parseInt(line.slice(0,line.indexOf(' ')));
+					card = line.slice(line.indexOf(' ')+1);
 				}
-				console.log('{'+count+','+card+'}');
 				switch(state) {
 				case null:
 					if(line.length) {
@@ -635,7 +649,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 						if(cover == null) {
 							cover = card;
 						}
-						mainboard[card] = parseInt(count);
+						mainboard[card] = count;
 					}
 					break;
 				case State.Side:
@@ -646,11 +660,10 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 						if(cover == null) {
 							cover = card;
 						}
-						sideboard[card] = parseInt(count);
+						sideboard[card] = count;
 					}
 				};
 			});
-			console.log(name,cover,mainboard,sideboard);
 			this.setState({
 				name: name,
 				cover: cover,
