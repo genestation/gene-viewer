@@ -480,7 +480,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	hidePreview = ()=>{
 		if(window.matchMedia("(max-width:36em)").matches) {
 			this.setState({
-				scrollY: 0;
+				scrollY: 0,
 			});
 		}
 	}
