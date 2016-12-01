@@ -115,11 +115,11 @@ div.roguebuilder {
 			padding-left: 1em;
 			width: 1.5em;
 		}
-		td.card-name {
+		span.card-name {
 			font-family: $beleren;
 		}
-		td.mana-cost {
-			text-align: right;
+		span.mana-cost {
+			float: right;
 		}
 	}
 	div.preview-track {

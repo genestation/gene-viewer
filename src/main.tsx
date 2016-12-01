@@ -15,27 +15,35 @@ interface CardListProps{
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
-	renderManaCost(cost: string) {
-		let symbols = cost.slice(0,-1).split('}{').map((sym: string)=>{
+	parseManaCost(cost?: string) {
+		return cost?cost.slice(0,-1).split('}{').map((sym: string)=>{
 			return sym.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
-		});
-		return symbols.map((sym: string, idx: number)=>{
+		}):null;
+	}
+	renderManaCost(symbols: string[]) {
+		return symbols?symbols.map((sym: string, idx: number)=>{
 			return <span key={idx} className={"mana small s"+sym}/>
-		});
+		}):null;
 	}
 	render() {
 		return <div className="card-list">
 			{this.props.title?(this.props.sublist?<h3>{this.props.title}</h3>:<h2>{this.props.title}</h2>):null}
 			<table><tbody>{
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
+					let info = false;
+					let mana_cost = null;
+					if(this.props.cardinfo && this.props.cardinfo[card]) {
+						info = true;
+						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
+					}
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
-						<td className={this.props.cardinfo && this.props.cardinfo[card]?"card-name":""}>{card}</td>
-						<td className="mana-cost">{(this.props.cardinfo && this.props.cardinfo[card] && this.props.cardinfo[card].mana_cost)?
-							this.renderManaCost(this.props.cardinfo[card].mana_cost):null
-						}</td>
+						<td>
+							<span className={info?"card-name":""}>{card}</span>
+							<span className="mana-cost">{this.renderManaCost(mana_cost)}</span>
+						</td>
 					</tr>
 				})
 			}</tbody></table>
@@ -286,10 +294,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		const headerSize = 3;
-		const lineSize = 1.6;
-		let height = [headerSize + 2 + lineSize * Object.keys(this.props.sideboard).length]
-		let maxblock = headerSize + 2 + lineSize * Object.keys(this.props.sideboard).length;
 		let sortByName = !this.state.cardinfo;
 		if(!sortByName) {
 			switch (this.state.sort) {
@@ -319,11 +323,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: item,
 								list: buckets[item],
 							});
-							let piece = headerSize + lineSize * Object.keys(buckets[item]).length;
-							height.push(piece);
-							if(piece > maxblock) {
-								maxblock = piece;
-							}
 						}
 					}
 				}
@@ -349,11 +348,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: parseFloat(item).toString() + " drop",
 								list: buckets[item.toString()],
 							});
-							let piece = headerSize + lineSize * Object.keys(buckets[item.toString()]).length;
-							height.push(piece);
-							if(piece > maxblock) {
-								maxblock = piece;
-							}
 						}
 					}
 				}
@@ -412,11 +406,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								name: name,
 								list: buckets[item],
 							});
-							let piece = headerSize + lineSize * Object.keys(buckets[item]).length;
-							height.push(piece);
-							if(piece > maxblock) {
-								maxblock = piece;
-							}
 						}
 					}
 				}
@@ -425,13 +414,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			case Sort.Keyword: //TODO
 				sortByName = true;
 				break;
-			}
-		}
-		if(sortByName) {
-			let piece = lineSize * Object.keys(this.props.mainboard).length;
-			height.push(piece);
-			if(piece > maxblock) {
-				maxblock = piece;
 			}
 		}
 		// Calculate price
@@ -461,14 +443,28 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			}
 		}
 		// Calculate height
-		let accum = 0;
+		const headerSize = 4;
+		const lineSize = 1.6;
+		let height: number[] = [];
+		if(sortByName) {
+			height.push(lineSize * Object.keys(this.props.mainboard).length);
+		} else {
+			lists.forEach((list: {name: string, list: {[key: string]: number}})=>{
+				height.push(headerSize + lineSize * Object.keys(list.list).length);
+			});
+		}
+		height.push(headerSize + 1 + lineSize * Object.keys(this.props.sideboard).length);
+		let cutoff = 0;
+		let last = null;
 		let sum = height.reduce((a: number, b: number)=>{return a+b});
 		height.forEach((piece: number)=>{
-			if(accum + piece < sum/2) {
-				accum += piece;
+			if(last == null && cutoff + piece < sum/2) {
+				cutoff += piece;
+			} else if (last == null) {
+				last = piece
 			}
 		});
-		let cutoff = Math.max(accum, sum-accum);
+		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Translate preview
 		let translateY = Math.min(this.state.maxY, Math.max(this.state.scrollY - this.state.startY, 0));
 		// Return DOM
