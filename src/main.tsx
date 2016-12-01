@@ -25,8 +25,14 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		}):null;
 	}
 	render() {
+		let count = Object.keys(this.props.cards).map((card: string)=>{
+			return this.props.cards[card];
+		}).reduce((a: number, b: number)=>{
+			return a + b;
+		});
+		let title = this.props.title + " (" + count + ")";
 		return <div className="card-list">
-			{this.props.title?(this.props.sublist?<h3>{this.props.title}</h3>:<h2>{this.props.title}</h2>):null}
+			{this.props.title?(this.props.sublist?<h3>{title}</h3>:<h2>{title}</h2>):null}
 			<table><tbody>{
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					let info = false;
