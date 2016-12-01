@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import 'whatwg-fetch'; // HOPE remove window.fetch polyfill
+import 'fetch-polyfill'; // HOPE remove window.fetch polyfill
 import './main.scss';
 import '../repo/mana-cost/css/mana-cost.css';
 
@@ -171,8 +171,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			} else {
 				response.json().then((json: ScryfallSetList)=>{
 					let sets: string[] = [];
+					function date(input: string) {
+						return input?new Date(...input.split('-')):0;
+					}
 					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
-						return new Date(a.released_at).valueOf() - new Date(b.released_at).valueOf()
+						return date(a.released_at) - date(b.released_at)
 					}).forEach((set: ScryfallSet)=>{
 						sets.push(set.code)
 					});
