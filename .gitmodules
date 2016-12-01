@@ -1,0 +1,3 @@
+[submodule "repo/mana-cost"]
+	path = repo/mana-cost
+	url = https://github.com/micku/mana-cost.git

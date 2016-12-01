@@ -41,6 +41,10 @@ let base = {
 				test: /\.s?css$/,
 				loader: ExtractTextPlugin.extract("css-loader?sourceMap!sass-loader?sourceMap"),
 			},
+			{
+				test: /\.svg$/,
+				loader: "svg-url-loader",
+			},
 		],
 		preLoaders: [
 			{

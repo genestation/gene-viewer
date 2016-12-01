@@ -13,12 +13,12 @@ div.roguebuilder {
 	div.decklist {
 		font-family: $sans-serif;
 		color: $text-color;
-		max-width: 51em;
+		max-width: 55em;
 		@media (max-width: 52em) {
-			max-width: 35em;
+			max-width: 37em;
 		}
 		@media (max-width: 36em) {
-			max-width: 24em;
+			max-width: 26em;
 		}
 	}
 	div.head {
@@ -80,25 +80,25 @@ div.roguebuilder {
 		}
 		div.lists {
 			margin-top: 0.5em;
-			width: 36em;
+			width: 40em;
 			display: flex;
 			flex-direction: column;
 			flex-wrap: wrap;
 			align-items: flex-start;
 			justify-content: flex-start;
 			@media (max-width: 52em) {
-				width: 18em;
+				width: 20em;
 				height: auto !important;
 			}
 		}
 	}
 	div.card-list {
-		width: 16em;
+		width: 18em;
 		padding: 0.25em 1em;
 		table {
 			border-collapse: collapse;
 			margin: 0.5em;
-			width: 15em;
+			width: 17em;
 		}
 		tr {
 			cursor: pointer;
@@ -110,10 +110,16 @@ div.roguebuilder {
 			padding: 0.25em;
 			padding-right: 0.1em;
 		}
-		td:first-child {
+		td.quantity {
 			text-align: right;
 			padding-left: 1em;
 			width: 1.5em;
+		}
+		td.card-name {
+			font-family: $beleren;
+		}
+		td.mana-cost {
+			text-align: right;
 		}
 	}
 	div.preview-track {

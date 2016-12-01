@@ -4,15 +4,25 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'whatwg-fetch'; // HOPE remove window.fetch polyfill
 import './main.scss';
+import '../repo/mana-cost/css/mana-cost.css';
 
 interface CardListProps{
 	title?: string;
 	sublist?: boolean;
 	cards: {[key: string]: number};
 	setCurr: (card: string)=>any;
+	cardinfo?: {[key: string]: ScryfallCard};
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
+	renderManaCost(cost: string) {
+		let symbols = cost.slice(0,-1).split('}{').map((sym: string)=>{
+			return sym.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+		});
+		return symbols.map((sym: string, idx: number)=>{
+			return <span key={idx} className={"mana small s"+sym}/>
+		});
+	}
 	render() {
 		return <div className="card-list">
 			{this.props.title?(this.props.sublist?<h3>{this.props.title}</h3>:<h2>{this.props.title}</h2>):null}
@@ -21,8 +31,11 @@ class CardList extends React.Component<CardListProps,CardListState> {
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
-						<td>{this.props.cards[card] + "×"}</td>
-						<td>{card}</td>
+						<td className="quantity">{this.props.cards[card] + "×"}</td>
+						<td className={this.props.cardinfo && this.props.cardinfo[card]?"card-name":""}>{card}</td>
+						<td className="mana-cost">{(this.props.cardinfo && this.props.cardinfo[card] && this.props.cardinfo[card].mana_cost)?
+							this.renderManaCost(this.props.cardinfo[card].mana_cost):null
+						}</td>
 					</tr>
 				})
 			}</tbody></table>
@@ -477,12 +490,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{sortByName?
-					<CardList cards={this.props.mainboard} setCurr={this.setCurr}/>:
+					<CardList cards={this.props.mainboard} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>:
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
-						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} setCurr={this.setCurr}/>
+						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>
 					})
 				}
-				<CardList title="Sideboard" cards={this.props.sideboard} setCurr={this.setCurr}/>
+				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={this.state.cardinfo} setCurr={this.setCurr}/>
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
