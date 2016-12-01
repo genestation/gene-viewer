@@ -8,7 +8,7 @@ import './main.scss';
 interface CardListProps{
 	title?: string;
 	sublist?: boolean;
-	cards: {[key: string]: number};
+	cards: {card: string, count:number}[];
 	setCurr: (card: string)=>any;
 	cardinfo: (key: string)=>ScryfallCard;
 	onClick: ()=>any;
@@ -26,8 +26,8 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		}):null;
 	}
 	render() {
-		let count = Object.keys(this.props.cards).map((card: string)=>{
-			return this.props.cards[card];
+		let count = this.props.cards.map(({card: card, count: count}: {card: string, count: number})=>{
+			return count;
 		}).reduce((a: number, b: number)=>{
 			return a + b;
 		}, 0);
@@ -35,7 +35,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		return <div className="card-list">
 			{this.props.title?(this.props.sublist?<h3>{title}</h3>:<h2>{title}</h2>):null}
 			<table><tbody>{
-				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
+				this.props.cards.map(({card: card, count: count}: {card: string, count: number}, idx: number)=>{
 					let info = false;
 					let mana_cost: string[] = null;
 					if(this.props.cardinfo(card)) {
@@ -47,7 +47,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
-						<td className="quantity">{this.props.cards[card] + "×"}</td>
+						<td className="quantity">{count + "×"}</td>
 						<td>
 							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
 							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
@@ -250,8 +250,8 @@ class CardInfo {
 	}
 	static priceSet(...sets: {[key: string]: number}[]) {
 		// Calculate price
-		let usd = null;
-		let tix = null;
+		let usd: number = null;
+		let tix: number = null;
 		sets.forEach((set: {[key: string]: number})=>{
 			Object.keys(set).forEach((card: string)=>{
 				if(CardInfo.price(card)) {
@@ -268,10 +268,26 @@ class CardInfo {
 			tix: roundOff(tix),
 		};
 	}
-	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {[key: string]: number}}[] {
-		let buckets: {[key: string]: {[key: string]: number}} = {}
-		let lists: {name: string, list: {[key: string]: number}}[] = []
+	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {card: string, count: number}[]}[] {
+		let buckets: {[key: string]: {card: string, count: number}[]} = {}
+		let lists: {name: string, list: {card: string, count: number}[]}[] = []
 		let fallback = false;
+		function secondSort({card: a}: {card: string}, {card: b}: {card: string}) {
+			let cmc_a = parseFloat(CardInfo.data(a).converted_mana_cost);
+			let cmc_b = parseFloat(CardInfo.data(b).converted_mana_cost);
+			let diff = cmc_a - cmc_b;
+			if(diff == 0) {
+				if(a < b) {
+					return -1;
+				} else if(a > b) {
+					return 1;
+				} else {
+					return 0;
+				}
+			} else {
+				return diff;
+			}
+		}
 		switch (sort) {
 		case Sort.Type:
 			Object.keys(cards).forEach((card: string)=>{
@@ -285,9 +301,9 @@ class CardInfo {
 				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
 					if(type_line.includes(item)) {
 						if(!buckets.hasOwnProperty(item)) {
-							buckets[item] = {}
+							buckets[item] = []
 						}
-						buckets[item][card] = cards[card];
+						buckets[item].push({card: card, count: cards[card]});
 						break;
 					}
 				}
@@ -297,7 +313,7 @@ class CardInfo {
 					if(buckets.hasOwnProperty(item)) {
 						lists.push({
 							name: item,
-							list: buckets[item],
+							list: buckets[item].sort(secondSort),
 						});
 					}
 				}
@@ -313,16 +329,22 @@ class CardInfo {
 				}
 				let cmc = CardInfo.data(card).converted_mana_cost;
 				if(!buckets.hasOwnProperty(cmc)) {
-					buckets[cmc] = {}
+					buckets[cmc] = []
 				}
-				buckets[cmc][card] = cards[card];
+				buckets[cmc].push({card: card, count: cards[card]});
 			});
 			if(!fallback) {
-				for(let item of Object.keys(buckets).sort()) {
+				for(let item of Object.keys(buckets).sort((a: string, b: string)=>{
+						return parseFloat(a) - parseFloat(b);
+					})) {
 					if(buckets.hasOwnProperty(item)) {
 						lists.push({
 							name: parseFloat(item).toString() + " drop",
-							list: buckets[item.toString()],
+							list: buckets[item].sort(({card: a}: {card: string}, {card: b}: {card: string})=>{
+									if(a<b) return -1;
+									else if(a>b) return 1;
+									else return 0;
+								}),
 						});
 					}
 				}
@@ -339,20 +361,20 @@ class CardInfo {
 				let colors = CardInfo.data(card).colors;
 				if(colors.length == 0) {
 					if(!buckets.hasOwnProperty("Colorless")) {
-						buckets["Colorless"] = {}
+						buckets["Colorless"] = [];
 					}
-					buckets["Colorless"][card] = cards[card];
+					buckets["Colorless"].push({card: card, count: cards[card]});
 				} else if(colors.length > 1) {
 					if(!buckets.hasOwnProperty("Gold")) {
-						buckets["Gold"] = {}
+						buckets["Gold"] = [];
 					}
-					buckets["Gold"][card] = cards[card];
+					buckets["Gold"].push({card: card, count: cards[card]});
 				} else {
 					let color = colors[0];
 					if(!buckets.hasOwnProperty(color)) {
-						buckets[color] = {}
+						buckets[color] = []
 					}
-					buckets[color][card] = cards[card];
+					buckets[color].push({card: card, count: cards[card]});
 				}
 			})
 			if(!fallback) {
@@ -380,7 +402,7 @@ class CardInfo {
 						}
 						lists.push({
 							name: name,
-							list: buckets[item],
+							list: buckets[item].sort(secondSort),
 						});
 					}
 				}
@@ -394,7 +416,9 @@ class CardInfo {
 		if(fallback) {
 			lists.push({
 				name: null,
-				list: cards,
+				list: Object.keys(cards).sort().map((card: string)=>{
+					return {card: card, count: cards[card]};
+				}),
 			});
 		}
 		return lists;
@@ -524,16 +548,17 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	render() {
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
+		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name)[0];
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
 		let priceImg = CardInfo.price(this.state.curr);
 		// Calculate height
 		const headerSize = 4;
 		const lineSize = 1.6;
 		let height: number[] = [];
-		lists.forEach((list: {name: string, list: {[key: string]: number}})=>{
-			height.push(headerSize + lineSize * Object.keys(list.list).length);
+		lists.forEach(({list: list}: {list: {card: string, count: number}[]})=>{
+			height.push(headerSize + lineSize * list.length);
 		});
-		height.push(headerSize + 1 + lineSize * Object.keys(this.props.sideboard).length);
+		height.push(headerSize + 1 + lineSize * sideboard.list.length);
 		let cutoff = 0;
 		let last: number = null;
 		let sum = height.reduce((a: number, b: number)=>{return a+b});
@@ -564,11 +589,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="body">
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
-					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
+					lists.map((item: {name: string, list: {card: string, count: number}[]}, idx: number)=>{
 						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
 					})
 				}
-				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
+				<CardList title="Sideboard" cards={sideboard.list} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}}
