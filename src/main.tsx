@@ -414,8 +414,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		mainboard: {},
 		sideboard: {},
 	}
-	maxY: number = null;
 	startY: number = null;
+	endY: number = null;
 	child: {
 		preview?: Element;
 		track?: Element;
@@ -462,7 +462,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		this.maxY = this.startY + trackR.height - previewR.height;
+		this.endY = this.startY + trackR.height - previewR.height;
 	}
 	handleInfo = (card: string)=>{
 		if(this.state.curr == card) {
@@ -479,7 +479,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		scrollY = (smallMedia?0:window.pageYOffset);
 		// Scrolling
 		let scroll = "top"
-		if(scrollY > this.maxY) {
+		if(scrollY > this.endY) {
 			scroll = "bottom"
 		} else if (scrollY > this.startY) {
 			scroll = "fixed"
