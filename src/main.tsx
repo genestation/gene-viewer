@@ -132,21 +132,6 @@ enum Sort {
 	Name,
 	Keyword
 }
-interface DeckListProps{
-	name?: string;
-	mainboard?: {[key: string]: number};
-	sideboard?: {[key: string]: number};
-}
-interface DeckListState{
-	setOrder?: {[key: string]: number};
-	price?: {[key: string]: {usd: number, tix: number}};
-	curr?: string;
-	img?: string;
-	sort?: Sort;
-	startY?: number;
-	maxY?: number;
-	scrollY?: number;
-}
 class CardInfo {
 	data: {[key: string]: ScryfallCard} = {};
 	price: {[key: string]: {usd: number, tix: number}} = {};
@@ -177,6 +162,50 @@ class CardInfo {
 					this.updateInfo();
 				})
 			}
+		})
+	}
+	updateInfo() {
+		let missing = Object.keys(this.data)
+			.filter((card: string)=> { return !this.data[card] });
+		missing.forEach((card: string)=>{
+			fetch('https://api.scryfall.com/cards/search?q='+encodeURIComponent('++!"'+card+'"'))
+				.then((response: Promise<Response>)=>{
+					if(response.status !== 200) {
+						console.log(response.status, response.url);
+					} else {
+						response.json().then((json: ScryfallCardList)=>{
+							let latestSet = Number.NEGATIVE_INFINITY;
+							let cards = new Set();
+							json.data.forEach((info: ScryfallCard)=>{
+								cards.add(info.name);
+								if(!info.digital && latestSet < this.setOrder[info.set]) {
+									this.data[info.name] = info;
+									latestSet = this.setOrder[info.set];
+								}
+								if(info.usd !== null) {
+									let usd = parseFloat(info.usd);
+									if (usd < this.price[info.name].usd) {
+										this.price[info.name].usd = usd;
+									}
+								}
+								if(info.tix !== null) {
+									let tix = parseFloat(info.tix);
+									if (tix < this.price[info.name].tix) {
+										this.price[info.name].tix = tix;
+									}
+								}
+							})
+							cards.forEach((card: string)=>{
+								if(this.listener.hasOwnProperty(card)) {
+									// listener Trigger if state.curr eq then update state.img = info.image_uri
+									this.listener[card].forEach((listener: (card: string)=>any)=>{
+										listener(card);
+									});
+								}
+							});
+						})
+					}
+				})
 		})
 	}
 	static get data() {
@@ -357,50 +386,22 @@ class CardInfo {
 		}
 		return lists;
 	}
-	updateInfo() {
-		let missing = Object.keys(this.data)
-			.filter((card: string)=> { return !this.data[card] });
-		missing.forEach((card: string)=>{
-			fetch('https://api.scryfall.com/cards/search?q='+encodeURIComponent('++!"'+card+'"'))
-				.then((response: Promise<Response>)=>{
-					if(response.status !== 200) {
-						console.log(response.status, response.url);
-					} else {
-						response.json().then((json: ScryfallCardList)=>{
-							let latestSet = Number.NEGATIVE_INFINITY;
-							let cards = new Set();
-							json.data.forEach((info: ScryfallCard)=>{
-								cards.add(info.name);
-								if(!info.digital && latestSet < this.setOrder[info.set]) {
-									this.data[info.name] = info;
-									latestSet = this.setOrder[info.set];
-								}
-								if(info.usd !== null) {
-									let usd = parseFloat(info.usd);
-									if (usd < this.price[info.name].usd) {
-										this.price[info.name].usd = usd;
-									}
-								}
-								if(info.tix !== null) {
-									let tix = parseFloat(info.tix);
-									if (tix < this.price[info.name].tix) {
-										this.price[info.name].tix = tix;
-									}
-								}
-							})
-							cards.forEach((card: string)=>{
-								if(this.listener.hasOwnProperty(card)) {
-									// listener Trigger if state.curr eq then update state.img = info.image_uri
-									this.listener[card].forEach((listener: (card: string)=>any)=>{
-										listener(card);
-									});
-								}
-							});
-						})
-					}
-				})
-		})
-	}
+}
+
+interface DeckListProps{
+	name?: string;
+	mainboard?: {[key: string]: number};
+	sideboard?: {[key: string]: number};
+}
+interface DeckListState{
+	setOrder?: {[key: string]: number};
+	price?: {[key: string]: {usd: number, tix: number}};
+	curr?: string;
+	img?: string;
+	sort?: Sort;
+	startY?: number;
+	maxY?: number;
+	scrollY?: number;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
