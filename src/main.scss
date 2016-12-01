@@ -79,7 +79,7 @@ div.roguebuilder {
 		display: flex;
 		@media (max-width: $breakpoint-small) {
 			flex-direction: column;
-			padding-top: 70vh;
+			padding-top: 36em;
 		}
 		div.lists {
 			margin-top: 0.5em;
@@ -137,7 +137,7 @@ div.roguebuilder {
 		height: 25em;
 		@media (max-width: $breakpoint-small) {
 			width:80vw;
-			max-width: 26em;
+			max-width: 24em;
 			height: auto;
 		}
 		img {
