@@ -447,6 +447,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	componentDidUpdate() {
 		this.calculateScreenPosition();
 	}
+	calculateScreenPosition() {
+		let previewR = this.child.preview.getClientRects()[0];
+		let trackR = this.child.track.getClientRects()[0];
+		this.maxY = trackR.height - previewR.height;
+	}
 	handleInfo = (card: string)=>{
 		if(this.state.curr == card) {
 			this.setState({
@@ -455,11 +460,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		} else {
 			this.forceUpdate();
 		}
-	}
-	calculateScreenPosition() {
-		let previewR = this.child.preview.getClientRects()[0];
-		let trackR = this.child.track.getClientRects()[0];
-		this.maxY = trackR.height - previewR.height;
 	}
 	handleScroll = ()=>{
 		let previewR = this.child.preview.getClientRects()[0];
