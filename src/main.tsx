@@ -30,7 +30,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 			<table><tbody>{
 				Object.keys(this.props.cards).sort().map((card: string, idx: number)=>{
 					let info = false;
-					let mana_cost = null;
+					let mana_cost: string[] = null;
 					if(this.props.cardinfo && this.props.cardinfo[card]) {
 						info = true;
 						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
@@ -154,6 +154,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		mainboard: {},
 		sideboard: {},
 	}
+	maxY: number = null;
+	startY: number = null;
 	child: {
 		preview?: Element;
 		track?: Element;
@@ -226,7 +228,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
-		let trackR = this.child.track.getClientRects()[0];
 		this.startY = previewR.top + document.body.scrollTop;
 		this.calculateScreenPosition();
 	}
@@ -466,7 +467,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 		height.push(headerSize + 1 + lineSize * Object.keys(this.props.sideboard).length);
 		let cutoff = 0;
-		let last = null;
+		let last: number = null;
 		let sum = height.reduce((a: number, b: number)=>{return a+b});
 		height.forEach((piece: number)=>{
 			if(last == null && cutoff + piece < sum/2) {
@@ -486,7 +487,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="select">
 					<span>Sort by </span>
 					<select value={this.state.sort.toString()}
-						onChange={(e: SyntheticEvent)=>this.setState({sort:parseInt(e.target.value)})}>
+						onChange={(e: React.FormEvent)=>this.setState({sort:parseInt(e.target.value)})}>
 						<option value={Sort.Type.toString()}>Type</option>
 						<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
 						<option value={Sort.Color.toString()}>Color</option>
