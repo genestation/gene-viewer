@@ -45,6 +45,10 @@ let base = {
 				test: /\.svg$/,
 				loader: "svg-url-loader",
 			},
+			{
+				test: /\.(eot|woff|woff2|ttf)$/,
+				loader: "url-loader?limit=50000&name=[name]-[hash].[ext]",
+			},
 		],
 		preLoaders: [
 			{

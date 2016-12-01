@@ -1,7 +1,15 @@
-@import url("http://gatherer.wizards.com/Styles/fonts/Beleren/Beleren-Bold.css");
+@import "~normalize.css/normalize.css";
+
+@font-face {
+	font-family: "Beleren Bold";
+	src:url("../fonts/BELEREN-BOLD.eot");
+	src:url("../fonts/BELEREN-BOLD.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/BELEREN-BOLD.woff") format("woff"),
+		url("../fonts/BELEREN-BOLD.svg") format("svg");
+}
 
 $sans-serif: Ariel, sans-serif;
-$beleren: 'beleren-bold', $sans-serif;
+$beleren: 'Beleren Bold', $sans-serif;
 
 $background-color: rgba(168, 168, 168, 0.3);
 $opaque-background-color: #c5c5c5;
@@ -13,6 +21,24 @@ $breakpoint-big: 56em;
 
 
 div.roguebuilder {
+	h1 {
+		font-weight: normal;
+		font-family: $beleren;
+		font-size: 2em;
+		margin: 0.2em;
+	}
+	h2 {
+		font-weight: normal;
+		font-family: $beleren;
+		font-size: 1.4em;
+		margin: 0.2em;
+	}
+	h3 {
+		font-weight: normal;
+		font-family: $beleren;
+		font-size: 1.2em;
+		margin: 0.1em;
+	}
 	div.decklist {
 		font-family: $sans-serif;
 		color: $text-color;
@@ -55,21 +81,6 @@ div.roguebuilder {
 				left: auto;
 			}
 		}
-	}
-	h1 {
-		font-family: $beleren;
-		font-size: 2em;
-		margin: 0.2em;
-	}
-	h2 {
-		font-family: $beleren;
-		font-size: 1.4em;
-		margin: 0.2em;
-	}
-	h3 {
-		font-family: $beleren;
-		font-size: 1.2em;
-		margin: 0.1em;
 	}
 	div.body {
 		position: relative;
