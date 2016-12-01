@@ -130,10 +130,13 @@ div.roguebuilder {
 			padding-left: 1em;
 			width: 1.5em;
 		}
-		span.card-name {
+		div.card-name {
 			font-family: $beleren;
+			display: inline-block;
+			transform-origin: left;
 		}
-		span.mana-cost {
+		div.mana-cost {
+			display: inline-block;
 			float: right;
 		}
 	}

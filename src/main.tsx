@@ -42,15 +42,15 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						info = true;
 						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
 					}
-					// Calculate width TODO
-					let width = card.length*0.6/(17/*table width*/ - 2 - (mana_cost?mana_cost.length:0));
+					// Calculate width
+					let ratio = (17/*table width*/ - 2 - (mana_cost?mana_cost.length:0))/card.length*0.6;
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
-							<span className={info?"card-name":""} style={width>1?{transform: "scale("+length+",1)"}:{}}>{card}</span>
-							<span className="mana-cost">{this.renderManaCost(mana_cost)}</span>
+							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+",1)"}:{}}>{card}</span>
+							<div className="mana-cost">{this.renderManaCost(mana_cost)}</span>
 						</td>
 					</tr>
 				})
