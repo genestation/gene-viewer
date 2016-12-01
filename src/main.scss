@@ -160,16 +160,29 @@ div.roguebuilder {
 	}
 	div.preview-frame {
 		pointer-events: all;
-		padding-top:1em;
+		padding-top: 1em;
+		margin-bottom: 4em;
 		@media (max-width: $breakpoint-small) {
 			height: auto;
-			padding-top:0;
+			padding-top :0;
+			margin-bottom: 0;
 		}
 		height: 28em;
 		span {
 			padding-left: 3em;
 			font-size: 0.8em;
 		}
+	}
+	div.preview-frame.fixed {
+		position: fixed;
+		top: 0;
+		@media (max-width: $breakpoint-small) {
+			top: -1em;
+		}
+	}
+	div.preview-frame.bottom {
+		position: absolute;
+		bottom: 0;
 	}
 	div.preview {
 		padding-bottom: 0.5em;

@@ -408,7 +408,7 @@ interface DeckListState{
 	sort?: Sort;
 	startY?: number;
 	maxY?: number;
-	scrollY?: number;
+	scroll?: string;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
@@ -438,7 +438,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
-		this.startY = previewR.top + document.body.scrollTop;
+		this.startY = previewR.top + window.pageYOffset;
 		this.calculateScreenPosition();
 	}
 	componentWillUnmount() {
@@ -462,25 +462,31 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	handleScroll = ()=>{
-		let previewR = this.child.preview.getClientRects()[0];
-		let trackR = this.child.track.getClientRects()[0];
+		this.calculateScreenPosition();
 		let smallMedia = window.matchMedia("(max-width:40em)").matches;
-		this.maxY = trackR.height - previewR.height,
+		scrollY = (smallMedia?0:window.pageYOffset);
+		// Scrolling
+		let scroll = "top"
+		if(scrollY > this.maxY) {
+			scroll = "bottom"
+		} else if (scrollY > this.startY) {
+			scroll = "fixed"
+		}
 		this.setState({
-			scrollY: (smallMedia?0:document.body.scrollTop),
+			scroll: scroll;
 		});
 	}
 	showPreview = ()=>{
 		if(window.matchMedia("(max-width:40em)").matches) {
 			this.setState({
-				scrollY: document.body.scrollTop,
+				scroll: "fixed",
 			});
 		}
 	}
-	hidePreview = ()=>{
+	togglePreview = ()=>{
 		if(window.matchMedia("(max-width:40em)").matches) {
 			this.setState({
-				scrollY: 0,
+				scroll: this.state.scroll=="fixed"?"top":"fixed",
 			});
 		}
 	}
@@ -519,8 +525,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			}
 		});
 		cutoff = Math.min(cutoff + last, sum - cutoff);
-		// Translate preview
-		let translateY = Math.min(this.maxY, Math.max(this.state.scrollY - this.startY, 0));
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
@@ -547,7 +551,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
-					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame" onClick={this.hidePreview}>
+					<div ref={(ref)=>{this.child.preview=ref}}
+						className={"preview-frame "+this.state.scroll}
+						onClick={this.togglePreview}>
 						<div className="preview">
 							<div className="preview-img">
 								{this.state.img?<img src={this.state.img}/>:null}
