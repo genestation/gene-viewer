@@ -406,8 +406,6 @@ interface DeckListState{
 	curr?: string;
 	img?: string;
 	sort?: Sort;
-	startY?: number;
-	maxY?: number;
 	scroll?: string;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
@@ -464,7 +462,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		this.maxY = trackR.height - previewR.height;
+		this.maxY = this.startY + trackR.height - previewR.height;
 	}
 	handleInfo = (card: string)=>{
 		if(this.state.curr == card) {
@@ -590,6 +588,25 @@ export interface MainState{
 export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
 			<DeckList name="Skred Red"
 				mainboard={{
 					"Lightning Bolt": 4,
