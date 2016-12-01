@@ -65,17 +65,19 @@ div.roguebuilder {
 			}
 		}
 		div.select {
-			width: 14em;
+			width: 18em;
+			text-align: right;
 			position: absolute;
 			bottom: 0.4em;
-			left: 37em;
+			left: 35em;
 			span {
 				font-size: 0.8em;
 			}
 			@media (max-width: $breakpoint-big) {
-				left: 21.5em;
+				left: 17em;
 			}
 			@media (max-width: $breakpoint-small) {
+				text-align: left;
 				position: relative;
 				margin-left: 0.5em;
 				left: auto;
