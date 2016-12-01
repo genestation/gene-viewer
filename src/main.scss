@@ -158,6 +158,27 @@ div.roguebuilder {
 			bottom: 3vh;
 		}
 	}
+	div.preview-frame {
+		pointer-events: all;
+		padding-top:1em;
+		@media (max-width: $breakpoint-small) {
+			height: auto;
+			padding-top:0;
+		}
+		height: 28em;
+		span {
+			padding-left: 3em;
+			font-size: 0.8em;
+		}
+	}
+	div.preview {
+		padding-bottom: 0.5em;
+		margin: 1em 1em 0.2em 1em;
+		@media (max-width: $breakpoint-small) {
+			background: $opaque-background-color;
+			padding-bottom: 1vh;
+		}
+	}
 	div.preview-img{
 		height: 25em;
 		@media (max-width: $breakpoint-small) {
@@ -171,27 +192,6 @@ div.roguebuilder {
 				height: auto;
 			}
 			height:100%
-		}
-	}
-	div.preview {
-		padding-bottom: 0.5em;
-		margin: 1em 1em 0.2em 1em;
-		@media (max-width: $breakpoint-small) {
-			background: $opaque-background-color;
-			padding-bottom: 1vh;
-		}
-	}
-	div.preview-frame {
-		pointer-events: all;
-		padding-top:1em;
-		@media (max-width: $breakpoint-small) {
-			height: auto;
-			padding-top:0;
-		}
-		height: 28em;
-		span {
-			padding-left: 3em;
-			font-size: 0.8em;
 		}
 	}
 }
