@@ -132,7 +132,7 @@ interface ScryfallCardList {
 	total_cards?: number;
 	warnings: string[];
 }
-enum Sort {
+const enum Sort {
 	Type,
 	CMC,
 	Color,
