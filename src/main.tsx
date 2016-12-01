@@ -36,12 +36,14 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						info = true;
 						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
 					}
+					// Calculate width
+					let width = card.length*0.6/(17/*table width*/ - 2 - (mana_cost?mana_cost.length:0));
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>this.props.setCurr(card)} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
-							<span className={info?"card-name":""}>{card}</span>
+							<span className={info?"card-name":""} style={width>1?{transform: "scale("+length+",1)"}:{}}>{card}</span>
 							<span className="mana-cost">{this.renderManaCost(mana_cost)}</span>
 						</td>
 					</tr>
