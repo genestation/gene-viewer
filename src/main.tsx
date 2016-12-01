@@ -49,8 +49,8 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
-							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+",1)"}:{}}>{card}</span>
-							<div className="mana-cost">{this.renderManaCost(mana_cost)}</span>
+							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+",1)"}:{}}>{card}</div>
+							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>
 				})
