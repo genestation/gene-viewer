@@ -11,6 +11,7 @@ interface CardListProps{
 	cards: {[key: string]: number};
 	setCurr: (card: string)=>any;
 	cardinfo?: {[key: string]: ScryfallCard};
+	onClick: ()=>any;
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
@@ -45,7 +46,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 					let width = card.length*0.6/(17/*table width*/ - 2 - (mana_cost?mana_cost.length:0));
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
-						onClick={()=>this.props.setCurr(card)} >
+						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
 							<span className={info?"card-name":""} style={width>1?{transform: "scale("+length+",1)"}:{}}>{card}</span>
@@ -463,11 +464,25 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	handleScroll = ()=>{
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		let smallMedia = window.matchMedia("(max-width:36)").matches; // TODO fix
+		let smallMedia = window.matchMedia("(max-width:36em)").matches;
 		this.maxY = trackR.height - previewR.height,
 		this.setState({
 			scrollY: (smallMedia?0:document.body.scrollTop),
 		});
+	}
+	showPreview = ()=>{
+		if(window.matchMedia("(max-width:36em)").matches) {
+			this.setState({
+				scrollY: document.body.scrollTop,
+			});
+		}
+	}
+	hidePreview = ()=>{
+		if(window.matchMedia("(max-width:36em)").matches) {
+			this.setState({
+				scrollY: 0;
+			});
+		}
 	}
 	setCurr = (curr: string)=>{
 		if(CardInfo.data[curr]) {
@@ -526,13 +541,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: {[key: string]: number}}, idx: number)=>{
-						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={CardInfo.data} setCurr={this.setCurr}/>
+						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
 					})
 				}
-				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={CardInfo.data} setCurr={this.setCurr}/>
+				<CardList title="Sideboard" cards={this.props.sideboard} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
-					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame">
+					<div ref={(ref)=>{this.child.preview=ref}} style={{transform: "translateY("+translateY+"px)"}} className="preview-frame" onClick={this.hidePreview}>
 						<div className="preview">
 							<div className="preview-img">
 								{this.state.img?<img src={this.state.img}/>:null}
