@@ -49,7 +49,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
-							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:{}}>{card}</div>
+							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
 							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>
@@ -604,6 +604,9 @@ export default class extends React.Component<MainProps,MainState> {
 					"Stormbreath Dragon": 2,
 					"Sudden Shock": 2,
 					"Vandalblast": 1,
+					"Okina, Temple to the Grandfathers": 1,
+					"Progenitus": 1,
+					"Our Market Research Shows That Players Like Really Long Card Names So We Made this Card to Have the Absolute Longest Card Name Ever Elemental": 1,
 				}}
 				/>
 				<p>abababa</p>
