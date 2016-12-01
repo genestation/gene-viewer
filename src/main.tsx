@@ -36,7 +36,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						info = true;
 						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
 					}
-					// Calculate width
+					// Calculate width TODO
 					let width = card.length*0.6/(17/*table width*/ - 2 - (mana_cost?mana_cost.length:0));
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
