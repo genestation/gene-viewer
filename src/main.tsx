@@ -222,23 +222,30 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}, this.updateInfo)
 	}
 	componentDidMount() {
+		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		this.setState({
-			startY: previewR.top + document.body.scrollTop,
-			maxY: trackR.height - previewR.height,
-		});
-		window.addEventListener('scroll', this.handleScroll);
+		this.startY = previewR.top + document.body.scrollTop;
+		this.calculateScreenPosition();
 	}
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.handleScroll);
 	}
-	handleScroll = (event: SyntheticEvent)=>{
+	componentDidUpdate() {
+		this.calculateScreenPosition();
+	}
+	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
+		this.maxY = trackR.height - previewR.height;
+	}
+	handleScroll = ()=>{
+		let previewR = this.child.preview.getClientRects()[0];
+		let trackR = this.child.track.getClientRects()[0];
+		let smallMedia = window.matchMedia("(max-width:36)").matches; // TODO fix
+		this.maxY = trackR.height - previewR.height,
 		this.setState({
-			maxY: trackR.height - previewR.height,
-			scrollY: event.srcElement.body.scrollTop
+			scrollY: (smallMedia?0:document.body.scrollTop),
 		});
 	}
 	updateInfo() {
@@ -468,7 +475,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Translate preview
-		let translateY = Math.min(this.state.maxY, Math.max(this.state.scrollY - this.state.startY, 0));
+		let translateY = Math.min(this.maxY, Math.max(this.state.scrollY - this.startY, 0));
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
@@ -549,6 +556,48 @@ export default class extends React.Component<MainProps,MainState> {
 					"Vandalblast": 1,
 				}}
 				/>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
+				<p>abababa</p>
 		</div>
 	}
 }
