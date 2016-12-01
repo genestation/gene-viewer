@@ -26,7 +26,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 		}):null;
 	}
 	render() {
-		let count = this.props.cards.map(({card: card, count: count}: {card: string, count: number})=>{
+		let count = this.props.cards.map(({count: count}: {count: number})=>{
 			return count;
 		}).reduce((a: number, b: number)=>{
 			return a + b;
@@ -154,7 +154,8 @@ class CardInfo {
 					// Sort sets
 					let sets: string[] = [];
 					function date(input: string) {
-						return input?new Date(...input.split('-')):0;
+						let part = input.split('-',3).map((val: string)=>parseInt(val));
+						return input?new Date(part[0],part[1],part[2]).valueOf():Number.NEGATIVE_INFINITY;
 					}
 					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
 						return date(a.released_at) - date(b.released_at)
@@ -475,11 +476,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			console.log("Safari is dumb.");
 			let manacosts = document.getElementsByClassName('mana-cost')
 			for(let idx=0; idx<manacosts.length; idx++) {
-				manacosts[idx].style.cssText="position: relative";
+				(manacosts[idx] as HTMLElement).style.cssText="position: relative";
 			};
 			window.setTimeout(()=>{
 				for(let idx=0; idx<manacosts.length; idx++) {
-					manacosts[idx].style.cssText="position: absolute";
+					(manacosts[idx] as HTMLElement).style.cssText="position: absolute";
 				};
 			},0);
 		}
