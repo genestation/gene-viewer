@@ -17,8 +17,8 @@ $opaque-background-color: #c5c5c5;
 $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 
-$breakpoint-small: 38em;
-$breakpoint-big: 56em;
+$breakpoint-small: 40em;
+$breakpoint-big: 60em;
 
 
 div.roguebuilder {
@@ -40,12 +40,12 @@ div.roguebuilder {
 	div.decklist {
 		font-family: $sans-serif;
 		color: $text-color;
-		max-width: 55em;
+		max-width: 59em;
 		@media (max-width: $breakpoint-big) {
-			max-width: 37em;
+			max-width: 39em;
 		}
 		@media (max-width: $breakpoint-small) {
-			max-width: 26em;
+			max-width: 28em;
 		}
 	}
 	div.head {
@@ -95,25 +95,26 @@ div.roguebuilder {
 		}
 		div.lists {
 			margin-top: 0.5em;
-			width: 40em;
+			width: 44em;
 			display: flex;
 			flex-direction: column;
 			flex-wrap: wrap;
 			align-items: flex-start;
 			justify-content: flex-start;
 			@media (max-width: $breakpoint-big) {
-				width: 20em;
+				width: 22em;
 				height: auto !important;
 			}
 		}
 	}
 	div.card-list {
-		width: 18em;
+		width: 20em;
 		padding: 0.25em 1em;
 		table {
 			border-collapse: collapse;
 			margin: 0.5em;
-			width: 17em;
+			width: 19em;
+			position: relative;
 		}
 		tr {
 			cursor: pointer;
@@ -132,11 +133,14 @@ div.roguebuilder {
 		div.card-name {
 			font-family: $beleren;
 			display: inline-block;
+			white-space: nowrap;
 			transform-origin: left;
+			max-width: 16em;
 		}
 		div.mana-cost {
 			display: inline-block;
-			float: right;
+			position: absolute;
+			right: 0;
 		}
 	}
 	div.preview-track {

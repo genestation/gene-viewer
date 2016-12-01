@@ -43,13 +43,13 @@ class CardList extends React.Component<CardListProps,CardListState> {
 						mana_cost = this.parseManaCost(this.props.cardinfo[card].mana_cost);
 					}
 					// Calculate width
-					let ratio = (17/*table width*/ - 2 - (mana_cost?mana_cost.length:0))/card.length*0.6;
+					let ratio = (16/*table width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>{this.props.setCurr(card); this.props.onClick()}} >
 						<td className="quantity">{this.props.cards[card] + "×"}</td>
 						<td>
-							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+",1)"}:{}}>{card}</div>
+							<div className={info?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:{}}>{card}</div>
 							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>
@@ -464,21 +464,21 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	handleScroll = ()=>{
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		let smallMedia = window.matchMedia("(max-width:36em)").matches;
+		let smallMedia = window.matchMedia("(max-width:40em)").matches;
 		this.maxY = trackR.height - previewR.height,
 		this.setState({
 			scrollY: (smallMedia?0:document.body.scrollTop),
 		});
 	}
 	showPreview = ()=>{
-		if(window.matchMedia("(max-width:36em)").matches) {
+		if(window.matchMedia("(max-width:40em)").matches) {
 			this.setState({
 				scrollY: document.body.scrollTop,
 			});
 		}
 	}
 	hidePreview = ()=>{
-		if(window.matchMedia("(max-width:36em)").matches) {
+		if(window.matchMedia("(max-width:40em)").matches) {
 			this.setState({
 				scrollY: 0,
 			});
@@ -598,6 +598,11 @@ export default class extends React.Component<MainProps,MainState> {
 					"Stormbreath Dragon": 2,
 					"Sudden Shock": 2,
 					"Vandalblast": 1,
+					"Oathkeeper, Takeno's Daisho": 1,
+					"Valakut, the Molten Pinnacle": 1,
+					"Progenitus": 1,
+					"Triskaidekaphobia": 1,
+					"Okina, Temple to the Grandfathers": 3,
 				}}
 				/>
 				<p>abababa</p>
