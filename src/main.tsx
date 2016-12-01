@@ -598,11 +598,6 @@ export default class extends React.Component<MainProps,MainState> {
 					"Stormbreath Dragon": 2,
 					"Sudden Shock": 2,
 					"Vandalblast": 1,
-					"Oathkeeper, Takeno's Daisho": 1,
-					"Valakut, the Molten Pinnacle": 1,
-					"Progenitus": 1,
-					"Triskaidekaphobia": 1,
-					"Okina, Temple to the Grandfathers": 3,
 				}}
 				/>
 				<p>abababa</p>
