@@ -206,131 +206,150 @@ class CardInfo {
 			CardInfo.instance.updateInfo();
 		}
 	}
+	static price(...cardss: ({[key: string]: number}|string)[]) {
+		// Calculate price
+		let price: {usd: string, tix: string} = {
+			usd: null, tix: null,
+		}
+		cardss.forEach((cards: {[key: string]: number}|string)=>{
+			if(typeof cards == "string") {
+				price.usd += CardInfo.instance.price[cards].usd;
+				price.tix += CardInfo.instance.price[cards].tix;
+			} else {
+				Object.keys(cards).forEach((card: string)=>{
+					price.usd += cards[card] * CardInfo.instance.price[card].usd;
+					price.tix += cards[card] * CardInfo.instance.price[card].tix;
+				});
+			}
+		});
+		price.usd = Number(Math.round(parseFloat(price.usd.toString()+'e2'))+'e-2').toFixed(2);
+		price.tix = Number(Math.round(parseFloat(price.tix.toString()+'e2'))+'e-2').toFixed(2);
+		return price;
+	}
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {[key: string]: number}}[] {
 		let buckets: {[key: string]: {[key: string]: number}} = {}
 		let lists: {name: string, list: {[key: string]: number}}[] = []
-		let sortByName = !CardInfo.data;
-		if(!sortByName) {
-			switch (sort) {
-			case Sort.Type:
-				Object.keys(cards).forEach((card: string)=>{
-					if(!CardInfo.data[card]) {
-						sortByName = true;
-					}
-					if(sortByName) {
-						return;
-					}
-					let type_line = CardInfo.data[card].type_line;
-					for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
-						if(type_line.includes(item)) {
-							if(!buckets.hasOwnProperty(item)) {
-								buckets[item] = {}
-							}
-							buckets[item][card] = cards[card];
-							break;
+		let fallback = false;
+		switch (sort) {
+		case Sort.Type:
+			Object.keys(cards).forEach((card: string)=>{
+				if(!CardInfo.data[card]) {
+					fallback = true;
+				}
+				if(fallback) {
+					return;
+				}
+				let type_line = CardInfo.data[card].type_line;
+				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
+					if(type_line.includes(item)) {
+						if(!buckets.hasOwnProperty(item)) {
+							buckets[item] = {}
 						}
-					}
-				})
-				if(!sortByName) {
-					for(let item of ["Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery","Land"]) {
-						if(buckets.hasOwnProperty(item)) {
-							lists.push({
-								name: item,
-								list: buckets[item],
-							});
-						}
+						buckets[item][card] = cards[card];
+						break;
 					}
 				}
-				break;
-			case Sort.CMC:
-				Object.keys(cards).forEach((card: string)=>{
-					if(!CardInfo.data[card]) {
-						sortByName = true;
-					}
-					if(sortByName) {
-						return;
-					}
-					let cmc = CardInfo.data[card].converted_mana_cost;
-					if(!buckets.hasOwnProperty(cmc)) {
-						buckets[cmc] = {}
-					}
-					buckets[cmc][card] = cards[card];
-				});
-				if(!sortByName) {
-					for(let item of Object.keys(buckets).sort()) {
-						if(buckets.hasOwnProperty(item)) {
-							lists.push({
-								name: parseFloat(item).toString() + " drop",
-								list: buckets[item.toString()],
-							});
-						}
+			})
+			if(!fallback) {
+				for(let item of ["Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery","Land"]) {
+					if(buckets.hasOwnProperty(item)) {
+						lists.push({
+							name: item,
+							list: buckets[item],
+						});
 					}
 				}
-				break;
-			case Sort.Color:
-				Object.keys(cards).forEach((card: string)=>{
-					if(!CardInfo.data[card]) {
-						sortByName = true;
-					}
-					if(sortByName) {
-						return;
-					}
-					let colors = CardInfo.data[card].colors;
-					if(colors.length == 0) {
-						if(!buckets.hasOwnProperty("Colorless")) {
-							buckets["Colorless"] = {}
-						}
-						buckets["Colorless"][card] = cards[card];
-					} else if(colors.length > 1) {
-						if(!buckets.hasOwnProperty("Gold")) {
-							buckets["Gold"] = {}
-						}
-						buckets["Gold"][card] = cards[card];
-					} else {
-						let color = colors[0];
-						if(!buckets.hasOwnProperty(color)) {
-							buckets[color] = {}
-						}
-						buckets[color][card] = cards[card];
-					}
-				})
-				if(!sortByName) {
-					for(let item of ["W","U","B","R","G","Gold","Colorless"]) {
-						if(buckets.hasOwnProperty(item)) {
-							let name: string;
-							switch(item) {
-							case "W":
-								name = "White";
-								break;
-							case "U":
-								name = "Blue";
-								break;
-							case "B":
-								name = "Black";
-								break;
-							case "R":
-								name = "Red";
-								break;
-							case "G":
-								name = "Green";
-								break;
-							default:
-								name = item;
-							}
-							lists.push({
-								name: name,
-								list: buckets[item],
-							});
-						}
-					}
-				}
-				break;
-			case Sort.Name:
-			case Sort.Keyword: //TODO
-				sortByName = true;
-				break;
 			}
-		} else {
+			break;
+		case Sort.CMC:
+			Object.keys(cards).forEach((card: string)=>{
+				if(!CardInfo.data[card]) {
+					fallback = true;
+				}
+				if(fallback) {
+					return;
+				}
+				let cmc = CardInfo.data[card].converted_mana_cost;
+				if(!buckets.hasOwnProperty(cmc)) {
+					buckets[cmc] = {}
+				}
+				buckets[cmc][card] = cards[card];
+			});
+			if(!fallback) {
+				for(let item of Object.keys(buckets).sort()) {
+					if(buckets.hasOwnProperty(item)) {
+						lists.push({
+							name: parseFloat(item).toString() + " drop",
+							list: buckets[item.toString()],
+						});
+					}
+				}
+			}
+			break;
+		case Sort.Color:
+			Object.keys(cards).forEach((card: string)=>{
+				if(!CardInfo.data[card]) {
+					fallback = true;
+				}
+				if(fallback) {
+					return;
+				}
+				let colors = CardInfo.data[card].colors;
+				if(colors.length == 0) {
+					if(!buckets.hasOwnProperty("Colorless")) {
+						buckets["Colorless"] = {}
+					}
+					buckets["Colorless"][card] = cards[card];
+				} else if(colors.length > 1) {
+					if(!buckets.hasOwnProperty("Gold")) {
+						buckets["Gold"] = {}
+					}
+					buckets["Gold"][card] = cards[card];
+				} else {
+					let color = colors[0];
+					if(!buckets.hasOwnProperty(color)) {
+						buckets[color] = {}
+					}
+					buckets[color][card] = cards[card];
+				}
+			})
+			if(!fallback) {
+				for(let item of ["W","U","B","R","G","Gold","Colorless"]) {
+					if(buckets.hasOwnProperty(item)) {
+						let name: string;
+						switch(item) {
+						case "W":
+							name = "White";
+							break;
+						case "U":
+							name = "Blue";
+							break;
+						case "B":
+							name = "Black";
+							break;
+						case "R":
+							name = "Red";
+							break;
+						case "G":
+							name = "Green";
+							break;
+						default:
+							name = item;
+						}
+						lists.push({
+							name: name,
+							list: buckets[item],
+						});
+					}
+				}
+			}
+			break;
+		case Sort.Name:
+		case Sort.Keyword: //TODO
+			fallback = true;
+			break;
+		}
+		if(fallback) {
 			lists.push({
 				name: null,
 				list: cards,
@@ -457,32 +476,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	render() {
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
-		// Calculate price
-		let price: {usd: string, tix: string} = {
-			usd: null, tix: null,
-		}
-		let priceImg: {usd: string, tix: string};
-		if(this.state.price) {
-			Object.keys(this.props.mainboard).forEach((card: string)=>{
-				price.usd += this.props.mainboard[card] * this.state.price[card].usd;
-				price.tix += this.props.mainboard[card] * this.state.price[card].tix;
-			});
-			Object.keys(this.props.sideboard).forEach((card: string)=>{
-				price.usd += this.props.sideboard[card] * this.state.price[card].usd;
-				price.tix += this.props.sideboard[card] * this.state.price[card].tix;
-			});
-			price.usd = Number(Math.round(parseFloat(price.usd.toString()+'e2'))+'e-2').toFixed(2);
-			price.tix = Number(Math.round(parseFloat(price.tix.toString()+'e2'))+'e-2').toFixed(2);
-			priceImg = {
-				usd: this.state.price[this.state.curr].usd.toFixed(2),
-				tix: this.state.price[this.state.curr].tix.toFixed(2),
-			};
-		} else {
-			price = {
-				usd: null,
-				tix: null,
-			}
-		}
+		let price = CardInfo.price(this.props.mainboard, this.props.sideboard);
+		let priceImg = CardInfo.price(this.state.curr);
 		// Calculate height
 		const headerSize = 4;
 		const lineSize = 1.6;
@@ -535,7 +530,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							<div className="preview-img">
 								{this.state.img?<img src={this.state.img}/>:null}
 							</div>
-							{this.state.price?<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>:null}
+							<span>{priceImg.usd} USD / {priceImg.tix} TIX</span>
 						</div>
 					</div>
 				</div>
