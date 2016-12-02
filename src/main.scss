@@ -18,7 +18,7 @@ $background-color: rgba(168, 168, 168, 0.3);
 $opaque-background-color: #c5c5c5;
 $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
-$light-text-color: #999;
+$light-text-color: #888;
 $bright-green: #00bd00;
 $bright-green-hover: #d8ffe6;
 $dark-green: #2a402a;
@@ -74,6 +74,8 @@ div.roguebuilder {
 			}
 		}
 		span.price {
+			color: $light-text-color;
+			font-size: 0.9em;
 			@media (max-width: $breakpoint-big) {
 				display: inline-block;
 				margin-left: 0.5em;
