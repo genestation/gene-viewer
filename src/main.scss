@@ -71,22 +71,23 @@ div.roguebuilder {
 	}
 	div.head {
 		position: relative;
-		@media (max-width: $breakpoint-big) {
-			margin-bottom: 0.5em;
-		}
 		h1 {
 			display: inline;
 			@media (max-width: $breakpoint-big) {
 				display: block;
+				margin-top: 0;
+				margin-bottom: 0;
 			}
 		}
 		span.price {
 			@media (max-width: $breakpoint-big) {
+				display: inline-block;
 				margin-left: 0.5em;
+				margin-top: 0.25em;
+				margin-bottom: 0.25em;
 			}
 			@media (max-width: $breakpoint-small) {
 				display: block;
-				margin-bottom: 0.5em;
 			}
 		}
 		div.select {
@@ -100,12 +101,12 @@ div.roguebuilder {
 			}
 			@media (max-width: $breakpoint-big) {
 				left: 18.5em;
-				bottom: 0;
 			}
 			@media (max-width: $breakpoint-small) {
 				text-align: left;
 				position: relative;
 				margin-left: 0.5em;
+				margin-bottom: 0.5em;
 				bottom: 0;
 				left: auto;
 			}

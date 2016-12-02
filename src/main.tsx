@@ -426,6 +426,23 @@ class CardInfo {
 	}
 }
 
+const enum Media {
+	Small,
+	Medium,
+	Large,
+}
+function MediaBreakpoint() {
+	let small = window.matchMedia("(max-width:40em)").matches;
+	let big = window.matchMedia("(max-width:60em)").matches;
+	if(small) {
+		return Media.Small;
+	} else if (big) {
+		return Media.Medium;
+	} else {
+		return Media.Large;
+	}
+}
+
 interface DeckListProps{
 	name?: string;
 	cover?: string;
@@ -473,6 +490,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
 		this.startY = previewR.top + window.pageYOffset;
+		console.log(this.startY);
 		this.calculateScreenPosition();
 		//SAFARI IS DUMB
 		if(navigator.vendor == "Apple Computer, Inc.") {
@@ -498,7 +516,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		this.endY = this.startY + trackR.height - previewR.height;
+		let startYMod = 0;
+		if(MediaBreakpoint() == Media.Medium) {
+			startYMod = 20;
+		}
+		this.endY = this.startY + startYMod + trackR.height - previewR.height;
 	}
 	handleInfo = (card: string)=>{
 		if(this.state.curr == card) {
@@ -511,13 +533,16 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	handleScroll = ()=>{
 		this.calculateScreenPosition();
-		let smallMedia = window.matchMedia("(max-width:40em)").matches;
-		scrollY = (smallMedia?0:window.pageYOffset);
+		scrollY = (MediaBreakpoint() == Media.Small?0:window.pageYOffset);
+		let startYMod = 0;
+		if(MediaBreakpoint() == Media.Medium) {
+			startYMod = 20;
+		}
 		// Scrolling
 		let scroll = "top"
 		if(scrollY > this.endY) {
 			scroll = "bottom"
-		} else if (scrollY > this.startY) {
+		} else if (scrollY > this.startY + startYMod) {
 			scroll = "fixed"
 		}
 		this.setState({
@@ -525,14 +550,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 	}
 	showPreview = ()=>{
-		if(window.matchMedia("(max-width:40em)").matches) {
+		if(MediaBreakpoint() == Media.Small) {
 			this.setState({
 				scroll: "fixed",
 			});
 		}
 	}
 	togglePreview = ()=>{
-		if(window.matchMedia("(max-width:40em)").matches) {
+		if(MediaBreakpoint() == Media.Small) {
 			this.setState({
 				scroll: this.state.scroll=="fixed"?"top":"fixed",
 			});
@@ -559,12 +584,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="body">
 					<div className="message">Upload file</div>
 					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
-						<div ref={(ref)=>{this.child.preview=ref}}
-							className={"preview-frame"}>
-							<div className="preview">
-								<div className="preview-img"></div>
-								<span></span>
-							</div>
+						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
 						</div>
 					</div>
 				</div>
@@ -758,6 +778,13 @@ export interface MainState{
 export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
 			<DeckManager/>
 			<p>ababa</p>
 			<p>ababa</p>
