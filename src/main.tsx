@@ -354,11 +354,7 @@ class CardInfo {
 					if(buckets.hasOwnProperty(item)) {
 						lists.push({
 							name: parseFloat(item).toString() + " drop",
-							list: buckets[item].sort(({card: a}: {card: string}, {card: b}: {card: string})=>{
-									if(a<b) return -1;
-									else if(a>b) return 1;
-									else return 0;
-								}),
+							list: buckets[item].sort(secondSort),
 						});
 					}
 				}
