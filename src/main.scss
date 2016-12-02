@@ -31,18 +31,6 @@ div.roguebuilder {
 		position: absolute;
 		z-index: -1;
 	}
-	.message {
-		position: absolute;
-		margin-left: auto;
-		margin-right: auto;
-		left: 0;
-		right: 0;
-		top: 2em;
-		font-size: 2em;
-		font-weight: bold;
-		text-align: center;
-		color: $light-text-color;
-	}
 	h1 {
 		font-family: $beleren;
 		font-size: 2em;
@@ -121,6 +109,22 @@ div.roguebuilder {
 		@media (max-width: $breakpoint-small) {
 			flex-direction: column;
 			padding-top: 36em;
+		}
+		div.main-menu {
+			position: absolute;
+			margin-left: auto;
+			margin-right: auto;
+			left: 0;
+			right: 0;
+			top: 2em;
+			width: 20em;
+			text-align: center;
+			.menu-item {
+				width: 90%;
+				span {
+					font-size: 1.2em !important;
+				}
+			}
 		}
 		div.lists {
 			margin-top: 0.5em;

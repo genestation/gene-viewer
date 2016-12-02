@@ -2,6 +2,12 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import RaisedButton from 'material-ui/RaisedButton';
+import Popover from 'material-ui/Popover';
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
 import 'fetch-polyfill'; // HOPE remove window.fetch polyfill
 import './main.scss';
 
@@ -443,12 +449,63 @@ function MediaBreakpoint() {
 	}
 }
 
+interface DeckListMenuProps{
+	onUpload: ()=>any;
+	decks: string[];
+}
+interface DeckListMenuState{
+	decksOpen?: boolean;
+	decksAnchor?: DOMEventTarget;
+}
+class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> {
+	constructor(props: DeckListMenuProps) {
+		super(props)
+		this.state = {
+			decksOpen: false,
+		};
+	}
+	openDecks = (event: React.MouseEvent)=>{
+		event.preventDefault()
+		this.setState({
+			decksOpen: true,
+			decksAnchor: event.currentTarget,
+		});
+	}
+	closeDecks = ()=>{
+		this.setState({
+			decksOpen: false,
+		});
+	}
+	render() {
+		return <div className="main-menu">
+			<RaisedButton label="Upload" style={{margin: 12}} className="menu-item" onClick={this.props.onUpload} />
+			{this.props.decks.length?
+				<RaisedButton label="Decks" style={{margin: 12}} className="menu-item" onClick={this.openDecks} />
+			:null}
+			<Popover //TODO Fix
+				open={this.state.decksOpen}
+				anchorEl={this.state.decksAnchor}
+				anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+				targetOrigin={{horizontal: 'left', vertical: 'top'}}
+				onRequestClose={this.closeDecks}
+				>
+				<Menu> {
+					this.props.decks.map((deck: string, idx: number)=>{
+						return <MenuItem primaryText={deck} key={idx} />
+					})
+				} </Menu>
+			</Popover>
+		</div>
+	}
+}
+
 interface DeckListProps{
 	name?: string;
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	onFile?: ()=>any;
+	onUpload?: ()=>any;
+	decks?: string[];
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -592,12 +649,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	render() {
 		if(this.props.name == null) {
-			return <div className="decklist" onClick={this.props.onFile} >
+			return <div className="decklist" >
 				<div className="head">
 					<h1>Rogue Deck Builder</h1>
 				</div>
 				<div className="body">
-					<div className="message">Upload file</div>
+					<DeckListMenu onUpload={this.props.onUpload} decks={this.props.decks}/>
 					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
 						</div>
@@ -736,6 +793,7 @@ class DeckParser {
 }
 
 interface DeckManagerProps{
+	decks?: {[key: string]: {mainboard: {[key: string]: number}, sideboard: {[key: string]: number}}};
 }
 interface DeckManagerState{
 	name?: string;
@@ -747,7 +805,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	child: {
 		input?: HTMLElement;
 	} = {};
-	constructor(props: DeckListProps) {
+	constructor(props: DeckManagerProps) {
 		super(props);
 		this.state = {
 			name: null,
@@ -756,7 +814,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 			sideboard: null,
 		}
 	}
-	onFile = () => {
+	onUpload = () => {
 		this.child.input.click();
 	}
 	handleFile = (event: React.FormEvent)=>{
@@ -778,11 +836,14 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 				cover={this.state.cover}
 				mainboard={this.state.mainboard}
 				sideboard={this.state.sideboard}
-				onFile={this.onFile}
+				onUpload={this.onUpload}
+				decks={this.props.decks?Object.keys(this.props.decks):[]}
 			/>
 		</div>
 	}
 }
+
+const muiTheme = getMuiTheme();
 
 export interface MainProps{
 	autofocus?: boolean;
@@ -792,7 +853,8 @@ export interface MainState{
 }
 export default class extends React.Component<MainProps,MainState> {
 	render() {
-		return <div className="roguebuilder">
+		return <MuiThemeProvider muiTheme={muiTheme}>
+		<div className="roguebuilder">
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
@@ -800,7 +862,38 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
-			<DeckManager/>
+			<DeckManager decks={{
+				"Skred Red": {
+					mainboard: {
+						"Lightning Bolt": 4,
+						"Magma Jet": 1,
+						"Skred": 4,
+						"Anger of the Gods": 3,
+						"Mizzium Mortars": 1,
+						"Roast": 1,
+						"Batterskull": 1,
+						"Mind Stone": 4,
+						"Relic of Progenitus": 4,
+						"Chandra, Pyromaster": 1,
+						"Koth of the Hammer": 4,
+						"Scrying Sheets": 3,
+						"Snow-Covered Mountain": 20,
+						"Eternal Scourge": 2,
+						"Pia and Kiran Nalaar": 4,
+						"Blood Moon": 3,
+					},
+					sideboard: {
+						"Anger of the Gods": 1,
+						"Dragon's Claw": 3,
+						"Molten Rain": 3,
+						"Pyrite Spellbomb": 2,
+						"Shattering Spree": 1,
+						"Stormbreath Dragon": 2,
+						"Sudden Shock": 2,
+						"Vandalblast": 1,
+					}
+				},
+			}}/>
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
@@ -816,5 +909,6 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 		</div>
+		</MuiThemeProvider>
 	}
 }
