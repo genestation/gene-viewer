@@ -699,6 +699,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				</div>
 			</div>
 			<div className="body">
+				<div className="footprint"/>
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: {card: string, count: number}[]}, idx: number)=>{

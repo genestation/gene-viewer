@@ -70,7 +70,7 @@ div.roguebuilder {
 			white-space: nowrap;
 			color: $light-text-color;
 			font-size: 0.9em;
-			margin-left: 0.5em;
+			margin-left: 0.8em;
 			margin-top: 0.25em;
 			margin-bottom: 0.25em;
 			@media (max-width: $breakpoint-small) {
@@ -92,7 +92,7 @@ div.roguebuilder {
 			@media (max-width: $breakpoint-small) {
 				text-align: left;
 				position: relative;
-				margin-left: 0.5em;
+				margin-left: 0.6em;
 				margin-bottom: 0.5em;
 				bottom: 0;
 				left: auto;
@@ -107,7 +107,11 @@ div.roguebuilder {
 		display: flex;
 		@media (max-width: $breakpoint-small) {
 			flex-direction: column;
-			padding-top: 36em;
+		}
+		div.footprint {
+			@media (max-width: $breakpoint-small) {
+				height: 36em;
+			}
 		}
 		div.main-menu {
 			.menu-item {
