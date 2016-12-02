@@ -220,6 +220,8 @@ div.roguebuilder {
 	}
 	div.preview-img{
 		height: 25em;
+		overflow: hidden;
+		border-radius: 0.8em;
 		@media (max-width: $breakpoint-small) {
 			width:80vw;
 			max-width: 24em;

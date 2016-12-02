@@ -160,8 +160,12 @@ class CardInfo {
 					// Sort sets
 					let sets: string[] = [];
 					function date(input: string) {
-						let part = input?input.split('-',3).map((val: string)=>parseInt(val)):[];
-						return input?new Date(part[0],part[1],part[2]).valueOf():Number.NEGATIVE_INFINITY;
+						if(!input) {
+							return Number.NEGATIVE_INFINITY;
+						} else {
+							let part = input.split('-',3).map((val: string)=>parseInt(val));
+							return new Date(part[0],part[1],part[2]).valueOf();
+						}
 					}
 					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
 						return date(a.released_at) - date(b.released_at)
