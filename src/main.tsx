@@ -617,6 +617,67 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 }
 
+const enum State {
+	Main,
+	Side,
+};
+class DeckParser {
+	static parseText(name: string, lines: string[]) {
+		let cover: string = null;
+		let mainboard: {[key: string]: number} = {}
+		let sideboard: {[key: string]: number} = {}
+		let state: State = null;
+		lines.forEach((line: string)=>{
+			line = line.trim();
+			let space = line.indexOf(' ');
+			let count: number = null;
+			let card: string = null;
+			if(space > -1) {
+				count = parseInt(line.slice(0,line.indexOf(' ')));
+				card = line.slice(line.indexOf(' ')+1);
+			}
+			switch(state) {
+			case null:
+				if(line.length) {
+					state=State.Main;
+				} else {
+					break;
+				}
+				/* fall through */
+			case State.Main:
+				if(!line.length) {
+					state=State.Side;
+					break;
+				}
+				if(count && card) {
+					if(cover == null) {
+						cover = card;
+					}
+					mainboard[card] = count;
+				}
+				break;
+			case State.Side:
+				if(!line.length) {
+					break;
+				}
+				if(count && card) {
+					if(cover == null) {
+						cover = card;
+					}
+					sideboard[card] = count;
+				}
+			};
+		});
+
+		return {
+			name: name,
+			cover: cover,
+			mainboard: mainboard,
+			sideboard: sideboard,
+		};
+	}
+}
+
 interface DeckManagerProps{
 }
 interface DeckManagerState{
@@ -637,65 +698,13 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	}
 	handleFile = (event: React.FormEvent)=>{
 		let file = event.target.files[0];
-		let name = file.name.replace(/\.[a-z]*$/,"");
-		let cover: string = null;
-		let mainboard: {[key: string]: number} = {}
-		let sideboard: {[key: string]: number} = {}
-
 		let reader = new FileReader();
 		reader.onload = (event: Event)=>{
-			const enum State {
-				Main,
-				Side,
-			};
-			let state: State = null;
-			event.target.result.split(/\r?\n/).forEach((line: string)=>{
-				line = line.trim();
-				let space = line.indexOf(' ');
-				let count: number = null;
-				let card: string = null;
-				if(space > -1) {
-					count = parseInt(line.slice(0,line.indexOf(' ')));
-					card = line.slice(line.indexOf(' ')+1);
-				}
-				switch(state) {
-				case null:
-					if(line.length) {
-						state=State.Main;
-					} else {
-						break;
-					}
-					/* fall through */
-				case State.Main:
-					if(!line.length) {
-						state=State.Side;
-						break;
-					}
-					if(count && card) {
-						if(cover == null) {
-							cover = card;
-						}
-						mainboard[card] = count;
-					}
-					break;
-				case State.Side:
-					if(!line.length) {
-						break;
-					}
-					if(count && card) {
-						if(cover == null) {
-							cover = card;
-						}
-						sideboard[card] = count;
-					}
-				};
-			});
-			this.setState({
-				name: name,
-				cover: cover,
-				mainboard: mainboard,
-				sideboard: sideboard,
-			});
+			let output = DeckParser.parseText(
+				file.name.replace(/\.[a-z]*$/,""),
+				event.target.result.split(/\r?\n/),
+			);
+			this.setState(output);
 		}
 		reader.readAsText(file);
 	}
