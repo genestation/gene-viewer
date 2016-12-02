@@ -2,12 +2,6 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import RaisedButton from 'material-ui/RaisedButton';
-import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
 import 'fetch-polyfill'; // HOPE remove window.fetch polyfill
 import './main.scss';
 
@@ -483,23 +477,11 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 	}
 	render() {
 		return <div className="main-menu">
-			<RaisedButton label="Upload" style={{margin: 12}} className="menu-item" onClick={this.props.onUpload} />
-			{this.props.decks.length?
-				<RaisedButton label="Decks" style={{margin: 12}} className="menu-item" onClick={this.openDecks} />
-			:null}
-			<Popover //TODO Fix
-				open={this.state.decksOpen}
-				anchorEl={this.state.decksAnchor}
-				anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-				targetOrigin={{horizontal: 'left', vertical: 'top'}}
-				onRequestClose={this.closeDecks}
-				>
-				<Menu> {
-					this.props.decks.map((deck: string, idx: number)=>{
-						return <MenuItem primaryText={deck} key={idx} />
-					})
-				} </Menu>
-			</Popover>
+			<div className="menu-item file-upload" onClick={this.props.onUpload}>
+				<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
+				&nbsp;
+				<i className="fa fa-file-text-o" aria-hidden="true" />
+			</div>
 		</div>
 	}
 }
@@ -848,8 +830,6 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	}
 }
 
-const muiTheme = getMuiTheme();
-
 export interface MainProps{
 	autofocus?: boolean;
 }
@@ -858,8 +838,7 @@ export interface MainState{
 }
 export default class extends React.Component<MainProps,MainState> {
 	render() {
-		return <MuiThemeProvider muiTheme={muiTheme}>
-		<div className="roguebuilder">
+		return <div className="roguebuilder">
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
@@ -914,6 +893,5 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 		</div>
-		</MuiThemeProvider>
 	}
 }

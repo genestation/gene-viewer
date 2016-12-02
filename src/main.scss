@@ -1,5 +1,7 @@
 @import "~normalize.css/normalize.css";
 @import "../repo/mana-cost/css/mana-cost.css";
+$fa-font-path: "~font-awesome/fonts";
+@import "~font-awesome/scss/font-awesome";
 
 @font-face {
 	font-family: "Beleren Bold";
@@ -17,6 +19,10 @@ $opaque-background-color: #c5c5c5;
 $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 $light-text-color: #999;
+$bright-green: #00bd00;
+$bright-green-hover: #d8ffe6;
+$dark-green: #2a402a;
+$dark-green-hover: #1d541d;
 
 $breakpoint-small: 40em;
 $breakpoint-big: 60em;
@@ -111,18 +117,23 @@ div.roguebuilder {
 			padding-top: 36em;
 		}
 		div.main-menu {
-			position: absolute;
-			margin-left: auto;
-			margin-right: auto;
-			left: 0;
-			right: 0;
-			top: 2em;
-			width: 20em;
-			text-align: center;
 			.menu-item {
+				padding: 0.2em 0.75em;
+				margin: 1em;
+				border-radius: 0.2em;
+				text-align: center;
 				width: 90%;
-				span {
-					font-size: 1.2em !important;
+				font-size: 2em;
+			}
+			.file-upload {
+				width: 2em;
+				padding: 0.25em 0.5em;
+				background-color: $dark-green;
+				color: $bright-green;
+				&:hover {
+					transition: all 1s ease;
+					background-color: $dark-green-hover;
+					color: $bright-green-hover;
 				}
 			}
 		}
@@ -151,9 +162,9 @@ div.roguebuilder {
 		}
 		tr {
 			cursor: pointer;
-		}
-		tr:hover {
-			background: $dark-background_color;
+			&:hover {
+				background: $dark-background_color;
+			}
 		}
 		td {
 			padding: 0.25em;
