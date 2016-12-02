@@ -182,12 +182,21 @@ class CardInfo {
 					} else {
 						response.json().then((json: ScryfallCardList)=>{
 							let latestSet = Number.NEGATIVE_INFINITY;
+							let bestFrame = -1;
 							let cards = new Set();
 							json.data.forEach((info: ScryfallCard)=>{
 								cards.add(info.name);
-								if(latestSet < this.setOrder[info.set]) {
+								let set = this.setOrder[info.set];
+								let frame = parseInt(info.frame);
+								if(Number.isNaN(frame)) {
+									frame = 0;
+								}
+								if(bestFrame < frame
+									|| bestFrame == frame
+									&& latestSet < set) {
 									this.data[info.name] = info;
-									latestSet = this.setOrder[info.set];
+									latestSet = set;
+									bestFrame = frame;
 								}
 								if(info.usd !== null) {
 									let usd = parseFloat(info.usd);
@@ -203,6 +212,8 @@ class CardInfo {
 								}
 							})
 							cards.forEach((card: string)=>{
+								let image = new Image();
+								image.src = this.data[card].image_uri;
 								if(this.listener.hasOwnProperty(card)) {
 									this.listener[card].forEach((listener: (card: string)=>any)=>{
 										listener(card);
@@ -219,6 +230,9 @@ class CardInfo {
 	}
 	static data(card: string) {
 		return CardInfo.instance.data[CardInfo.splitCard(card)];
+	}
+	static image(card: string) {
+		return CardInfo.instance.data[CardInfo.splitCard(card)].image_uri;
 	}
 	static price(card: string) {
 		return CardInfo.instance.price[CardInfo.splitCard(card)];
@@ -577,7 +591,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		// END DUMB
 		if(this.state.curr == card) {
 			this.setState({
-				img: CardInfo.data(this.state.curr).image_uri,
+				img: CardInfo.image(this.state.curr),
 			}, Safari?fixSafari:null);
 		} else {
 			this.forceUpdate(Safari?fixSafari:null);
@@ -626,7 +640,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		if(CardInfo.data(curr)) {
 			this.setState({
 				curr: curr,
-				img: CardInfo.data(curr).image_uri,
+				img: CardInfo.image(curr),
 			});
 		} else {
 			this.setState({
@@ -781,7 +795,7 @@ class DeckParser {
 }
 
 interface DeckManagerProps{
-	decks?: {[key: string]: {mainboard: {[key: string]: number}, sideboard: {[key: string]: number}}};
+	decks?: string[];
 }
 interface DeckManagerState{
 	name?: string;
@@ -847,38 +861,12 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
-			<DeckManager decks={{
-				"Skred Red": {
-					mainboard: {
-						"Lightning Bolt": 4,
-						"Magma Jet": 1,
-						"Skred": 4,
-						"Anger of the Gods": 3,
-						"Mizzium Mortars": 1,
-						"Roast": 1,
-						"Batterskull": 1,
-						"Mind Stone": 4,
-						"Relic of Progenitus": 4,
-						"Chandra, Pyromaster": 1,
-						"Koth of the Hammer": 4,
-						"Scrying Sheets": 3,
-						"Snow-Covered Mountain": 20,
-						"Eternal Scourge": 2,
-						"Pia and Kiran Nalaar": 4,
-						"Blood Moon": 3,
-					},
-					sideboard: {
-						"Anger of the Gods": 1,
-						"Dragon's Claw": 3,
-						"Molten Rain": 3,
-						"Pyrite Spellbomb": 2,
-						"Shattering Spree": 1,
-						"Stormbreath Dragon": 2,
-						"Sudden Shock": 2,
-						"Vandalblast": 1,
-					}
-				},
-			}}/>
+			<DeckManager decks={[
+				"decks/" + "Kevin Crimin - Jund Obliterator.txt",
+				"decks/" + "Morten - Skred Red.txt",
+				"decks/" + "Tutor's Library - Modern 23-Land Dredge.txt",
+				"decks/" + "Zac Elsik - Hulk Combo.txt",
+			]} />
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
