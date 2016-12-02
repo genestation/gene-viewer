@@ -513,8 +513,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		sideboard: {},
 	}
 	startY: number = null;
-	padStartY: number = null;
-	padY: number = null;
 	endY: number = null;
 	scrollY: number = window.pageYOffset;
 	scrolling: boolean = false;
@@ -540,10 +538,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
-		let previewR = this.child.preview.getClientRects()[0];
-		let headR = this.child.head.getClientRects()[0];
-		this.startY = previewR.top + window.pageYOffset;
-		this.padStartY = headR.height;
 		this.calculateScreenPosition();
 	}
 	componentWillUnmount() {
@@ -555,9 +549,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		let headR = this.child.head.getClientRects()[0];
-		this.padY = this.padStartY - headR.height;
-		this.endY = this.startY - this.padY + trackR.height - previewR.height;
+		this.startY = trackR.top + window.pageYOffset;
+		this.endY = this.startY + trackR.height - previewR.height;
 	}
 	SafariIsBeingDumb: boolean = false;
 	handleInfo = (card: string)=>{
@@ -592,9 +585,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	handleScroll = ()=>{
 		this.scrollY = window.pageYOffset;
-		this.tickScroll();
-	}
-	tickScroll = ()=>{
 		if(!this.scrolling) {
 			requestAnimationFrame(this.updateScroll);
 		}
@@ -607,7 +597,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let scroll = "top"
 		if(scrollY > this.endY) {
 			scroll = "bottom"
-		} else if (scrollY > this.startY - this.padY) {
+		} else if (scrollY > this.startY) {
 			scroll = "fixed"
 		}
 		if(scroll != this.state.scroll) {
