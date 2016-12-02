@@ -467,6 +467,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	startY: number = null;
 	endY: number = null;
+	scrollY: number = window.pageYOffset;
+	scrolling: boolean = false;
 	child: {
 		preview?: Element;
 		track?: Element;
@@ -490,7 +492,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
 		this.startY = previewR.top + window.pageYOffset;
-		console.log(this.startY);
 		this.calculateScreenPosition();
 		//SAFARI IS DUMB
 		if(navigator.vendor == "Apple Computer, Inc.") {
@@ -532,8 +533,18 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	handleScroll = ()=>{
+		this.scrollY = window.pageYOffset;
+		this.tickScroll();
+	}
+	tickScroll = ()=>{
+		if(!this.scrolling) {
+			requestAnimationFrame(this.updateScroll);
+		}
+		this.scrolling = true;
+	}
+	updateScroll = ()=>{
 		this.calculateScreenPosition();
-		scrollY = (MediaBreakpoint() == Media.Small?0:window.pageYOffset);
+		scrollY = (MediaBreakpoint() == Media.Small?0:this.scrollY);
 		let startYMod = 0;
 		if(MediaBreakpoint() == Media.Medium) {
 			startYMod = 20;
@@ -545,9 +556,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		} else if (scrollY > this.startY + startYMod) {
 			scroll = "fixed"
 		}
-		this.setState({
-			scroll: scroll,
-		});
+		if(scroll != this.state.scroll) {
+			this.setState({
+				scroll: scroll,
+			}, ()=>{this.scrolling=false});
+		} else {
+			this.scrolling=false;
+		}
 	}
 	showPreview = ()=>{
 		if(MediaBreakpoint() == Media.Small) {
