@@ -513,11 +513,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		sideboard: {},
 	}
 	startY: number = null;
+	padStartY: number = null;
+	padY: number = null;
 	endY: number = null;
 	scrollY: number = window.pageYOffset;
 	scrolling: boolean = false;
 	child: {
 		preview?: Element;
+		head?: Element;
 		track?: Element;
 	} = {};
 	constructor(props: DeckListProps) {
@@ -538,7 +541,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
 		let previewR = this.child.preview.getClientRects()[0];
+		let headR = this.child.head.getClientRects()[0];
 		this.startY = previewR.top + window.pageYOffset;
+		this.padStartY = headR.height;
 		this.calculateScreenPosition();
 	}
 	componentWillUnmount() {
@@ -550,11 +555,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	calculateScreenPosition() {
 		let previewR = this.child.preview.getClientRects()[0];
 		let trackR = this.child.track.getClientRects()[0];
-		let startYMod = 0;
-		if(MediaBreakpoint() == Media.Medium) {
-			startYMod = 20;
-		}
-		this.endY = this.startY + startYMod + trackR.height - previewR.height;
+		let headR = this.child.head.getClientRects()[0];
+		this.padY = this.padStartY - headR.height;
+		this.endY = this.startY - this.padY + trackR.height - previewR.height;
 	}
 	SafariIsBeingDumb: boolean = false;
 	handleInfo = (card: string)=>{
@@ -600,15 +603,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	updateScroll = ()=>{
 		this.calculateScreenPosition();
 		scrollY = (MediaBreakpoint() == Media.Small?0:this.scrollY);
-		let startYMod = 0;
-		if(MediaBreakpoint() == Media.Medium) {
-			startYMod = 20;
-		}
 		// Scrolling
 		let scroll = "top"
 		if(scrollY > this.endY) {
 			scroll = "bottom"
-		} else if (scrollY > this.startY + startYMod) {
+		} else if (scrollY > this.startY - this.padY) {
 			scroll = "fixed"
 		}
 		if(scroll != this.state.scroll) {
@@ -648,7 +647,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	render() {
 		if(this.props.name == null) {
 			return <div className="decklist" >
-				<div className="head">
+				<div className="head" ref={(ref)=>this.child.head=ref}>
 					<h1>Rogue Deck Builder</h1>
 				</div>
 				<div className="body">
@@ -685,11 +684,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Return DOM
 		return <div className="decklist">
-			<div className="head">
-				<div className="title">
-					<h1>{this.props.name}</h1>
-					<span className="price">{price.usd} USD / {price.tix} TIX</span>
-				</div>
+			<div className="head" ref={(ref)=>this.child.head=ref} >
+				<h1>{this.props.name}</h1>
+				<span className="price">{price.usd} USD / {price.tix} TIX</span>
 				<div className="select">
 					<span>Sort by </span>
 					<select value={this.state.sort.toString()}
