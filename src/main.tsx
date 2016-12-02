@@ -738,12 +738,12 @@ const enum State {
 	Side,
 };
 class DeckParser {
-	static parseText(name: string, lines: string[]) {
+	static parseText(text: string) {
 		let cover: string = null;
 		let mainboard: {[key: string]: number} = {}
 		let sideboard: {[key: string]: number} = {}
 		let state: State = null;
-		lines.forEach((line: string)=>{
+		text.split(/\r?\n/).forEach((line: string)=>{
 			line = line.trim();
 			let space = line.indexOf(' ');
 			let count: number = null;
@@ -786,7 +786,6 @@ class DeckParser {
 		});
 
 		return {
-			name: name,
 			cover: cover,
 			mainboard: mainboard,
 			sideboard: sideboard,
@@ -795,13 +794,17 @@ class DeckParser {
 }
 
 interface DeckManagerProps{
-	decks?: string[];
+	decklists?: string[];
 }
 interface DeckManagerState{
-	name?: string;
-	cover?: string;
-	mainboard?: {[key: string]: number};
-	sideboard?: {[key: string]: number};
+	library?: {
+		[name: string]: {
+			cover?: string;
+			mainboard?: {[key: string]: number};
+			sideboard?: {[key: string]: number};
+		},
+	},
+	curr?: string,
 }
 class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	child: {
@@ -810,37 +813,71 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	constructor(props: DeckManagerProps) {
 		super(props);
 		this.state = {
-			name: null,
-			cover: null,
-			mainboard: null,
-			sideboard: null,
+			library: {},
 		}
+		// Load decks
+		props.decklists.forEach((url: string)=>{
+			fetch(url).then((response: Promise<Request>)=>{
+				if(response.status !== 200) {
+					console.log(response.status, response.url);
+				} else {
+					let name = this.cleanFilename(
+						decodeURIComponent(response.url)
+							.split('/').pop()
+					);
+					response.text().then((text: string)=>{
+						let output = DeckParser.parseText(text);
+						this.addDeckList(this.cleanFilename(name), output);
+					});
+				}
+			});
+		});
 	}
 	onUpload = () => {
 		this.child.input.click();
+	}
+	cleanFilename(filename: string) {
+		return filename.replace(/\.[a-z]*$/,"");
+	}
+	addDeckList = (name: string, deck: {
+		cover?: string;
+		mainboard?: {[key: string]: number};
+		sideboard?: {[key: string]: number};
+	}, setCurr: boolean = false) => {
+		let library = this.state.library;
+		// TODO solve name collisions
+		library[name] = deck;
+		if(setCurr) {
+			this.setState({
+				library: library,
+				curr: name,
+			});
+		} else {
+			this.setState({
+				library: library,
+			});
+		}
 	}
 	handleFile = (event: React.FormEvent)=>{
 		let file = event.target.files[0];
 		let reader = new FileReader();
 		reader.onload = (event: Event)=>{
-			let output = DeckParser.parseText(
-				file.name.replace(/\.[a-z]*$/,""),
-				event.target.result.split(/\r?\n/),
-			);
-			this.setState(output);
+			let output = DeckParser.parseText(event.target.result);
+			this.addDeckList(this.cleanFilename(file.name), output, true);
 		}
 		reader.readAsText(file);
 	}
 	render() {
 		return <div>
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
-			<DeckList name={this.state.name}
-				cover={this.state.cover}
-				mainboard={this.state.mainboard}
-				sideboard={this.state.sideboard}
+			{this.state.curr?
+			<DeckList name={this.state.curr}
+				{...this.state.library[this.state.curr]}
 				onUpload={this.onUpload}
-				decks={this.props.decks?Object.keys(this.props.decks):[]}
-			/>
+				decks={Object.keys(this.state.library)}
+			/>:<DeckList onUpload={this.onUpload}
+				decks={Object.keys(this.state.library)}
+			/>}
 		</div>
 	}
 }
@@ -861,7 +898,7 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
-			<DeckManager decks={[
+			<DeckManager decklists={[
 				"decks/" + "Kevin Crimin - Jund Obliterator.txt",
 				"decks/" + "Morten - Skred Red.txt",
 				"decks/" + "Tutor's Library - Modern 23-Land Dredge.txt",
