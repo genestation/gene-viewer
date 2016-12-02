@@ -106,12 +106,12 @@ interface ScryfallCard {
 	image_uri: string;
 }
 interface ScryfallSet {
-	object: string,
-	code: string,
-	name: string,
-	set_type: string,
-	released_at: string,
-	search_uri: string,
+	object: string;
+	code: string;
+	name: string;
+	set_type: string;
+	released_at: string;
+	search_uri: string;
 }
 interface ScryfallSetList {
 	data: ScryfallSet[];
@@ -185,8 +185,7 @@ class CardInfo {
 							let cards = new Set();
 							json.data.forEach((info: ScryfallCard)=>{
 								cards.add(info.name);
-								if(!info.digital
-									&& latestSet < this.setOrder[info.set]) {
+								if(latestSet < this.setOrder[info.set]) {
 									this.data[info.name] = info;
 									latestSet = this.setOrder[info.set];
 								}
