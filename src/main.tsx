@@ -196,7 +196,8 @@ class CardInfo {
 							let cards = new Set();
 							json.data.forEach((info: ScryfallCard)=>{
 								cards.add(info.name);
-								if(!info.digital && latestSet < this.setOrder[info.set]) {
+								if(!info.digital
+									&& latestSet < this.setOrder[info.set]) {
 									this.data[info.name] = info;
 									latestSet = this.setOrder[info.set];
 								}
