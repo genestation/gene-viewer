@@ -635,7 +635,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 			sideboard: null,
 		}
 	}
-	handleFile = (event: FormEvent)=>{
+	handleFile = (event: React.FormEvent)=>{
 		let file = event.target.files[0];
 		let name = file.name.replace(/\.[a-z]*$/,"");
 		let cover: string = null;
@@ -643,7 +643,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		let sideboard: {[key: string]: number} = {}
 
 		let reader = new FileReader();
-		reader.onload = (event: FormEvent)=>{
+		reader.onload = (event: Event)=>{
 			const enum State {
 				Main,
 				Side,
