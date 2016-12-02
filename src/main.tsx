@@ -686,8 +686,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		// Return DOM
 		return <div className="decklist">
 			<div className="head">
-				<h1>{this.props.name}</h1>
-				<span className="price">&nbsp;&nbsp;{price.usd} USD / {price.tix} TIX</span>
+				<div className="title">
+					<h1>{this.props.name}</h1>
+					<span className="price">{price.usd} USD / {price.tix} TIX</span>
+				</div>
 				<div className="select">
 					<span>Sort by </span>
 					<select value={this.state.sort.toString()}

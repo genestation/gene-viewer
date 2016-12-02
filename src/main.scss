@@ -65,8 +65,15 @@ div.roguebuilder {
 	}
 	div.head {
 		position: relative;
+		div.title {
+			max-width: 40em;
+			padding-left: 0.5em;
+			padding-right: 0.5em;
+		}
 		h1 {
 			display: inline;
+			margin-left: 0;
+			margin-right: 0;
 			@media (max-width: $breakpoint-big) {
 				display: block;
 				margin-top: 0;
@@ -74,8 +81,10 @@ div.roguebuilder {
 			}
 		}
 		span.price {
+			white-space: nowrap;
 			color: $light-text-color;
 			font-size: 0.9em;
+			margin-left: 1em;
 			@media (max-width: $breakpoint-big) {
 				display: inline-block;
 				margin-left: 0.5em;
@@ -101,7 +110,7 @@ div.roguebuilder {
 			@media (max-width: $breakpoint-small) {
 				text-align: left;
 				position: relative;
-				margin-left: 0.5em;
+				margin-left: 0.9em;
 				margin-bottom: 0.5em;
 				bottom: 0;
 				left: auto;
