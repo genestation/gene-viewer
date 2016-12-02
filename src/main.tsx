@@ -655,6 +655,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					<h1>Rogue Deck Builder</h1>
 				</div>
 				<div className="body">
+					<div className="overlay" />
 					<DeckListMenu onUpload={this.props.onUpload} decks={this.props.decks}/>
 					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
