@@ -545,20 +545,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let previewR = this.child.preview.getClientRects()[0];
 		this.startY = previewR.top + window.pageYOffset;
 		this.calculateScreenPosition();
-		//SAFARI IS DUMB
-		if(navigator.vendor == "Apple Computer, Inc.") {
-			console.log("Safari is dumb.");
-			let manacosts = document.getElementsByClassName('mana-cost')
-			for(let idx=0; idx<manacosts.length; idx++) {
-				(manacosts[idx] as HTMLElement).style.cssText="position: relative";
-			};
-			window.setTimeout(()=>{
-				for(let idx=0; idx<manacosts.length; idx++) {
-					(manacosts[idx] as HTMLElement).style.cssText="position: absolute";
-				};
-			},0);
-		}
-		// END DUMB
 	}
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.handleScroll);
@@ -575,13 +561,35 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 		this.endY = this.startY + startYMod + trackR.height - previewR.height;
 	}
+	SafariIsBeingDumb: boolean = false;
 	handleInfo = (card: string)=>{
+		//SAFARI IS DUMB
+		function SafariIsDumb() {
+			console.log("Safari is dumb.");
+			let manacosts = document.getElementsByClassName('mana-cost')
+			for(let idx=0; idx<manacosts.length; idx++) {
+				(manacosts[idx] as HTMLElement).style.cssText="position: relative";
+			};
+			window.setTimeout(()=>{
+				for(let idx=0; idx<manacosts.length; idx++) {
+					(manacosts[idx] as HTMLElement).style.cssText="position: absolute";
+				};
+			},0);
+		}
+		function fixSafari() {
+			if(!this.SafariIsBeingDumb) {
+				requestAnimationFrame(SafariIsDumb);
+			}
+			this.SafariIsBeingDumb = true;
+		}
+		let Safari = navigator.vendor.indexOf("Apple") > -1;
+		// END DUMB
 		if(this.state.curr == card) {
 			this.setState({
 				img: CardInfo.data(this.state.curr).image_uri,
-			});
+			}, Safari?fixSafari:null);
 		} else {
-			this.forceUpdate();
+			this.forceUpdate(Safari?fixSafari:null);
 		}
 	}
 	handleScroll = ()=>{
