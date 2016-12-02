@@ -15,11 +15,6 @@ interface CardListProps{
 }
 interface CardListState{ }
 class CardList extends React.Component<CardListProps,CardListState> {
-	parseManaCost(cost?: string) {
-		return cost?cost.slice(0,-1).split('}{').map((sym: string)=>{
-			return sym.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
-		}):null;
-	}
 	renderManaCost(symbols: string[]) {
 		return symbols?symbols.map((sym: string, idx: number)=>{
 			return <span key={idx} className={"mana small s"+sym}/>
@@ -40,7 +35,7 @@ class CardList extends React.Component<CardListProps,CardListState> {
 					let mana_cost: string[] = null;
 					if(this.props.cardinfo(card)) {
 						info = true;
-						mana_cost = this.parseManaCost(this.props.cardinfo(card).mana_cost);
+						mana_cost = CardInfo.manaCost(card);
 					}
 					// Calculate width
 					let ratio = (16/*table width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
@@ -274,6 +269,12 @@ class CardInfo {
 			tix: roundOff(tix),
 		};
 	}
+	static manaCost(card: string) {
+		let cost = CardInfo.instance.data[CardInfo.splitCard(card)].mana_cost;
+		return cost?cost.slice(0,-1).split('}{').map((sym: string)=>{
+			return sym.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+		}):[];
+	}
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {card: string, count: number}[]}[] {
 		let buckets: {[key: string]: {card: string, count: number}[]} = {}
 		let lists: {name: string, list: {card: string, count: number}[]}[] = []
@@ -283,12 +284,19 @@ class CardInfo {
 			let cmc_b = parseFloat(CardInfo.data(b).converted_mana_cost);
 			let diff = cmc_a - cmc_b;
 			if(diff == 0) {
-				if(a < b) {
-					return -1;
-				} else if(a > b) {
-					return 1;
+				let syms_a = CardInfo.manaCost(a).length;
+				let syms_b = CardInfo.manaCost(b).length;
+				let diff = syms_a - syms_b;
+				if(diff == 0) {
+					if(a < b) {
+						return -1;
+					} else if(a > b) {
+						return 1;
+					} else {
+						return 0;
+					}
 				} else {
-					return 0;
+					return diff;
 				}
 			} else {
 				return diff;
