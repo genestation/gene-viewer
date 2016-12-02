@@ -431,6 +431,7 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
+	onFile?: ()=>any;
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -455,16 +456,18 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
-		CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
-		CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
+		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
+		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		this.state = {
-			curr: props.cover?props.cover:Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
+			curr: props.cover?props.cover:
+				props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
 			sort: Sort.Type,
 		};
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
-		CardInfo.register(Object.keys(nextProps.mainboard), this.handleInfo);
-		CardInfo.register(Object.keys(nextProps.sideboard), this.handleInfo);
+		if(nextProps.cover) this.setState({curr: nextProps.cover});
+		if(nextProps.mainboard) CardInfo.register(Object.keys(nextProps.mainboard), this.handleInfo);
+		if(nextProps.sideboard) CardInfo.register(Object.keys(nextProps.sideboard), this.handleInfo);
 	}
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
@@ -548,6 +551,25 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	render() {
+		if(this.props.name == null) {
+			return <div className="decklist" onClick={this.props.onFile} >
+				<div className="head">
+					<h1>Rogue Deck Builder</h1>
+				</div>
+				<div className="body">
+					<div className="message">Upload file</div>
+					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
+						<div ref={(ref)=>{this.child.preview=ref}}
+							className={"preview-frame"}>
+							<div className="preview">
+								<div className="preview-img"></div>
+								<span></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
 		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name)[0];
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
@@ -687,6 +709,9 @@ interface DeckManagerState{
 	sideboard?: {[key: string]: number};
 }
 class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
+	child: {
+		input?: HTMLElement;
+	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
 		this.state = {
@@ -695,6 +720,9 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 			mainboard: null,
 			sideboard: null,
 		}
+	}
+	onFile = () => {
+		this.child.input.click();
 	}
 	handleFile = (event: React.FormEvent)=>{
 		let file = event.target.files[0];
@@ -709,15 +737,15 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		reader.readAsText(file);
 	}
 	render() {
-		if(this.state.name==null) {
-			return <input type="file" onChange={this.handleFile}/>
-		} else {
-			return <DeckList name={this.state.name}
+		return <div>
+			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
+			<DeckList name={this.state.name}
 				cover={this.state.cover}
 				mainboard={this.state.mainboard}
 				sideboard={this.state.sideboard}
+				onFile={this.onFile}
 			/>
-		}
+		</div>
 	}
 }
 
@@ -731,6 +759,20 @@ export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
 			<DeckManager/>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
+			<p>ababa</p>
 		</div>
 	}
 }
