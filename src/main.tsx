@@ -550,7 +550,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	startY: number = null;
 	endY: number = null;
 	scrollY: number = window.pageYOffset;
-	scrolling: boolean = false;
+	updatingInfo: boolean = false;
+	updatingScroll: boolean = false;
 	child: {
 		preview?: Element;
 		head?: Element;
@@ -589,35 +590,37 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		this.startY = trackR.top + window.pageYOffset;
 		this.endY = this.startY + trackR.height - previewR.height;
 	}
-	SafariIsBeingDumb: boolean = false;
 	handleInfo = (card: string)=>{
+		if(!this.updatingInfo) {
+			requestAnimationFrame(this.updateInfo);
+		}
+		this.updatingInfo = true;
+	}
+	updateInfo = ()=>{
 		//SAFARI IS DUMB
 		function SafariIsDumb() {
 			console.log("Safari is dumb.");
-			let manacosts = document.getElementsByClassName('mana-cost')
+			let manacosts = document.getElementsByClassName('mana-cost');
 			for(let idx=0; idx<manacosts.length; idx++) {
-				let element = (manacosts[idx] as HTMLElement)
+				let element = (manacosts[idx] as HTMLElement);
 				element.style.cssText="position: relative";
 				console.log(window.getComputedStyle(element).position);
 				element.style.cssText="position: absolute";
-			};
-		}
-		function fixSafari() {
-			if(!this.SafariIsBeingDumb) {
-				requestAnimationFrame(SafariIsDumb);
 			}
-			this.SafariIsBeingDumb = true;
 		}
 		let Safari = navigator.vendor.indexOf("Apple") > -1;
 		// END DUMB
-		this.forceUpdate(Safari?fixSafari:null);
+		this.forceUpdate(()=>{
+			this.updatingInfo=false;
+			if(Safari) SafariIsDumb();
+		});
 	}
 	handleScroll = ()=>{
 		this.scrollY = window.pageYOffset;
-		if(!this.scrolling) {
+		if(!this.updatingScroll) {
 			requestAnimationFrame(this.updateScroll);
 		}
-		this.scrolling = true;
+		this.updatingScroll = true;
 	}
 	updateScroll = ()=>{
 		this.calculateScreenPosition();
@@ -632,9 +635,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		if(scroll != this.state.scroll) {
 			this.setState({
 				scroll: scroll,
-			}, ()=>{this.scrolling=false});
+			}, ()=>{this.updatingScroll=false});
 		} else {
-			this.scrolling=false;
+			this.updatingScroll=false;
 		}
 	}
 	showPreview = ()=>{
