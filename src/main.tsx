@@ -504,10 +504,14 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 			</div>
 			<div className="deck-list"> {
 				this.props.decks.map((deck: {name: string, cover: string})=>{
-					return <div className="cover-img">{
-						CardInfo.data(deck.cover)?
-						<img src={CardInfo.image(deck.cover)} />:null;
-					}</div>
+					return <div className="deck-cover">
+						<h2>{deck.name}</h2>
+						<div className="cover-img">
+							{CardInfo.data(deck.cover)?
+								<img src={CardInfo.image(deck.cover)} />
+							:null}
+						</div>
+					</div>
 				})
 			} </div>
 		</div>
@@ -873,7 +877,6 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		}
 	}
 	handleInfo = ()=>{
-		console.log("handleInfo");
 		this.forceUpdate();
 	}
 	handleFile = (event: React.FormEvent)=>{
@@ -886,7 +889,6 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		reader.readAsText(file);
 	}
 	render() {
-		console.log("render");
 		let decks = Object.keys(this.state.library)
 			.map((name: string)=>{return {
 				name: name,
