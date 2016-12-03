@@ -232,10 +232,15 @@ class CardInfo {
 		return CardInfo.instance.data[CardInfo.splitCard(card)];
 	}
 	static image(card: string) {
-		return CardInfo.instance.data[CardInfo.splitCard(card)].image_uri;
+		let data = CardInfo.data(card);
+		return data?data.image_uri:null;
 	}
 	static price(card: string) {
-		return CardInfo.instance.price[CardInfo.splitCard(card)];
+		let price = CardInfo.instance.price[CardInfo.splitCard(card)];
+		return price?price:{
+			usd: Number.POSITIVE_INFINITY,
+			tix: Number.POSITIVE_INFINITY,
+		};
 	}
 	static register(rawCards: string[], listener: (card: string)=>any) {
 		let cards = rawCards.map(CardInfo.splitCard);
@@ -268,10 +273,8 @@ class CardInfo {
 		let tix: number = null;
 		sets.forEach((set: {[key: string]: number})=>{
 			Object.keys(set).forEach((card: string)=>{
-				if(CardInfo.price(card)) {
-					usd += set[card] * CardInfo.price(card).usd;
-					tix += set[card] * CardInfo.price(card).tix;
-				}
+				usd += set[card] * CardInfo.price(card).usd;
+				tix += set[card] * CardInfo.price(card).tix;
 			});
 		});
 		function roundOff(value: number) {
@@ -534,7 +537,6 @@ interface DeckListState{
 	setOrder?: {[key: string]: number};
 	price?: {[key: string]: {usd: number, tix: number}};
 	curr?: string;
-	img?: string;
 	sort?: Sort;
 	scroll?: string;
 }
@@ -558,9 +560,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		super(props);
 		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
 		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
+		let curr = props.cover?props.cover:
+			props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null;
+		console.log(curr,CardInfo.image(curr));
 		this.state = {
-			curr: props.cover?props.cover:
-				props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null,
+			curr: curr,
 			sort: Sort.Type,
 		};
 	}
@@ -606,13 +610,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 		let Safari = navigator.vendor.indexOf("Apple") > -1;
 		// END DUMB
-		if(this.state.curr == card) {
-			this.setState({
-				img: CardInfo.image(this.state.curr),
-			}, Safari?fixSafari:null);
-		} else {
-			this.forceUpdate(Safari?fixSafari:null);
-		}
+		this.forceUpdate(Safari?fixSafari:null);
 	}
 	handleScroll = ()=>{
 		this.scrollY = window.pageYOffset;
@@ -654,16 +652,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	setCurr = (curr: string)=>{
-		if(CardInfo.data(curr)) {
-			this.setState({
-				curr: curr,
-				img: CardInfo.image(curr),
-			});
-		} else {
-			this.setState({
-				curr: curr,
-			});
-		}
+		this.setState({
+			curr: curr,
+		});
 	}
 	render() {
 		if(this.props.name == null) {
@@ -739,7 +730,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 						onClick={this.togglePreview}>
 						<div className="preview">
 							<div className="preview-img">
-								{this.state.img?<img src={this.state.img}/>:null}
+								<img src={CardInfo.image(this.state.curr)}/>
 							</div>
 							{priceImg?
 								<span>
