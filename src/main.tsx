@@ -467,7 +467,7 @@ function MediaBreakpoint() {
 
 interface DeckListMenuProps{
 	onUpload: ()=>any;
-	decks: string[];
+	decks: {name:string,cover:string}[];
 }
 interface DeckListMenuState{
 	decksOpen?: boolean;
@@ -494,11 +494,22 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 	}
 	render() {
 		return <div className="main-menu">
-			<div className="menu-item file-upload" onClick={this.props.onUpload}>
-				<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
-				&nbsp;
-				<i className="fa fa-file-text-o" aria-hidden="true" />
+			<div className="overlay" />
+			<div className="menu-items">
+				<div className="menu-item file-upload" onClick={this.props.onUpload}>
+					<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
+					&nbsp;
+					<i className="fa fa-file-text-o" aria-hidden="true" />
+				</div>
 			</div>
+			<div className="deck-list"> {
+				this.props.decks.map((deck: {name: string, cover: string})=>{
+					return <div className="cover-img">{
+						CardInfo.data(deck.cover)?
+						<img src={CardInfo.image(deck.cover)} />:null;
+					}</div>
+				})
+			} </div>
 		</div>
 	}
 }
@@ -509,7 +520,7 @@ interface DeckListProps{
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
 	onUpload?: ()=>any;
-	decks?: string[];
+	decks?: {name:string,cover:string}[];
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -655,7 +666,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					<h1>Rogue Deck Builder</h1>
 				</div>
 				<div className="body">
-					<div className="overlay" />
 					<DeckListMenu onUpload={this.props.onUpload} decks={this.props.decks}/>
 					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
@@ -845,6 +855,9 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		mainboard?: {[key: string]: number};
 		sideboard?: {[key: string]: number};
 	}, setCurr: boolean = false) => {
+		// Register cover
+		CardInfo.register([deck.cover], this.handleInfo)
+		// Update state
 		let library = this.state.library;
 		// TODO solve name collisions
 		library[name] = deck;
@@ -859,6 +872,10 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 			});
 		}
 	}
+	handleInfo = ()=>{
+		console.log("handleInfo");
+		this.forceUpdate();
+	}
 	handleFile = (event: React.FormEvent)=>{
 		let file = event.target.files[0];
 		let reader = new FileReader();
@@ -869,15 +886,21 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		reader.readAsText(file);
 	}
 	render() {
+		console.log("render");
+		let decks = Object.keys(this.state.library)
+			.map((name: string)=>{return {
+				name: name,
+				cover: this.state.library[name].cover,
+		}});
 		return <div>
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
 			{this.state.curr?
 			<DeckList name={this.state.curr}
 				{...this.state.library[this.state.curr]}
 				onUpload={this.onUpload}
-				decks={Object.keys(this.state.library)}
+				decks={decks}
 			/>:<DeckList onUpload={this.onUpload}
-				decks={Object.keys(this.state.library)}
+				decks={decks}
 			/>}
 		</div>
 	}
