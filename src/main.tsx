@@ -528,7 +528,7 @@ interface DeckListProps{
 	sideboard?: {[key: string]: number};
 	decks?: {name:string,cover:string}[];
 	onUpload?: ()=>any;
-	onSelect: (name: string)=>any;
+	onSelect?: (name: string)=>any;
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -592,13 +592,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			console.log("Safari is dumb.");
 			let manacosts = document.getElementsByClassName('mana-cost')
 			for(let idx=0; idx<manacosts.length; idx++) {
-				(manacosts[idx] as HTMLElement).style.cssText="position: relative";
+				let element = (manacosts[idx] as HTMLElement)
+				element.style.cssText="position: relative";
+				console.log(window.getComputedStyle(element).position);
+				element.style.cssText="position: absolute";
 			};
-			window.setTimeout(()=>{
-				for(let idx=0; idx<manacosts.length; idx++) {
-					(manacosts[idx] as HTMLElement).style.cssText="position: absolute";
-				};
-			},0);
 		}
 		function fixSafari() {
 			if(!this.SafariIsBeingDumb) {
