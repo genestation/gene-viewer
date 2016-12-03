@@ -117,34 +117,44 @@ div.roguebuilder {
 				height: 36em;
 			}
 		}
-		div.overlay {
-			position: absolute;
-			z-index: 10;
-			pointer-events: none;
-			height: 100%;
-			width: 100%;
-			background-image: linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0.8) 42%, rgba(0,0,0,0.2) 50%, transparent), radial-gradient(ellipse at bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
-		}
 		div.main-menu {
-			overflow: hidden;
+			> .overlay {
+				position: absolute;
+				pointer-events: none;
+				height: 100%;
+				width: 100%;
+			}
+			> .overlay.side {
+				z-index: 102;
+				background-image: radial-gradient(circle closest-corner, transparent, rgba(0,0,0,0.4)60%, rgba(0, 0, 0, 1));
+			}
+			> .overlay.bottom {
+				z-index: 100;
+				background-image: linear-gradient(0deg, black, rgba(0, 0, 0, 0.75) 45%, rgba(0, 0, 0, 0.2) 55%, transparent);
+			}
+			overflow-x: scroll;
 			.menu-items {
 				position: absolute;
 				padding-top: 1em;
+				z-index:1000;
 			}
 			.menu-item {
 				cursor: pointer;
-				padding: 0.25em 0.5em;
+				padding: 0.25em 0.4em 0.1em 0.2em;
 				border-radius: 0 0.2em 0.2em 0;
-				width: 3em;
+				width: 1.9em;
 				text-align: right;
 				font-size: 2em;
+				transition: width 0.1s ease;
+				&:hover {
+					width: 3em;
+				}
 			}
 			.file-upload {
 				background-color: $rogue-brown;
 				color: $rogue-blue;
-				transition: all 0.2s ease;
+				transition: background-color, color 0.2s ease;
 				&:hover {
-					transition: all 0.5s ease;
 					background-color: lighten($rogue-brown, 10%);
 					color: lighten($rogue-blue, 10%);
 				}
@@ -152,35 +162,43 @@ div.roguebuilder {
 			.deck-list {
 				white-space: nowrap;
 				margin-top: 2em;
+				margin-left: 10em;
 				.deck-cover {
+					cursor: pointer;
 					position: relative;
 					display: inline-block;
-					h2 {
-						position: absolute;
-						z-index: 11;
-						margin: auto;
-						left: 5%;
-						right: 5%;
-						top: 57%;
-						color: white;
-						white-space: normal;
+					margin-right: 4em;
+					width: 18em;
+					white-space: normal;
+					color: $light-text-color;
+					&:hover {
+						color: lighten($light-text-color,50%);
 					}
-				}
-				.cover-img {
-					height: 25em;
-					overflow: hidden;
-					border-radius: 0.8em;
+					&:hover .overlay {
+						opacity: 0;
+					}
+					.overlay {
+						position: absolute;
+						pointer-events: none;
+						z-index: 10;
+						height: 100%;
+						width: 100%;
+						border-radius: 0.8em;
+						background: black;
+						opacity: 0.2;
+					}
 					@media (max-width: $breakpoint-small) {
 						width:80vw;
 						max-width: 24em;
 						height: auto;
 					}
-					img {
-						@media (max-width: $breakpoint-small) {
-							width:100%;
-							height: auto;
-						}
-						height:100%;
+					h2 {
+						position: absolute;
+						z-index: 101;
+						margin: auto;
+						left: 5%;
+						right: 5%;
+						top: 57%;
 					}
 				}
 			}

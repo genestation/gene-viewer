@@ -494,7 +494,8 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 	}
 	render() {
 		return <div className="main-menu">
-			<div className="overlay" />
+			<div className="overlay bottom" />
+			<div className="overlay side"/>
 			<div className="menu-items">
 				<div className="menu-item file-upload" onClick={this.props.onUpload}>
 					<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
@@ -503,10 +504,11 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 				</div>
 			</div>
 			<div className="deck-list"> {
-				this.props.decks.map((deck: {name: string, cover: string})=>{
-					return <div className="deck-cover">
+				this.props.decks.map((deck: {name: string, cover: string}, idx: number)=>{
+					return <div key={idx} className="deck-cover">
 						<h2>{deck.name}</h2>
-						<div className="cover-img">
+						<div className="preview-img">
+							<div className="overlay"/>
 							{CardInfo.data(deck.cover)?
 								<img src={CardInfo.image(deck.cover)} />
 							:null}
