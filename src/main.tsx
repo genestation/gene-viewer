@@ -816,6 +816,7 @@ interface DeckManagerState{
 			sideboard?: {[key: string]: number};
 		},
 	},
+	decks?: string[],
 	curr?: string,
 }
 class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
@@ -826,6 +827,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		super(props);
 		this.state = {
 			library: {},
+			decks: props.decklists.map(this.cleanFilename),
 		}
 		// Load decks
 		props.decklists.forEach((url: string)=>{
@@ -865,7 +867,10 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		CardInfo.register([deck.cover], this.handleInfo)
 		// Update state
 		let library = this.state.library;
-		// TODO solve name collisions
+		if(!this.state.decks.includes(name)) {
+			this.state.decks.push(name);
+			// TODO solve name collisions
+		}
 		library[name] = deck;
 		if(setCurr) {
 			this.setState({
@@ -923,8 +928,6 @@ export interface MainState{
 export default class extends React.Component<MainProps,MainState> {
 	render() {
 		return <div className="roguebuilder">
-			<p>ababa</p>
-			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
 			<p>ababa</p>
