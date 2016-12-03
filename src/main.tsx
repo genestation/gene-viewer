@@ -467,6 +467,7 @@ function MediaBreakpoint() {
 
 interface DeckListMenuProps{
 	onUpload: ()=>any;
+	onSelect: (name: string)=>any;
 	decks: {name:string,cover:string}[];
 }
 interface DeckListMenuState{
@@ -505,7 +506,7 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 			</div>
 			<div className="deck-list"> {
 				this.props.decks.map((deck: {name: string, cover: string}, idx: number)=>{
-					return <div key={idx} className="deck-cover">
+					return <div key={idx} className="deck-cover" onClick={()=>this.props.onSelect(deck.name)}>
 						<h2>{deck.name}</h2>
 						<div className="preview-img">
 							<div className="overlay"/>
@@ -525,8 +526,9 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	onUpload?: ()=>any;
 	decks?: {name:string,cover:string}[];
+	onUpload?: ()=>any;
+	onSelect: (name: string)=>any;
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -672,7 +674,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 					<h1>Rogue Deck Builder</h1>
 				</div>
 				<div className="body">
-					<DeckListMenu onUpload={this.props.onUpload} decks={this.props.decks}/>
+					<DeckListMenu
+						decks={this.props.decks}
+						onUpload={this.props.onUpload}
+						onSelect={this.props.onSelect}
+						/>
 					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
 						</div>
@@ -853,6 +859,11 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	onUpload = () => {
 		this.child.input.click();
 	}
+	onSelect = (name: string) => {
+		this.setState({
+			curr: name,
+		});
+	}
 	cleanFilename(filename: string) {
 		return filename.replace(/\.[a-z]*$/,"");
 	}
@@ -899,12 +910,16 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 		return <div>
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
 			{this.state.curr?
-			<DeckList name={this.state.curr}
+			<DeckList
+				decks={decks}
+				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
 				onUpload={this.onUpload}
+				onSelect={this.onSelect}
+			/>:<DeckList
 				decks={decks}
-			/>:<DeckList onUpload={this.onUpload}
-				decks={decks}
+				onUpload={this.onUpload}
+				onSelect={this.onSelect}
 			/>}
 		</div>
 	}
