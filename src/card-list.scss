@@ -2,9 +2,8 @@
 .roguebuilder {
 	.card-list {
 		width: 20em;
-		padding: 0.25em 0em;
-		margin-left: 1em;
-		margin-right: 2em;
+		padding: 0.25em 0 0;
+		margin: 0 2em 0.25em 1em;
 		&:hover {
 			background-color: $background-color;
 		}
