@@ -147,7 +147,6 @@ class CardInfo {
 			} else {
 				response.json().then((json: ScryfallSetList)=>{
 					// Sort sets
-					let sets: string[] = [];
 					function date(input: string) {
 						if(!input) {
 							return Number.NEGATIVE_INFINITY;
@@ -156,6 +155,7 @@ class CardInfo {
 							return new Date(part[0],part[1],part[2]).valueOf();
 						}
 					}
+					let sets: string[] = [];
 					json.data.sort((a: ScryfallSet,b: ScryfallSet)=>{
 						return date(a.released_at) - date(b.released_at)
 					}).forEach((set: ScryfallSet)=>{

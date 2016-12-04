@@ -20,9 +20,9 @@ $dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 $light-text-color: #888;
 
-$rogue-blue: #74959b;
-$rogue-dark-blue: #2e3f4e;
-$rogue-brown: #3e438e;
+$rogue-blue: #73959b;
+$rogue-dark-blue: #1d3544;
+$rogue-brown: #825626;
 $rogue-light-brown: #805724;
 $rogue-fishbone: #ded3b7;
 $rogue-rich-purple: #723270;
@@ -126,11 +126,11 @@ div.roguebuilder {
 			}
 			> .overlay.side {
 				z-index: 102;
-				background-image: radial-gradient(circle closest-corner, transparent, rgba(0,0,0,0.4)60%, rgba(0, 0, 0, 1));
+				background-image: radial-gradient(circle closest-corner, transparent, rgba(0,0,0,0.2) 60%, rgba(0, 0, 0, 1));
 			}
 			> .overlay.bottom {
 				z-index: 100;
-				background-image: linear-gradient(0deg, black, rgba(0, 0, 0, 0.75) 45%, rgba(0, 0, 0, 0.2) 55%, transparent);
+				background-image: linear-gradient(0deg, black, rgba(0, 0, 0, 0.8) 45%, rgba(0, 0, 0, 0.1) 55%, transparent);
 			}
 			overflow-x: scroll;
 			.menu-items {
@@ -145,18 +145,18 @@ div.roguebuilder {
 				width: 1.9em;
 				text-align: right;
 				font-size: 2em;
-				transition: width 0.1s ease;
 				&:hover {
 					width: 3em;
 				}
 			}
 			.file-upload {
-				background-color: $rogue-brown;
+				background-color: $rogue-dark-blue;
 				color: $rogue-blue;
-				transition: background-color, color 0.2s ease;
+				transition: width 0.5s ease, background-color 0.5s ease, color 0.5s ease;
 				&:hover {
-					background-color: lighten($rogue-brown, 10%);
-					color: lighten($rogue-blue, 10%);
+					transition: width 0.2s ease, background-color 0.5s ease, color 0.5s ease;
+					background-color: lighten($rogue-dark-blue, 5%);
+					color: lighten($rogue-blue, 20%);
 				}
 			}
 			.deck-list {
@@ -168,7 +168,7 @@ div.roguebuilder {
 					position: relative;
 					display: inline-block;
 					margin-right: 4em;
-					width: 18em;
+					width: 17.9em;
 					white-space: normal;
 					color: $light-text-color;
 					&:hover {
@@ -299,6 +299,7 @@ div.roguebuilder {
 		height: 25em;
 		overflow: hidden;
 		border-radius: 0.8em;
+		background: black;
 		@media (max-width: $breakpoint-small) {
 			width:80vw;
 			max-width: 24em;
