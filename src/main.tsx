@@ -937,10 +937,9 @@ export default class extends React.Component<MainProps,MainState> {
 			<p>ababa</p>
 			<p>ababa</p>
 			<DeckManager decklists={[
+				"decks/" + "Jessie Black - Sigarda's Permeating Aid.txt",
 				"decks/" + "Kevin Crimin - Jund Obliterator.txt",
 				"decks/" + "Morten - Skred Red.txt",
-				"decks/" + "Tutor's Library - Modern 23-Land Dredge.txt",
-				"decks/" + "Zac Elsik - Hulk Combo.txt",
 			]} />
 			<p>ababa</p>
 			<p>ababa</p>
