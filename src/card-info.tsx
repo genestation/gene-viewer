@@ -245,7 +245,7 @@ export class CardInfo {
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {card: string, count: number}[]}[] {
 		let buckets: {[key: string]: {card: string, count: number}[]} = {}
 		let lists: {name: string, list: {card: string, count: number}[]}[] = []
-		let fallback = false;
+		let unknown: string[] = [];
 		function secondSort({card: a}: {card: string}, {card: b}: {card: string}) {
 			// Check converted mana cost
 			let cmc_a = parseFloat(CardInfo.data(a).converted_mana_cost);
@@ -308,9 +308,7 @@ export class CardInfo {
 		case Sort.Type:
 			Object.keys(cards).forEach((card: string)=>{
 				if(!CardInfo.data(card)) {
-					fallback = true;
-				}
-				if(fallback) {
+					unknown.push(card);
 					return;
 				}
 				let type_line = CardInfo.data(card).type_line;
@@ -323,24 +321,20 @@ export class CardInfo {
 						break;
 					}
 				}
-			})
-			if(!fallback) {
-				for(let item of ["Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery","Land"]) {
-					if(buckets.hasOwnProperty(item)) {
-						lists.push({
-							name: item,
-							list: buckets[item].sort(secondSort),
-						});
-					}
+			});
+			for(let item of ["Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery","Land"]) {
+				if(buckets.hasOwnProperty(item)) {
+					lists.push({
+						name: item,
+						list: buckets[item].sort(secondSort),
+					});
 				}
 			}
 			break;
 		case Sort.CMC:
 			Object.keys(cards).forEach((card: string)=>{
 				if(!CardInfo.data(card)) {
-					fallback = true;
-				}
-				if(fallback) {
+					unknown.push(card);
 					return;
 				}
 				let cmc = CardInfo.data(card).converted_mana_cost;
@@ -349,25 +343,21 @@ export class CardInfo {
 				}
 				buckets[cmc].push({card: card, count: cards[card]});
 			});
-			if(!fallback) {
-				for(let item of Object.keys(buckets).sort((a: string, b: string)=>{
-						return parseFloat(a) - parseFloat(b);
-					})) {
-					if(buckets.hasOwnProperty(item)) {
-						lists.push({
-							name: parseFloat(item).toString() + " drop",
-							list: buckets[item].sort(secondSort),
-						});
-					}
+			for(let item of Object.keys(buckets).sort((a: string, b: string)=>{
+					return parseFloat(a) - parseFloat(b);
+				})) {
+				if(buckets.hasOwnProperty(item)) {
+					lists.push({
+						name: parseFloat(item).toString() + " drop",
+						list: buckets[item].sort(secondSort),
+					});
 				}
 			}
 			break;
 		case Sort.Color:
 			Object.keys(cards).forEach((card: string)=>{
 				if(!CardInfo.data(card)) {
-					fallback = true;
-				}
-				if(fallback) {
+					unknown.push(card);
 					return;
 				}
 				let colors = CardInfo.data(card).colors;
@@ -389,46 +379,57 @@ export class CardInfo {
 					buckets[color].push({card: card, count: cards[card]});
 				}
 			})
-			if(!fallback) {
-				for(let item of ["W","U","B","R","G","Gold","Colorless"]) {
-					if(buckets.hasOwnProperty(item)) {
-						let name: string;
-						switch(item) {
-						case "W":
-							name = "White";
-							break;
-						case "U":
-							name = "Blue";
-							break;
-						case "B":
-							name = "Black";
-							break;
-						case "R":
-							name = "Red";
-							break;
-						case "G":
-							name = "Green";
-							break;
-						default:
-							name = item;
-						}
-						lists.push({
-							name: name,
-							list: buckets[item].sort(secondSort),
-						});
+			for(let item of ["W","U","B","R","G","Gold","Colorless"]) {
+				if(buckets.hasOwnProperty(item)) {
+					let name: string;
+					switch(item) {
+					case "W":
+						name = "White";
+						break;
+					case "U":
+						name = "Blue";
+						break;
+					case "B":
+						name = "Black";
+						break;
+					case "R":
+						name = "Red";
+						break;
+					case "G":
+						name = "Green";
+						break;
+					default:
+						name = item;
 					}
+					lists.push({
+						name: name,
+						list: buckets[item].sort(secondSort),
+					});
 				}
 			}
 			break;
 		case Sort.Name:
 		case Sort.Keyword: //TODO
-			fallback = true;
-			break;
-		}
-		if(fallback) {
+			let list: string[] = []
+			Object.keys(cards).forEach((card: string)=>{
+				if(!CardInfo.data(card)) {
+					unknown.push(card);
+				} else {
+					list.push(card);
+				}
+			});
 			lists.push({
 				name: null,
-				list: Object.keys(cards).sort().map((card: string)=>{
+				list: list.sort().map((card: string)=>{
+					return {card: card, count: cards[card]};
+				}),
+			});
+			break;
+		}
+		if(unknown.length) {
+			lists.push({
+				name: null,
+				list: unknown.sort().map((card: string)=>{
 					return {card: card, count: cards[card]};
 				}),
 			});
