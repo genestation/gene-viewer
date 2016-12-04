@@ -563,7 +563,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		let curr = props.cover?props.cover:
 			props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null;
-		console.log(curr,CardInfo.image(curr));
 		this.state = {
 			curr: curr,
 			sort: Sort.Type,
@@ -604,7 +603,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			for(let idx=0; idx<manacosts.length; idx++) {
 				let element = (manacosts[idx] as HTMLElement);
 				element.style.cssText="position: relative";
-				console.log(window.getComputedStyle(element).position);
+				window.getComputedStyle(element).position;
 				element.style.cssText="position: absolute";
 			}
 		}
