@@ -645,7 +645,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		}
 	}
 	showPreview = ()=>{
-		if(MediaBreakpoint() == Media.Small) {
+		if(MediaBreakpoint() == Media.Small
+		&& this.scrollY > this.startY) {
 			this.setState({
 				scroll: "fixed",
 			});
