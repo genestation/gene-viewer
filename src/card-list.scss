@@ -1,15 +1,29 @@
 
 .roguebuilder {
 	.card-list {
-		width: 22em;
+		width: 20em;
 		padding: 0.25em 0em;
+		margin-left: 1em;
+		margin-right: 2em;
 		&:hover {
 			background-color: $background-color;
+		}
+		&:hover .actions {
+			visibility: visible;
+		}
+		.title {
+			display: inline-block;
+		}
+		.actions {
+			float: right;
+			margin: 0.2em;
+			color: $light-text-color;
+			visibility: hidden;
 		}
 		table {
 			border-collapse: collapse;
 			margin: 0.5em;
-			width: 21em;
+			width: 18em;
 			position: relative;
 		}
 		tr {

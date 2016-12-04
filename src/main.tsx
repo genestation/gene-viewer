@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import './main.scss';
-import CardList from './card-list.tsx';
+import {CardList, CardListItem} from './card-list.tsx';
 import {CardInfo, CardPrice, Sort} from './card-info.tsx';
 
 const enum Media {
@@ -287,11 +287,11 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="footprint"/>
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
-					lists.map((item: {name: string, list: {card: string, count: number}[]}, idx: number)=>{
-						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
+					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
+						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
 					})
 				}
-				<CardList title="Sideboard" cards={sideboard.list} cardinfo={CardInfo.data} setCurr={this.setCurr} onClick={this.showPreview}/>
+				<CardList title="Sideboard" cards={sideboard.list} setCurr={this.setCurr} onClick={this.showPreview} onDownload={()=>2} />
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}}
