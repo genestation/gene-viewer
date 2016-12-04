@@ -58,20 +58,37 @@ div.roguebuilder {
 		font-size: 1.2em;
 		margin: 0.1em;
 	}
-	div.decklist {
+	.decklist {
+		position:relative;
 		font-family: $sans-serif;
+		background-color: lighten($background-color,20%);
 		color: $text-color;
-		max-width: 59em;
+		max-width: 61em;
 		@media (max-width: $breakpoint-big) {
-			max-width: 39em;
+			max-width: 41em;
 		}
 		@media (max-width: $breakpoint-small) {
-			max-width: 28em;
+			max-width: 30em;
+		}
+		.close-button {
+			cursor: pointer;
+			position: absolute;
+			z-index: 1000;
+			right:0;
+			top: -4px;
+			font-size: 2em;
 		}
 	}
-	div.head {
+	.head {
 		position: relative;
-		span.price {
+		.name {
+			display: inline-block;
+		}
+		.actions {
+			margin-right: 4.5em;
+			color: $light-text-color;
+		}
+		.price {
 			display: inline-block;
 			white-space: nowrap;
 			color: $light-text-color;
@@ -83,7 +100,7 @@ div.roguebuilder {
 				display: block;
 			}
 		}
-		div.select {
+		.select {
 			width: 18em;
 			text-align: right;
 			position: absolute;

@@ -87,6 +87,8 @@ interface DeckListProps{
 	decks?: {name:string,cover:string}[];
 	onUpload?: ()=>any;
 	onSelect?: (name: string)=>any;
+	onDownload?: (list: CardListItem[])=>any;
+	onClose?: ()=>any;
 }
 interface DeckListState{
 	setOrder?: {[key: string]: number};
@@ -269,8 +271,16 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Return DOM
 		return <div className="decklist">
+			<div className="close-button" onClick={this.props.onClose}>
+				<i className="fa fa-window-close" />
+			</div>
 			<div className="head" ref={(ref)=>this.child.head=ref} >
-				<h1>{this.props.name}</h1>
+				<div className="title" >
+					<h1 className="name" >{this.props.name}</h1>
+					<div className="actions" >
+						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload}/>
+					</div>
+				</div>
 				<span className="price">{price.usd} USD / {price.tix} TIX</span>
 				<div className="select">
 					<span>Sort by </span>
@@ -440,6 +450,11 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			curr: name,
 		});
 	}
+	onClose = () => {
+		this.setState({
+			curr: null,
+		});
+	}
 	cleanFilename(filename: string) {
 		return filename.replace(/\.[a-z]*$/,"");
 	}
@@ -495,6 +510,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				{...this.state.library[this.state.curr]}
 				onUpload={this.onUpload}
 				onSelect={this.onSelect}
+				onClose={this.onClose}
 			/>:<DeckList
 				decks={decks}
 				onUpload={this.onUpload}

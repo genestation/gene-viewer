@@ -30,8 +30,8 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 		let title = this.props.title + " (" + count + ")";
 		return <div className="card-list">
 			{this.props.title?(this.props.sublist?<h3 className="title">{title}</h3>:<h2 className="title">{title}</h2>):null}
-			<div className="actions" onClick={this.props.onDownload}>
-				<i className="fa fa-download" aria-hidden="true" />
+			<div className="actions" >
+				<i className="fa fa-download" aria-hidden="true" onClick={this.props.onDownload}/>
 			</div>
 			<table><tbody>{
 				this.props.cards.map(({card: card, count: count}: CardListItem, idx: number)=>{
