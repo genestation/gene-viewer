@@ -24,4 +24,3 @@ Spells [23]
 4 Arc Trail
 4 Crush
 3 Dark Tutelage
-2 Evil Eye of Orms-by-Gore
