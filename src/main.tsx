@@ -808,10 +808,10 @@ class DeckParser {
 	}
 }
 
-interface DeckManagerProps{
+export interface DeckManagerProps{
 	decklists?: string[];
 }
-interface DeckManagerState{
+export interface DeckManagerState{
 	library?: {
 		[name: string]: {
 			cover?: string;
@@ -822,7 +822,7 @@ interface DeckManagerState{
 	decks?: string[],
 	curr?: string,
 }
-class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
+export default class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	child: {
 		input?: HTMLElement;
 	} = {};
@@ -904,7 +904,7 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 				name: name,
 				cover: this.state.library[name].cover,
 		}});
-		return <div>
+		return <div className="roguebuilder">
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
 			{this.state.curr?
 			<DeckList
@@ -918,43 +918,6 @@ class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 				onUpload={this.onUpload}
 				onSelect={this.onSelect}
 			/>}
-		</div>
-	}
-}
-
-export interface MainProps{
-	autofocus?: boolean;
-}
-export interface MainState{
-	focus?: boolean;
-}
-export default class extends React.Component<MainProps,MainState> {
-	render() {
-		return <div className="roguebuilder">
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<DeckManager decklists={[
-				"decks/" + "Jessie Black - Sigarda's Permeating Aid.txt",
-				"decks/" + "Kevin Crimin - Jund Obliterator.txt",
-				"decks/" + "Morten - Skred Red.txt",
-			]} />
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
-			<p>ababa</p>
 		</div>
 	}
 }
