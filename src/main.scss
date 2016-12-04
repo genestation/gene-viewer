@@ -163,6 +163,9 @@ div.roguebuilder {
 				white-space: nowrap;
 				margin-top: 2em;
 				margin-left: 10em;
+				@media (max-width: $breakpoint-small) {
+					margin-left: 4em;
+				}
 				.deck-cover {
 					cursor: pointer;
 					position: relative;
