@@ -5,7 +5,11 @@
 		"sourceMap": true,
 		"module": "commonjs",
 		"target": "es5",
-		"jsx": "react"
+		"jsx": "react",
+		"lib": [
+			"es2015",
+			"dom"
+		]
 	},
 	"exclude": [
 		"docs/example",

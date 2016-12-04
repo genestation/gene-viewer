@@ -820,7 +820,8 @@ class DeckParser {
 }
 
 export interface DeckManagerProps{
-	decklists?: string[];
+	deckTexts?: {name: string, text: string}[];
+	deckFiles?: string[];
 }
 export interface DeckManagerState{
 	library?: {
@@ -834,6 +835,10 @@ export interface DeckManagerState{
 	curr?: string,
 }
 export default class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
+	static defaultProps: DeckManagerProps = {
+		deckTexts: [],
+		deckFiles: [],
+	}
 	child: {
 		input?: HTMLElement;
 	} = {};
@@ -841,25 +846,36 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		super(props);
 		this.state = {
 			library: {},
-			decks: props.decklists.map(this.cleanFilename),
+			decks: [].concat(
+				props.deckTexts?props.deckTexts.map((input: {name: string, text: string})=>input.name):[],
+				props.deckFiles?props.deckFiles.map(this.cleanFilename):[],
+			),
 		}
 		// Load decks
-		props.decklists.forEach((url: string)=>{
-			fetch(url).then((response: Promise<Request>)=>{
-				if(response.status !== 200) {
-					console.log(response.status, response.url);
-				} else {
-					let name = this.cleanFilename(
-						decodeURIComponent(response.url)
-							.split('/').pop()
-					);
-					response.text().then((text: string)=>{
-						let output = DeckParser.parseText(text);
-						this.addDeckList(this.cleanFilename(name), output);
-					});
-				}
+		if(props.deckTexts) {
+			props.deckTexts.forEach(({name: name, text: text}: {name: string, text: string})=>{
+				let output = DeckParser.parseText(text);
+				this.addDeckList(this.cleanFilename(name), output);
 			});
-		});
+		}
+		if(props.deckFiles) {
+			props.deckFiles.forEach((url: string)=>{
+				fetch(url).then((response: Promise<Request>)=>{
+					if(response.status !== 200) {
+						console.log(response.status, response.url);
+					} else {
+						let name = this.cleanFilename(
+							decodeURIComponent(response.url)
+								.split('/').pop()
+						);
+						response.text().then((text: string)=>{
+							let output = DeckParser.parseText(text);
+							this.addDeckList(this.cleanFilename(name), output);
+						});
+					}
+				});
+			});
+		}
 	}
 	onUpload = () => {
 		this.child.input.click();
