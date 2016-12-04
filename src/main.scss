@@ -1,8 +1,9 @@
+$package: roguebuilder;
+
 @import "~normalize.css/normalize.css";
-@import "../repo/mana-cost/css/mana-cost.css";
 $fa-font-path: "~font-awesome/fonts";
 @import "~font-awesome/scss/font-awesome";
-
+@import "../repo/mana-cost/css/mana-cost.css";
 @font-face {
 	font-family: "Beleren Bold";
 	src:url("../fonts/BELEREN-BOLD.eot");
@@ -10,9 +11,12 @@ $fa-font-path: "~font-awesome/fonts";
 		url("../fonts/BELEREN-BOLD.woff") format("woff"),
 		url("../fonts/BELEREN-BOLD.svg") format("svg");
 }
-
 $sans-serif: Ariel, sans-serif;
 $beleren: 'Beleren Bold', $sans-serif;
+
+$breakpoint-small: 40em;
+$breakpoint-big: 60em;
+
 
 $background-color: rgba(168, 168, 168, 0.3);
 $opaque-background-color: #c5c5c5;
@@ -28,9 +32,7 @@ $rogue-fishbone: #ded3b7;
 $rogue-rich-purple: #723270;
 $rogue-cool-purple: #3e438e;
 
-$breakpoint-small: 40em;
-$breakpoint-big: 60em;
-
+@import "card-list.scss";
 
 div.roguebuilder {
 	.hidden-input {
@@ -218,42 +220,6 @@ div.roguebuilder {
 				width: 22em;
 				height: auto !important;
 			}
-		}
-	}
-	div.card-list {
-		width: 20em;
-		padding: 0.25em 1em;
-		table {
-			border-collapse: collapse;
-			margin: 0.5em;
-			width: 19em;
-			position: relative;
-		}
-		tr {
-			cursor: pointer;
-			&:hover {
-				background: $dark-background_color;
-			}
-		}
-		td {
-			padding: 0.25em;
-			padding-right: 0.1em;
-		}
-		td.quantity {
-			text-align: right;
-			width: 2.5em;
-		}
-		div.card-name {
-			font-family: $beleren;
-			display: inline-block;
-			white-space: nowrap;
-			transform-origin: left;
-			max-width: 16em;
-		}
-		div.mana-cost {
-			display: inline-block;
-			position: absolute;
-			right: 0.2em;
 		}
 	}
 	div.preview-track {
