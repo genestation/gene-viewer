@@ -622,21 +622,26 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		this.updatingScroll = true;
 	}
 	updateScroll = ()=>{
-		this.calculateScreenPosition();
-		scrollY = (MediaBreakpoint() == Media.Small?0:this.scrollY);
-		// Scrolling
-		let scroll = "top"
-		if(scrollY > this.endY) {
-			scroll = "bottom"
-		} else if (scrollY > this.startY) {
-			scroll = "fixed"
-		}
-		if(scroll != this.state.scroll) {
+		if(MediaBreakpoint() == Media.Small) {
 			this.setState({
-				scroll: scroll,
+				scroll: "top",
 			}, ()=>{this.updatingScroll=false});
 		} else {
-			this.updatingScroll=false;
+			this.calculateScreenPosition();
+			// Scrolling
+			let scroll = "top"
+			if(this.scrollY > this.endY) {
+				scroll = "bottom"
+			} else if (this.scrollY > this.startY) {
+				scroll = "fixed"
+			}
+			if(scroll != this.state.scroll) {
+				this.setState({
+					scroll: scroll,
+				}, ()=>{this.updatingScroll=false});
+			} else {
+				this.updatingScroll=false;
+			}
 		}
 	}
 	showPreview = ()=>{
@@ -648,9 +653,15 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	}
 	togglePreview = ()=>{
 		if(MediaBreakpoint() == Media.Small) {
-			this.setState({
-				scroll: this.state.scroll=="fixed"?"top":"fixed",
-			});
+			if(this.state.scroll=="fixed") {
+				this.setState({
+					scroll: "top",
+				});
+			} else if (this.scrollY > this.startY) {
+				this.setState({
+					scroll: "fixed",
+				});
+			}
 		}
 	}
 	setCurr = (curr: string)=>{
