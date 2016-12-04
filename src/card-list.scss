@@ -1,0 +1,42 @@
+
+.roguebuilder {
+	.card-list {
+		width: 22em;
+		padding: 0.25em 0em;
+		&:hover {
+			background-color: $background-color;
+		}
+		table {
+			border-collapse: collapse;
+			margin: 0.5em;
+			width: 21em;
+			position: relative;
+		}
+		tr {
+			cursor: pointer;
+			&:hover {
+				background: $dark-background_color;
+			}
+			td {
+				padding: 0.25em;
+				padding-right: 0.1em;
+			}
+		}
+		.mana-cost {
+			display: inline-block;
+			position: absolute;
+			right: 1em;
+		}
+		.quantity {
+			text-align: right;
+			width: 2.5em;
+		}
+		.card-name {
+			font-family: $beleren;
+			display: inline-block;
+			white-space: nowrap;
+			transform-origin: left;
+			max-width: 16em;
+		}
+	}
+}
