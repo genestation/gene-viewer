@@ -274,7 +274,7 @@ export class CardInfo {
 							// Sort by color
 							let colors_a = CardInfo.data(a).colors;
 							let colors_b = CardInfo.data(b).colors;
-							for(let color: string of ['W','U','B','R','G']) {
+							for(let color of ['W','U','B','R','G']) {
 								let match_a = colors_a.indexOf(color) > -1;
 								let match_b = colors_b.indexOf(color) > -1;
 								if(match_a && !match_b) {

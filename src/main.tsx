@@ -420,7 +420,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		if(props.deckTexts) {
 			props.deckTexts.forEach(({name: name, text: text}: {name: string, text: string})=>{
 				let output = DeckParser.parseText(text);
-				this.addDeckList(this.cleanFilename(name), output);
+				this.addDeckList(this.cleanFilename(name), output, false, true);
 			});
 		}
 		if(props.deckFiles) {
@@ -462,26 +462,19 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		cover?: string;
 		mainboard?: {[key: string]: number};
 		sideboard?: {[key: string]: number};
-	}, setCurr: boolean = false) => {
+	}, setCurr: boolean = false, inConstructor: boolean = false) => {
 		// Register cover
 		CardInfo.register([deck.cover], this.handleInfo)
 		// Update state
-		let library = this.state.library;
 		if(!this.state.decks.includes(name)) {
-			this.state.decks.push(name);
+			this.state.decks.unshift(name);
 			// TODO solve name collisions
 		}
-		library[name] = deck;
+		this.state.library[name] = deck;
 		if(setCurr) {
-			this.setState({
-				library: library,
-				curr: name,
-			});
-		} else {
-			this.setState({
-				library: library,
-			});
+			this.state.curr = name;
 		}
+		if(!inConstructor) this.setState(this.state);
 	}
 	handleInfo = ()=>{
 		this.forceUpdate();
@@ -496,10 +489,9 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		reader.readAsText(file);
 	}
 	render() {
-		let decks = Object.keys(this.state.library)
-			.map((name: string)=>{return {
-				name: name,
-				cover: this.state.library[name].cover,
+		let decks = this.state.decks.map((name: string)=>{return {
+			name: name,
+			cover: this.state.library[name].cover,
 		}});
 		return <div className="roguebuilder">
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
