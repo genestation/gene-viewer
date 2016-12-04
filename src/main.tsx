@@ -247,7 +247,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			</div>
 		}
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
-		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name)[0];
+		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name);
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
 		let priceImg = CardInfo.price(this.state.curr);
 		// Calculate height
@@ -257,7 +257,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		lists.forEach(({list: list}: {list: {card: string, count: number}[]})=>{
 			height.push(headerSize + lineSize * list.length);
 		});
-		height.push(headerSize + 1 + lineSize * sideboard.list.length);
+		sideboard.forEach(({list: list}: {list: {card: string, count: number}[]}, idx: number)=>{
+			height.push(headerSize + lineSize * list.length + idx==0?1:0);
+		});
 		let cutoff = 0;
 		let last: number = null;
 		let sum = height.reduce((a: number, b: number)=>{return a+b});
@@ -298,10 +300,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
-						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+						return <CardList key={idx} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
 					})
 				}
-				<CardList title="Sideboard" cards={sideboard.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+				<CardList title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+				{sideboard[1]?
+					<CardList sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+				:null}
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}}
@@ -362,7 +367,7 @@ class DeckParser {
 					if(cover == null) {
 						cover = card;
 					}
-					mainboard[card] = count + mainboard[card]?mainboard[card]:0;
+					mainboard[card] = count + (mainboard[card]?mainboard[card]:0);
 				}
 				break;
 			case State.Post:
@@ -370,7 +375,7 @@ class DeckParser {
 					state=State.Side;
 					if(count && card) {
 						Object.keys(sideboard).forEach((card)=>{
-							mainboard[card] += sideboard[card] + sideboard[card]?sideboard[card]:0;
+							mainboard[card] = sideboard[card] + (mainboard[card]?mainboard[card]:0);
 						});
 						sideboard = {};
 					}
@@ -385,7 +390,7 @@ class DeckParser {
 					if(cover == null) {
 						cover = card;
 					}
-					sideboard[card] = count + sideboard[card]?sideboard[card]:0;
+					sideboard[card] = count + (sideboard[card]?sideboard[card]:0);
 				}
 			};
 		});
