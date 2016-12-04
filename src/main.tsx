@@ -291,7 +291,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 						return <CardList title={item.name} sublist={true} key={idx} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
 					})
 				}
-				<CardList title="Sideboard" cards={sideboard.list} setCurr={this.setCurr} onClick={this.showPreview} onDownload={()=>2} />
+				<CardList title="Sideboard" cards={sideboard.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
 					<div ref={(ref)=>{this.child.preview=ref}}

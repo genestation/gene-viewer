@@ -247,20 +247,43 @@ export class CardInfo {
 		let lists: {name: string, list: {card: string, count: number}[]}[] = []
 		let fallback = false;
 		function secondSort({card: a}: {card: string}, {card: b}: {card: string}) {
+			// Check converted mana cost
 			let cmc_a = parseFloat(CardInfo.data(a).converted_mana_cost);
 			let cmc_b = parseFloat(CardInfo.data(b).converted_mana_cost);
 			let diff = cmc_a - cmc_b;
 			if(diff == 0) {
-				let syms_a = CardInfo.manaCost(a).length;
-				let syms_b = CardInfo.manaCost(b).length;
-				let diff = syms_a - syms_b;
+				// Check phyrexian mana
+				let phyr_a = CardInfo.manaCost(a).map((sym: string)=>{
+					return sym.length==2 && sym[2]=='p'?1:0;
+				}).reduce((a:number, b:number)=>a+b,0);
+				let phyr_b = CardInfo.manaCost(b).map((sym: string)=>{
+					return sym.length==2 && sym[2]=='p'?1:0;
+				}).reduce((a:number, b:number)=>a+b,0);
+				let diff = phyr_a - phyr_b;
 				if(diff == 0) {
-					if(a < b) {
-						return -1;
-					} else if(a > b) {
-						return 1;
+					// Check number of mana symbols
+					let syms_a = CardInfo.manaCost(a).length;
+					let syms_b = CardInfo.manaCost(b).length;
+					let diff = syms_a - syms_b;
+					if(diff == 0) {
+						// Check number of colors
+						let cols_a = CardInfo.data(a).colors.length;
+						let cols_b = CardInfo.data(b).colors.length;
+						let diff = cols_a - cols_b;
+						if(diff == 0) {
+							// Lexical sort
+							if(a < b) {
+								return -1;
+							} else if(a > b) {
+								return 1;
+							} else {
+								return 0;
+							}
+						} else {
+							return diff;
+						}
 					} else {
-						return 0;
+						return diff;
 					}
 				} else {
 					return diff;

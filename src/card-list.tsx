@@ -34,10 +34,10 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 				<i className="fa fa-download" aria-hidden="true" />
 			</div>
 			<table><tbody>{
-				this.props.cards.map(({card: card, count: count}: CardListItem[], idx: number)=>{
+				this.props.cards.map(({card: card, count: count}: CardListItem, idx: number)=>{
 					let mana_cost: string[] = CardInfo.manaCost(card);
 					// Calculate width
-					let ratio = (18/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
+					let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
 					return <tr key={idx}
 						onMouseOver={()=>this.props.setCurr(card)}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
