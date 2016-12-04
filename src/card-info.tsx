@@ -271,6 +271,18 @@ export class CardInfo {
 						let cols_b = CardInfo.data(b).colors.length;
 						let diff = cols_a - cols_b;
 						if(diff == 0) {
+							// Sort by color
+							let colors_a = CardInfo.data(a).colors;
+							let colors_b = CardInfo.data(b).colors;
+							for(let color: string of ['W','U','B','R','G']) {
+								let match_a = colors_a.indexOf(color) > -1;
+								let match_b = colors_b.indexOf(color) > -1;
+								if(match_a && !match_b) {
+									return -1;
+								} else if(!match_a && match_b) {
+									return 1;
+								}
+							}
 							// Lexical sort
 							if(a < b) {
 								return -1;
