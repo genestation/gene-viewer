@@ -251,14 +251,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
 		let priceImg = CardInfo.price(this.state.curr);
 		// Calculate height
-		const headerSize = 4;
+		const headerSize = 2.2;
 		const lineSize = 1.6;
 		let height: number[] = [];
 		lists.forEach(({list: list}: {list: {card: string, count: number}[]})=>{
 			height.push(headerSize + lineSize * list.length);
 		});
 		sideboard.forEach(({list: list}: {list: {card: string, count: number}[]}, idx: number)=>{
-			height.push(headerSize + lineSize * list.length + idx==0?1:0);
+			height.push(headerSize + lineSize * list.length + (idx==0?1:0));
 		});
 		let cutoff = 0;
 		let last: number = null;
