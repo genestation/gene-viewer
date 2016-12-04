@@ -254,10 +254,10 @@ export class CardInfo {
 			if(diff == 0) {
 				// Check phyrexian mana
 				let phyr_a = CardInfo.manaCost(a).map((sym: string)=>{
-					return sym.length==2 && sym[2]=='p'?1:0;
+					return sym.length==2 && sym[1]=='p'?0:1;
 				}).reduce((a:number, b:number)=>a+b,0);
 				let phyr_b = CardInfo.manaCost(b).map((sym: string)=>{
-					return sym.length==2 && sym[2]=='p'?1:0;
+					return sym.length==2 && sym[1]=='p'?0:1;
 				}).reduce((a:number, b:number)=>a+b,0);
 				let diff = phyr_a - phyr_b;
 				if(diff == 0) {
