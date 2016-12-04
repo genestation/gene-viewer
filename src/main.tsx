@@ -325,15 +325,17 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 }
 
 const enum State {
+	Pre,
 	Main,
 	Side,
+	Post,
 };
 class DeckParser {
 	static parseText(text: string) {
 		let cover: string = null;
 		let mainboard: {[key: string]: number} = {}
 		let sideboard: {[key: string]: number} = {}
-		let state: State = null;
+		let state: State = State.Pre;
 		text.split(/\r?\n/).forEach((line: string)=>{
 			line = line.trim();
 			let space = line.indexOf(' ');
@@ -344,7 +346,7 @@ class DeckParser {
 				card = line.slice(line.indexOf(' ')+1);
 			}
 			switch(state) {
-			case null:
+			case State.Pre:
 				if(line.length) {
 					state=State.Main;
 				} else {
@@ -360,9 +362,21 @@ class DeckParser {
 					if(cover == null) {
 						cover = card;
 					}
-					mainboard[card] = count;
+					mainboard[card] = count + mainboard[card]?mainboard[card]:0;
 				}
 				break;
+			case State.Post:
+				if(line.length) {
+					state=State.Side;
+					if(count && card) {
+						Object.keys(sideboard).forEach((card)=>{
+							mainboard[card] += sideboard[card] + sideboard[card]?sideboard[card]:0;
+						});
+						sideboard = {};
+					}
+				} else {
+					break;
+				}
 			case State.Side:
 				if(!line.length) {
 					break;
@@ -371,7 +385,7 @@ class DeckParser {
 					if(cover == null) {
 						cover = card;
 					}
-					sideboard[card] = count;
+					sideboard[card] = count + sideboard[card]?sideboard[card]:0;
 				}
 			};
 		});
