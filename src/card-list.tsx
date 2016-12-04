@@ -43,7 +43,7 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
 						<td className="quantity">{count + "×"}</td>
 						<td>
-							<div className={mana_cost?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
+							<div className={CardInfo.data(card)?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
 							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>
