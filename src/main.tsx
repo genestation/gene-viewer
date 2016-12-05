@@ -93,6 +93,7 @@ interface DeckListProps{
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
 	onDownload?: (name: string, list?: CardListItem[])=>any;
+	onCopy?: (name: string, list?: CardListItem[])=>any;
 	onClose?: ()=>any;
 }
 interface DeckListState{
@@ -252,6 +253,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="title" >
 					<h1 className="name" >{this.props.name}</h1>
 					<div className="actions" >
+						<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
+						&nbsp;
 						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
 					</div>
 				</div>
@@ -272,12 +275,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
-						return <CardList key={idx} deck={this.props.name} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
+						return <CardList key={idx} deck={this.props.name} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
 					})
 				}
-					<CardList deck={this.props.name} title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
+					<CardList deck={this.props.name} title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
 				{sideboard[1]?
-					<CardList deck={this.props.name} sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
+					<CardList deck={this.props.name} sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
 				:null}
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
@@ -441,7 +444,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			curr: name,
 		});
 	}
-	onDownload = (name: string, list?: CardListItem[]) => {
+	toText = (name: string, list?: CardListItem[]) => {
 		let lines: string[] = [];
 		if(list === undefined) {
 			// Export whole deck
@@ -452,7 +455,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 					lines.push(deck.mainboard[card] + " " + card + "\n")
 				}
 			});
-			lines.push("\n\n");
+			lines.push("\n","\n");
 			Object.keys(deck.sideboard).forEach((card: string)=>{
 				lines.push(deck.sideboard[card] + " " + card + "\n")
 			});
@@ -461,7 +464,18 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				return item.count + " " + item.card + "\n"
 			});
 		}
-		let file = new File(lines, name + ".txt", {type: "text/plain;charset=utf-8"});
+		return lines;
+	}
+	onCopy = (name: string, list?: CardListItem[]) => {
+		let textField = document.createElement('textarea');
+		textField.textContent = this.toText(name, list).join('');
+		document.body.appendChild(textField);
+		textField.select();
+		document.execCommand('copy');
+		textField.remove();
+	}
+	onDownload = (name: string, list?: CardListItem[]) => {
+		let file = new File(this.toText(name,list), name + ".txt", {type: "text/plain;charset=utf-8"});
 		FileSaver.saveAs(file);
 	}
 	onClose = () => {
@@ -513,6 +527,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			<DeckList
 				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
+				onCopy={this.onCopy}
 				onDownload={this.onDownload}
 				onClose={this.onClose}
 			/>:<DeckListMenu
