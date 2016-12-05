@@ -232,7 +232,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			height.push(headerSize + lineSize * list.length);
 		});
 		sideboard.forEach(({list: list}: {list: {card: string, count: number}[]}, idx: number)=>{
-			height.push(headerSize + lineSize * list.length + (idx==0?1:0));
+			height.push(headerSize + lineSize * list.length + (idx==0?2:0));
 		});
 		let cutoff = 0;
 		let last: number = null;

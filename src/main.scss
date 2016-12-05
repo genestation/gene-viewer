@@ -87,7 +87,10 @@ div.roguebuilder {
 		position: relative;
 		padding: 0.2em;
 		.actions {
-			margin-left: 2em;
+			position: absolute;
+			text-align: right;
+			left: 16em;
+			margin-top: 0.2em;
 			color: $light-text-color;
 			.fa {
 				cursor: pointer;
