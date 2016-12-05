@@ -84,7 +84,7 @@ div.roguebuilder {
 		position: relative;
 		padding: 0.2em;
 		.actions {
-			margin-left: 1em;
+			margin-left: 2em;
 			color: $light-text-color;
 			.fa {
 				cursor: pointer;
@@ -101,6 +101,13 @@ div.roguebuilder {
 			margin-left: 0.8em;
 			margin-top: 0.25em;
 			margin-bottom: 0.25em;
+			cursor: pointer;
+			.fa-shopping-cart {
+				font-size: 1.2em;
+			}
+			&:hover {
+				color: lighten($light-text-color, 20%);
+			}
 			@media (max-width: $breakpoint-small) {
 				display: block;
 			}

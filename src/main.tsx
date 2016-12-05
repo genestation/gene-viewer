@@ -92,6 +92,7 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
+	onBuy?: (name: string, list?: CardListItem[])=>any;
 	onDownload?: (name: string, list?: CardListItem[])=>any;
 	onCopy?: (name: string, list?: CardListItem[])=>any;
 	onClose?: ()=>any;
@@ -251,7 +252,10 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			</div>
 			<div className="head" >
 				<h1>{this.props.name}</h1>
-				<span className="price">{price.usd} USD / {price.tix} TIX</span>
+				<span className="price" onClick={()=>this.props.onBuy(this.props.name)}>{price.usd} USD / {price.tix} TIX
+					&nbsp;
+					<i className="fa fa-shopping-cart" aria-hidden="true"/>
+				</span>
 				<span className="actions" >
 					<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
 					&nbsp;
@@ -464,6 +468,9 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		}
 		return lines;
 	}
+	onBuy = (name: string, list?: CardListItem[]) => {
+		alert("Add to cart:\n"+this.toText(name,list).join(''));
+	}
 	onCopy = (name: string, list?: CardListItem[]) => {
 		let textField = document.createElement('textarea');
 		textField.textContent = this.toText(name, list).join('');
@@ -525,6 +532,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			<DeckList
 				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
+				onBuy={this.onBuy}
 				onCopy={this.onCopy}
 				onDownload={this.onDownload}
 				onClose={this.onClose}
