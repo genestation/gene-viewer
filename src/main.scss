@@ -302,9 +302,10 @@ div.roguebuilder {
 		border-radius: 0.8em;
 		background: black;
 		@media (max-width: $breakpoint-small) {
-			width:80vw;
+			width: 80vw;
+			height: 111.6vw;
 			max-width: 24em;
-			height: auto;
+			max-height: 33.5em;
 		}
 		img {
 			@media (max-width: $breakpoint-small) {
