@@ -9,10 +9,11 @@ export interface CardListItem {
 export interface CardListProps{
 	title?: string;
 	sublist?: boolean;
+	deck: string;
 	cards: CardListItem[];
 	setCurr: (card: string)=>any;
 	showPreview: ()=>any;
-	onDownload: ()=>any;
+	onDownload: (name: string, list?: CardListItem[])=>any;
 }
 export interface CardListState{ }
 export class CardList extends React.Component<CardListProps,CardListState> {
@@ -41,7 +42,7 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 			onMouseOver={()=>this.props.setCurr(this.props.cards[0].card)} >
 			{this.props.title?(this.props.sublist?<h3 className="title">{title}</h3>:<h2 className="title">{title}</h2>):null}
 			<div className="actions" >
-				<i className="fa fa-download" aria-hidden="true" onClick={this.props.onDownload}/>
+				<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
 			</div>
 			<table><tbody>{
 				this.props.cards.map(({card: card, count: count}: CardListItem, idx: number)=>{

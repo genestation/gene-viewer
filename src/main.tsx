@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import 'file-saver';
 import './main.scss';
 import {CardList, CardListItem} from './card-list.tsx';
 import {CardInfo, CardPrice, Sort} from './card-info.tsx';
@@ -91,7 +92,7 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	onDownload?: (list: CardListItem[])=>any;
+	onDownload?: (name: string, list?: CardListItem[])=>any;
 	onClose?: ()=>any;
 }
 interface DeckListState{
@@ -251,7 +252,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="title" >
 					<h1 className="name" >{this.props.name}</h1>
 					<div className="actions" >
-						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload}/>
+						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
 					</div>
 				</div>
 				<span className="price">{price.usd} USD / {price.tix} TIX</span>
@@ -271,12 +272,12 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<div className="lists" style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
-						return <CardList key={idx} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+						return <CardList key={idx} deck={this.props.name} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
 					})
 				}
-				<CardList title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+					<CardList deck={this.props.name} title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
 				{sideboard[1]?
-					<CardList sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={()=>2} />
+					<CardList deck={this.props.name} sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onDownload={this.props.onDownload} />
 				:null}
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
@@ -440,6 +441,13 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			curr: name,
 		});
 	}
+	onDownload = (name: string, list?: CardListItem[]) => {
+		if(list === undefined) {
+			// Export whole deck
+		} else {
+			// Export list
+		}
+	}
 	onClose = () => {
 		this.setState({
 			curr: null,
@@ -489,6 +497,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			<DeckList
 				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
+				onDownload={this.onDownload}
 				onClose={this.onClose}
 			/>:<DeckListMenu
 				decks={decks}
