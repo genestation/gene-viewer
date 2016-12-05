@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import 'file-saver';
+import * as FileSaver from 'file-saver';
 import './main.scss';
 import {CardList, CardListItem} from './card-list.tsx';
 import {CardInfo, CardPrice, Sort} from './card-info.tsx';
@@ -382,9 +382,9 @@ export interface DeckManagerProps{
 export interface DeckManagerState{
 	library?: {
 		[name: string]: {
-			cover?: string;
-			mainboard?: {[key: string]: number};
-			sideboard?: {[key: string]: number};
+			cover: string;
+			mainboard: {[key: string]: number};
+			sideboard: {[key: string]: number};
 		},
 	},
 	decks?: string[],
@@ -442,11 +442,27 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		});
 	}
 	onDownload = (name: string, list?: CardListItem[]) => {
+		let lines: string[] = [];
 		if(list === undefined) {
 			// Export whole deck
+			let deck = this.state.library[name];
+			lines.push(deck.mainboard[deck.cover] + " " + deck.cover + "\n");
+			Object.keys(deck.mainboard).forEach((card: string)=>{
+				if(card !== deck.cover) {
+					lines.push(deck.mainboard[card] + " " + card + "\n")
+				}
+			});
+			lines.push("\n\n");
+			Object.keys(deck.sideboard).forEach((card: string)=>{
+				lines.push(deck.sideboard[card] + " " + card + "\n")
+			});
 		} else {
-			// Export list
+			lines = list.map((item: CardListItem)=>{
+				return item.count + " " + item.card + "\n"
+			});
 		}
+		let file = new File(lines, name + ".txt", {type: "text/plain;charset=utf-8"});
+		FileSaver.saveAs(file);
 	}
 	onClose = () => {
 		this.setState({
@@ -457,9 +473,9 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		return filename.replace(/\.[a-z]*$/,"");
 	}
 	addDeckList = (name: string, deck: {
-		cover?: string;
-		mainboard?: {[key: string]: number};
-		sideboard?: {[key: string]: number};
+		cover: string;
+		mainboard: {[key: string]: number};
+		sideboard: {[key: string]: number};
 	}, setCurr: boolean = false, inConstructor: boolean = false) => {
 		// Register cover
 		CardInfo.register([deck.cover], this.handleInfo)
