@@ -250,15 +250,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<i className="fa fa-window-close" />
 			</div>
 			<div className="head" >
-				<div className="title" >
-					<h1 className="name" >{this.props.name}</h1>
-					<div className="actions" >
-						<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
-						&nbsp;
-						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
-					</div>
-				</div>
+				<h1>{this.props.name}</h1>
 				<span className="price">{price.usd} USD / {price.tix} TIX</span>
+				<span className="actions" >
+					<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
+					&nbsp;
+					<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
+				</span>
 				<div className="select">
 					<span>Sort by </span>
 					<select value={this.state.sort.toString()}

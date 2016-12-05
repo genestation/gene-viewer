@@ -83,12 +83,15 @@ div.roguebuilder {
 	.head {
 		position: relative;
 		padding: 0.2em;
-		.name {
-			display: inline-block;
-		}
 		.actions {
-			margin-left: 0.5em;
+			margin-left: 1em;
 			color: $light-text-color;
+			.fa {
+				cursor: pointer;
+				&:hover {
+					color: lighten($light-text-color, 20%);
+				}
+			}
 		}
 		.price {
 			display: inline-block;

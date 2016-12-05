@@ -16,6 +16,12 @@
 		}
 		.actions {
 			position: absolute;
+			.fa {
+				cursor: pointer;
+				&:hover {
+					color: lighten($light-text-color, 10%);
+				}
+			}
 			right: 1em;
 			top: 0.4em;
 			color: $light-text-color;
