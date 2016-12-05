@@ -247,10 +247,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Return DOM
 		return <div className="decklist">
-			<div className="close-button" onClick={this.props.onClose}>
-				<i className="fa fa-window-close" />
-			</div>
 			<div className="head" >
+				<i className="fa fa-window-close" onClick={this.props.onClose}/>
 				<h1>{this.props.name}</h1>
 				<span className="price" onClick={()=>this.props.onBuy(this.props.name)}>{price.usd} USD / {price.tix} TIX
 					&nbsp;

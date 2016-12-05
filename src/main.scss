@@ -71,13 +71,16 @@ div.roguebuilder {
 		@media (max-width: $breakpoint-small) {
 			max-width: $breakpoint-small - 10em;
 		}
-		.close-button {
+		.fa-window-close {
 			cursor: pointer;
 			position: absolute;
 			z-index: 1000;
 			right:0;
-			top: -4px;
+			top: 0;
 			font-size: 2em;
+			&:hover {
+				color: lighten($text-color,20%);
+			}
 		}
 	}
 	.head {
@@ -107,9 +110,6 @@ div.roguebuilder {
 			}
 			&:hover {
 				color: lighten($light-text-color, 20%);
-			}
-			@media (max-width: $breakpoint-small) {
-				display: block;
 			}
 		}
 		.select {
