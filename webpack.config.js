@@ -2,8 +2,8 @@
 
 // Project settings
 
-let project = 'visualizer';
-let library = 'Visualizer';
+let project = 'roguebuilder';
+let library = 'RogueBuilder';
 let externals = {
 	"react": "React",
 	"react-dom": "ReactDOM",
@@ -42,13 +42,8 @@ let base = {
 				loader: ExtractTextPlugin.extract("css-loader?sourceMap!sass-loader?sourceMap"),
 			},
 			{
-				test: /\.svg(\?.*$|$)/,
-				loader: "svg-url-loader",
-			},
-			{
-				test: /\.(eot|woff|woff2|ttf)(\?.*$|$)/,
-				loader: "url-loader?limit=50000&name=[name]-[hash].[ext]",
-				exclude: /mana\.svg$/
+				test: /\.(eot|woff|woff2|ttf|svg)(\?.*$|$)/,
+				loader: "file-loader?name=[name]-[hash].[ext]",
 			},
 		],
 		preLoaders: [
