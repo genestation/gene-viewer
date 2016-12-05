@@ -182,10 +182,7 @@ div.roguebuilder {
 			.deck-list {
 				white-space: nowrap;
 				margin-top: 2em;
-				margin-left: $breakpoint-big / 2 - 17.9em/2;
-				@media (max-width: $breakpoint-big) {
-					margin-left: $breakpoint-small / 2 - 17.9em/2;
-				}
+				margin-left: 10em;
 				@media (max-width: $breakpoint-small) {
 					margin-left: 6em;
 				}
@@ -198,9 +195,9 @@ div.roguebuilder {
 					white-space: normal;
 					color: $light-text-color;
 					&:last-of-type {
-						margin-right: $breakpoint-big / 2 - 17.9em/2;
+						margin-right: $breakpoint-big - 10em - 17.9em/2;
 						@media (max-width: $breakpoint-big) {
-							margin-right: $breakpoint-small / 2 - 17.9em/2;
+							margin-right: $breakpoint-small - 10em - 17.9em/2;
 						}
 						@media (max-width: $breakpoint-small) {
 							margin-right: 6em;
