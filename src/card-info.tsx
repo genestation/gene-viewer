@@ -81,8 +81,9 @@ export const enum Sort {
 	Type,
 	CMC,
 	Color,
+	Keyword,
+	Price,
 	Name,
-	Keyword
 }
 
 export class CardInfo {
@@ -205,6 +206,31 @@ export class CardInfo {
 			tix: Number.POSITIVE_INFINITY,
 		};
 	}
+	static roundOff(value: number) {
+		return value?Number(Math.round(parseFloat(value.toString()+'e2'))+'e-2').toFixed(2):value;
+	}
+	static priceString(card: string) {
+		let price = CardInfo.price(card);
+		return {
+			usd: CardInfo.roundOff(price.usd),
+			tix: CardInfo.roundOff(price.tix),
+		};
+	}
+	static priceSet(...sets: {[key: string]: number}[]) {
+		// Calculate price
+		let usd: number = null;
+		let tix: number = null;
+		sets.forEach((set: {[key: string]: number})=>{
+			Object.keys(set).forEach((card: string)=>{
+				usd += set[card] * CardInfo.price(card).usd;
+				tix += set[card] * CardInfo.price(card).tix;
+			});
+		});
+		return {
+			usd: CardInfo.roundOff(usd),
+			tix: CardInfo.roundOff(tix),
+		};
+	}
 	static manaCost(card: string) {
 		let data = CardInfo.data(card);
 		return data&&data.mana_cost?data.mana_cost.slice(0,-1).split('}{').map((sym: string)=>{
@@ -239,28 +265,18 @@ export class CardInfo {
 			CardInfo.instance.updateInfo();
 		}
 	}
-	static priceSet(...sets: {[key: string]: number}[]) {
-		// Calculate price
-		let usd: number = null;
-		let tix: number = null;
-		sets.forEach((set: {[key: string]: number})=>{
-			Object.keys(set).forEach((card: string)=>{
-				usd += set[card] * CardInfo.price(card).usd;
-				tix += set[card] * CardInfo.price(card).tix;
-			});
-		});
-		function roundOff(value: number) {
-			return value?Number(Math.round(parseFloat(value.toString()+'e2'))+'e-2').toFixed(2):value;
-		}
-		return {
-			usd: roundOff(usd),
-			tix: roundOff(tix),
-		};
-	}
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {card: string, count: number}[]}[] {
 		let buckets: {[key: string]: {card: string, count: number}[]} = {}
 		let lists: {name: string, list: {card: string, count: number}[]}[] = []
+		let known: string[] = []
 		let unknown: string[] = [];
+		Object.keys(cards).forEach((card: string)=>{
+			if(!CardInfo.data(card)) {
+				unknown.push(card);
+			} else {
+				known.push(card);
+			}
+		});
 		function secondSort({card: a}: {card: string}, {card: b}: {card: string}) {
 			// Check converted mana cost
 			let cmc_a = parseFloat(CardInfo.data(a).converted_mana_cost);
@@ -321,11 +337,7 @@ export class CardInfo {
 		}
 		switch (sort) {
 		case Sort.Type:
-			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data(card)) {
-					unknown.push(card);
-					return;
-				}
+			known.forEach((card: string)=>{
 				let type_line = CardInfo.data(card).type_line;
 				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
 					if(type_line.includes(item)) {
@@ -347,11 +359,7 @@ export class CardInfo {
 			}
 			break;
 		case Sort.CMC:
-			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data(card)) {
-					unknown.push(card);
-					return;
-				}
+			known.forEach((card: string)=>{
 				let cmc = CardInfo.data(card).converted_mana_cost;
 				if(!buckets.hasOwnProperty(cmc)) {
 					buckets[cmc] = []
@@ -370,11 +378,7 @@ export class CardInfo {
 			}
 			break;
 		case Sort.Color:
-			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data(card)) {
-					unknown.push(card);
-					return;
-				}
+			known.forEach((card: string)=>{
 				let colors = CardInfo.data(card).colors;
 				if(colors.length == 0) {
 					if(!buckets.hasOwnProperty("Colorless")) {
@@ -423,19 +427,21 @@ export class CardInfo {
 				}
 			}
 			break;
-		case Sort.Name:
-		case Sort.Keyword: //TODO
-			let list: string[] = []
-			Object.keys(cards).forEach((card: string)=>{
-				if(!CardInfo.data(card)) {
-					unknown.push(card);
-				} else {
-					list.push(card);
-				}
-			});
+		case Sort.Price:
 			lists.push({
 				name: null,
-				list: list.sort().map((card: string)=>{
+				list: known.sort((a: string, b: string)=>{
+					return CardInfo.price(a).usd - CardInfo.price(b).usd;
+				}).map((card: string)=>{
+					return {card: card, count: cards[card]};
+				}),
+			});
+			break;
+		case Sort.Name:
+		case Sort.Keyword: //TODO
+			lists.push({
+				name: null,
+				list: known.sort().map((card: string)=>{
 					return {card: card, count: cards[card]};
 				}),
 			});

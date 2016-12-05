@@ -223,7 +223,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
 		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name);
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
-		let priceImg = CardInfo.price(this.state.curr);
+		let priceImg = CardInfo.priceString(this.state.curr);
 		// Calculate height
 		const headerSize = 2.2;
 		const lineSize = 1.6;
@@ -266,6 +266,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 						<option value={Sort.Type.toString()}>Type</option>
 						<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
 						<option value={Sort.Color.toString()}>Color</option>
+						<option value={Sort.Price.toString()}>Price</option>
 						<option value={Sort.Name.toString()}>Name</option>
 					</select>
 				</div>
@@ -291,11 +292,9 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							<div className="preview-img">
 								<img src={CardInfo.image(this.state.curr)}/>
 							</div>
-							{priceImg?
-								<span>
-									{priceImg.usd} USD / {priceImg.tix} TIX
-								</span>
-							:null}
+							<span>
+								{priceImg.usd} USD / {priceImg.tix} TIX
+							</span>
 						</div>
 					</div>
 				</div>
