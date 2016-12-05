@@ -1,4 +1,4 @@
-import 'fetch-polyfill'; // HOPE remove window.fetch polyfill
+import 'fetch-ie8'; // HOPE remove window.fetch polyfill
 
 export interface ScryfallCard {
 	name: string;
