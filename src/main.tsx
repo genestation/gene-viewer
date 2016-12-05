@@ -156,22 +156,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		this.updatingInfo = true;
 	}
 	updateInfo = ()=>{
-		//SAFARI IS DUMB
-		function SafariIsDumb() {
-			console.log("Safari is dumb.");
-			let manacosts = document.getElementsByClassName('mana-cost');
-			for(let idx=0; idx<manacosts.length; idx++) {
-				let element = (manacosts[idx] as HTMLElement);
-				element.style.cssText="position: relative";
-				window.getComputedStyle(element).position;
-				element.style.cssText="position: absolute";
-			}
-		}
-		let Safari = navigator.vendor.indexOf("Apple") > -1;
-		// END DUMB
 		this.forceUpdate(()=>{
 			this.updatingInfo=false;
-			if(Safari) SafariIsDumb();
 		});
 	}
 	handleScroll = ()=>{

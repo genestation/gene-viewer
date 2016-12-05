@@ -1,6 +1,7 @@
 
 .roguebuilder {
 	.card-list {
+		position: relative;
 		width: 20em;
 		padding: 0.25em 0 0;
 		margin: 0 2em 0.25em 1em;
@@ -14,8 +15,9 @@
 			display: inline-block;
 		}
 		.actions {
-			float: right;
-			margin: 0.2em;
+			position: absolute;
+			right: 1em;
+			top: 0.4em;
 			color: $light-text-color;
 			visibility: hidden;
 		}
@@ -26,6 +28,7 @@
 		}
 		tr {
 			cursor: pointer;
+			position: relative;
 			&:hover {
 				background: $dark-background_color;
 			}
