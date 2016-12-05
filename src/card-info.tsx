@@ -88,6 +88,7 @@ export const enum Sort {
 export class CardInfo {
 	data: {[key: string]: ScryfallCard} = {};
 	price: {[key: string]: CardPrice} = {};
+	valid: {[key: string]: boolean} = {};
 	setOrder: {[key: string]: number} = null;
 	listener: {[key: string]: ((card: string)=>any)[]} = {};
 	static instance = new CardInfo;
@@ -124,11 +125,18 @@ export class CardInfo {
 	}
 	updateInfo() {
 		let missing = Object.keys(this.data)
-			.filter((card: string)=> { return !this.data[card] });
+			.filter((card: string)=> { return this.valid[card] == null });
 		missing.forEach((card: string)=>{
 			fetch('https://api.scryfall.com/cards/search?q='+encodeURIComponent('++!"'+card+'"'))
 				.then((response: Promise<Response>)=>{
-					if(response.status !== 200) {
+					if(response.status == 404) {
+						// Mark invalid
+						this.valid[card] = false;
+						this.price[card] = {
+							usd: null,
+							tix: null,
+						};
+					} else if(response.status !== 200) {
 						console.log(response.status, response.url);
 					} else {
 						response.json().then((json: ScryfallCardList)=>{
@@ -163,6 +171,7 @@ export class CardInfo {
 								}
 							})
 							cards.forEach((card: string)=>{
+								this.valid[card] = true;
 								let image = new Image();
 								image.src = this.data[card].image_uri;
 								if(this.listener.hasOwnProperty(card)) {
@@ -181,6 +190,9 @@ export class CardInfo {
 	}
 	static data(card: string) {
 		return CardInfo.instance.data[CardInfo.splitCard(card)];
+	}
+	static valid(card: string) {
+		return CardInfo.instance.valid[CardInfo.splitCard(card)];
 	}
 	static image(card: string) {
 		let data = CardInfo.data(card);
@@ -204,6 +216,9 @@ export class CardInfo {
 		cards.forEach((card: string)=>{
 			if(!CardInfo.instance.data.hasOwnProperty(card)) {
 				CardInfo.instance.data[card] = null
+			}
+			if(!CardInfo.instance.valid.hasOwnProperty(card)) {
+				CardInfo.instance.valid[card] = null
 			}
 			if(!CardInfo.instance.price.hasOwnProperty(card)) {
 				CardInfo.instance.price[card] = {

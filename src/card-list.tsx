@@ -21,6 +21,15 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 			return <span key={idx} className={"mana small s"+sym}/>
 		}):null;
 	}
+	cardNameStyle(card: string) {
+		if(CardInfo.valid(card) === true) {
+			return "card-name valid";
+		} else if(CardInfo.valid(card) === false) {
+			return "card-name invalid";
+		} else {//if(CardInfo.valid(card) === null)
+			return "card-name";
+		}
+	}
 	render() {
 		let count = this.props.cards.map(({count: count}: CardListItem)=>{
 			return count;
@@ -40,11 +49,11 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 					// Calculate width
 					let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
 					return <tr key={idx}
-						onMouseOver={(e: SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
+						onMouseOver={(e: React.SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
 						<td className="quantity">{count + "×"}</td>
 						<td>
-							<div className={CardInfo.data(card)?"card-name":""} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
+							<div className={this.cardNameStyle(card)} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
 							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>

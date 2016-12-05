@@ -44,11 +44,16 @@
 			width: 2.5em;
 		}
 		.card-name {
-			font-family: $beleren;
 			display: inline-block;
 			white-space: nowrap;
 			transform-origin: left;
 			max-width: 16em;
+			&.valid {
+				font-family: $beleren;
+			}
+			&.invalid {
+				color: red;
+			}
 		}
 	}
 }
