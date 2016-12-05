@@ -52,29 +52,36 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 		});
 	}
 	render() {
-		return <div className="main-menu">
-			<div className="overlay bottom" />
-			<div className="overlay side"/>
-			<div className="menu-items">
-				<div className="menu-item file-upload" onClick={this.props.onUpload}>
-					<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
-					&nbsp;
-					<i className="fa fa-file-text-o" aria-hidden="true" />
-				</div>
+		return <div className="decklist" >
+			<div className="head" >
+				<h1>Rogue Deck Builder</h1>
 			</div>
-			<div className="deck-list"> {
-				this.props.decks.map((deck: {name: string, cover: string}, idx: number)=>{
-					return <div key={idx} className="deck-cover" onClick={()=>this.props.onSelect(deck.name)}>
-						<h2>{deck.name}</h2>
-						<div className="preview-img">
-							<div className="overlay"/>
-							{CardInfo.data(deck.cover)?
-								<img src={CardInfo.image(deck.cover)} />
-							:null}
+			<div className="body">
+				<div className="main-menu">
+					<div className="overlay bottom" />
+					<div className="overlay side"/>
+					<div className="menu-items">
+						<div className="menu-item file-upload" onClick={this.props.onUpload}>
+							<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
+							&nbsp;
+							<i className="fa fa-file-text-o" aria-hidden="true" />
 						</div>
 					</div>
-				})
-			} </div>
+					<div className="deck-list"> {
+						this.props.decks.map((deck: {name: string, cover: string}, idx: number)=>{
+							return <div key={idx} className="deck-cover" onClick={()=>this.props.onSelect(deck.name)}>
+								<h2>{deck.name}</h2>
+								<div className="preview-img">
+									<div className="overlay"/>
+									{CardInfo.data(deck.cover)?
+										<img src={CardInfo.image(deck.cover)} />
+									:null}
+								</div>
+							</div>
+						})
+					} </div>
+				</div>
+			</div>
 		</div>
 	}
 }
@@ -84,9 +91,6 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	decks?: {name:string,cover:string}[];
-	onUpload?: ()=>any;
-	onSelect?: (name: string)=>any;
 	onDownload?: (list: CardListItem[])=>any;
 	onClose?: ()=>any;
 }
@@ -111,7 +115,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 	updatingScroll: boolean = false;
 	child: {
 		preview?: Element;
-		head?: Element;
 		track?: Element;
 	} = {};
 	constructor(props: DeckListProps) {
@@ -228,24 +231,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 	}
 	render() {
-		if(this.props.name == null) {
-			return <div className="decklist" >
-				<div className="head" ref={(ref)=>this.child.head=ref}>
-					<h1>Rogue Deck Builder</h1>
-				</div>
-				<div className="body">
-					<DeckListMenu
-						decks={this.props.decks}
-						onUpload={this.props.onUpload}
-						onSelect={this.props.onSelect}
-						/>
-					<div ref={(ref)=>{this.child.track=ref}} className="preview-track">
-						<div ref={(ref)=>{this.child.preview=ref}} className={"preview-frame"}>
-						</div>
-					</div>
-				</div>
-			</div>
-		}
 		let lists = CardInfo.sort(this.props.mainboard, this.state.sort);
 		let sideboard = CardInfo.sort(this.props.sideboard, Sort.Name);
 		let price = CardInfo.priceSet(this.props.mainboard, this.props.sideboard);
@@ -276,7 +261,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			<div className="close-button" onClick={this.props.onClose}>
 				<i className="fa fa-window-close" />
 			</div>
-			<div className="head" ref={(ref)=>this.child.head=ref} >
+			<div className="head" >
 				<div className="title" >
 					<h1 className="name" >{this.props.name}</h1>
 					<div className="actions" >
@@ -516,13 +501,10 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
 			{this.state.curr?
 			<DeckList
-				decks={decks}
 				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
-				onUpload={this.onUpload}
-				onSelect={this.onSelect}
 				onClose={this.onClose}
-			/>:<DeckList
+			/>:<DeckListMenu
 				decks={decks}
 				onUpload={this.onUpload}
 				onSelect={this.onSelect}
