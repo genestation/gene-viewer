@@ -248,7 +248,6 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Count keywords
 		let {keyword_count, keyword_map} = CardInfo.keywords(this.props.mainboard);
-		console.log(keyword_count, keyword_map);
 		// Return DOM
 		return <div className="decklist">
 			<div className="head" >
