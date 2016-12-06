@@ -25,11 +25,11 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 	}
 	cardNameStyle(card: string) {
 		if(CardInfo.valid(card) === true) {
-			return "card-name valid";
+			return "card-list-card-name valid";
 		} else if(CardInfo.valid(card) === false) {
-			return "card-name invalid";
+			return "card-list-card-name invalid";
 		} else {//if(CardInfo.valid(card) === null)
-			return "card-name";
+			return "card-list-card-name";
 		}
 	}
 	render() {
@@ -42,23 +42,23 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 		return <div className="card-list"
 			onMouseOver={()=>this.props.setCurr(this.props.cards[0].card)} >
 			{this.props.title?(this.props.sublist?<h3 className="title">{title}</h3>:<h2 className="title">{title}</h2>):null}
-			<div className="actions" >
-				<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
+			<div className="card-list-actions" >
+				<i className="card-list-action fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
 				&nbsp;
-				<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
+				<i className="card-list-action fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
 			</div>
-			<table><tbody>{
+			<table className="card-list-table"><tbody>{
 				this.props.cards.map(({card: card, count: count}: CardListItem, idx: number)=>{
 					let mana_cost: string[] = CardInfo.manaCost(card);
 					// Calculate width
 					let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
-					return <tr key={idx}
+					return <tr className="card-list-tr" key={idx}
 						onMouseOver={(e: React.SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
-						<td className="quantity">{count + "×"}</td>
-						<td>
+						<td className="card-list-td card-list-quantity">{count + "×"}</td>
+						<td className="card-list-td">
 							<div className={this.cardNameStyle(card)} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
-							<div className="mana-cost">{this.renderManaCost(mana_cost)}</div>
+							<div className="card-list-mana-cost">{this.renderManaCost(mana_cost)}</div>
 						</td>
 					</tr>
 				})

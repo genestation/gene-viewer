@@ -1,68 +1,65 @@
-
-.roguebuilder {
-	.card-list {
-		position: relative;
-		width: 20em;
-		padding: 0.25em 0 0;
-		margin: 0 2em 0.25em 1em;
+.card-list {
+	position: relative;
+	width: 20em;
+	padding: 0.25em 0 0;
+	margin: 0 2em 0.25em 1em;
+	&:hover {
+		background-color: $background-color;
+	}
+	&:hover .actions {
+		visibility: visible;
+	}
+	&-title {
+		display: inline-block;
+	}
+	&-actions {
+		position: absolute;
+		right: 1em;
+		top: 0.4em;
+		color: $light-text-color;
+		visibility: hidden;
+	}
+	&-action {
+		cursor: pointer;
 		&:hover {
-			background-color: $background-color;
+			color: lighten($light-text-color, 10%);
 		}
-		&:hover .actions {
-			visibility: visible;
+	}
+	&-table {
+		width: 20em;
+		border-collapse: collapse;
+		position: relative;
+	}
+	&-tr {
+		cursor: pointer;
+		position: relative;
+		&:hover {
+			background: $dark-background_color;
 		}
-		.title {
-			display: inline-block;
+	}
+	&-td {
+		padding: 0.25em 0.1em;
+	}
+	&-mana-cost {
+		display: inline-block;
+		position: absolute;
+		right: 1em;
+	}
+	&-quantity {
+		text-align: right;
+		width: 2.5em;
+	}
+	&-card-name {
+		display: inline-block;
+		white-space: nowrap;
+		transform-origin: left;
+		max-width: 16em;
+		padding-right: 0.1em;
+		&.valid {
+			font-family: $beleren;
 		}
-		.actions {
-			position: absolute;
-			.fa {
-				cursor: pointer;
-				&:hover {
-					color: lighten($light-text-color, 10%);
-				}
-			}
-			right: 1em;
-			top: 0.4em;
-			color: $light-text-color;
-			visibility: hidden;
-		}
-		table {
-			width: 20em;
-			border-collapse: collapse;
-			position: relative;
-		}
-		tr {
-			cursor: pointer;
-			position: relative;
-			&:hover {
-				background: $dark-background_color;
-			}
-			td {
-				padding: 0.25em;
-				padding-right: 0.1em;
-			}
-		}
-		.mana-cost {
-			display: inline-block;
-			position: absolute;
-			right: 1em;
-		}
-		.quantity {
-			text-align: right;
-			width: 2.5em;
-		}
-		.card-name {
-			display: inline-block;
-			white-space: nowrap;
-			transform-origin: left;
-			max-width: 16em;
-			&.valid {
-				font-family: $beleren;
-			}
-			&.invalid {
-				color: red;
-			}
+		&.invalid {
+			color: red;
 		}
 	}
 }
