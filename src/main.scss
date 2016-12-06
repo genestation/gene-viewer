@@ -17,8 +17,6 @@ $beleren: 'Beleren Bold', $sans-serif;
 $breakpoint-small: 40em;
 $breakpoint-big: 60em;
 
-$column-width: 22em;
-
 
 $background-color: rgba(168, 168, 168, 0.3);
 $opaque-background-color: #c5c5c5;
@@ -266,14 +264,14 @@ div.roguebuilder {
 		}
 		.lists {
 			margin: 1em 0;
-			width: 2 * $column-width;
+			width: 44em;
 			display: flex;
 			flex-direction: column;
 			flex-wrap: wrap;
 			align-items: flex-start;
 			justify-content: flex-start;
 			@media (max-width: $breakpoint-big) {
-				width: $column-width;
+				width: 22em;
 				height: auto !important;
 			}
 		}
