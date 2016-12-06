@@ -16,7 +16,8 @@ $beleren: 'Beleren Bold', $sans-serif;
 
 $breakpoint-small: 40em;
 $breakpoint-big: 60em;
-$select-position: 21.5em;
+
+$column-width: 22em;
 
 
 $background-color: rgba(168, 168, 168, 0.3);
@@ -86,10 +87,18 @@ div.roguebuilder {
 	.head {
 		position: relative;
 		padding: 0.2em;
+		.head-upper {
+			display: inline-block;
+			width: 40em;
+			position: relative;
+			@media (max-width: $breakpoint-big) {
+				width: 20em;
+			}
+		}
 		.actions {
 			position: absolute;
 			text-align: right;
-			left: 16em;
+			right: 2em;
 			margin-top: 0.2em;
 			color: $light-text-color;
 			.fa {
@@ -115,25 +124,28 @@ div.roguebuilder {
 				color: lighten($light-text-color, 20%);
 			}
 		}
+		.head-lower {
+			display: inline-block;
+			position: relative;
+			vertical-align: bottom;
+			font-size: 0.8em;
+			line-height: 2em;
+		}
 		.select {
 			width: 18em;
-			text-align: right;
 			position: absolute;
-			left: $breakpoint-big - $select-position;
-			bottom: 0.4em;
-			span {
-				font-size: 0.8em;
-			}
-			@media (max-width: $breakpoint-big) {
-				left: $breakpoint-small - $select-position;
-			}
+			left: 1em;
+			bottom: 0;
 			@media (max-width: $breakpoint-small) {
-				text-align: left;
 				position: relative;
-				margin-left: 0.6em;
-				margin-bottom: 0.5em;
-				bottom: 0;
-				left: auto;
+			}
+		}
+		.keyword-table {
+			position: absolute;
+			left: 1em;
+			top: 100%;
+			background: $background-color;
+			@media (max-width: $breakpoint-small) {
 			}
 		}
 	}
@@ -254,14 +266,14 @@ div.roguebuilder {
 		}
 		.lists {
 			margin: 1em 0;
-			width: 44em;
+			width: 2 * $column-width;
 			display: flex;
 			flex-direction: column;
 			flex-wrap: wrap;
 			align-items: flex-start;
 			justify-content: flex-start;
 			@media (max-width: $breakpoint-big) {
-				width: 22em;
+				width: $column-width;
 				height: auto !important;
 			}
 		}

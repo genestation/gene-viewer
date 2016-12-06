@@ -129,6 +129,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		this.state = {
 			curr: curr,
 			sort: Sort.Type,
+			scroll: "top",
 		};
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
@@ -252,26 +253,41 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		return <div className="decklist">
 			<div className="head" >
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
-				<h1>{this.props.name}</h1>
-				<span className="price" onClick={()=>this.props.onBuy(this.props.name)}>{price.usd} USD / {price.tix} TIX
-					&nbsp;
-					<i className="fa fa-shopping-cart" aria-hidden="true"/>
-				</span>
-				<span className="actions" >
-					<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
-					&nbsp;
-					<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
-				</span>
-				<div className="select">
-					<span>Sort by </span>
-					<select value={this.state.sort.toString()}
-						onChange={(e: React.FormEvent)=>this.setState({sort:parseInt(e.target.value)})}>
-						<option value={Sort.Type.toString()}>Type</option>
-						<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
-						<option value={Sort.Color.toString()}>Color</option>
-						<option value={Sort.Price.toString()}>Price</option>
-						<option value={Sort.Name.toString()}>Name</option>
-					</select>
+				<div className="head-upper">
+					<h1>{this.props.name}</h1>
+					<span className="price" onClick={()=>this.props.onBuy(this.props.name)}>{price.usd} USD / {price.tix} TIX
+						&nbsp;
+						<i className="fa fa-shopping-cart" aria-hidden="true"/>
+					</span>
+					<span className="actions" >
+						<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
+						&nbsp;
+						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
+					</span>
+				</div>
+				<div className="head-lower">
+					<div className="select">
+						<span>Sort by </span>
+						<select value={this.state.sort.toString()}
+							onChange={(e: React.FormEvent)=>this.setState({sort:parseInt(e.target.value)})}>
+							<option value={Sort.Type.toString()}>Type</option>
+							<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
+							<option value={Sort.Color.toString()}>Color</option>
+							<option value={Sort.Price.toString()}>Price</option>
+							<option value={Sort.Name.toString()}>Name</option>
+						</select>
+						<br/>
+						Keywords
+					</div>
+					<div className="keyword-table">
+						<table> {
+							Object.keys(keyword_count).map((keyword: string)=>{
+								return <tr>
+									<td>{keyword}</td><td>{keyword_count[keyword]}</td>
+								</tr>
+							})
+						} </table>
+					</div>
 				</div>
 			</div>
 			<div className="body">
