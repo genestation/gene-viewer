@@ -81,10 +81,135 @@ export const enum Sort {
 	Type,
 	CMC,
 	Color,
-	Keyword,
 	Price,
 	Name,
 }
+
+const Keywords = [
+	"Deathtouch",
+	"Defender",
+	"Double Strike",
+	"Enchant",
+	"Equip",
+	"First Strike",
+	"Flash",
+	"Flying",
+	"Haste",
+	"Hexproof",
+	"Indestructible",
+	"Intimidate",
+	"Landwalk",
+	"Lifelink",
+	"Protection",
+	"Reach",
+	"Shroud",
+	"Trample",
+	"Vigilance",
+	"Banding",
+	"Rampage",
+	"Cumulative Upkeep",
+	"Flanking",
+	"Phasing",
+	"Buyback",
+	"Shadow",
+	"Cycling",
+	"Echo",
+	"Horsemanship",
+	"Fading",
+	"Kicker",
+	"Flashback",
+	"Madness",
+	"Fear",
+	"Morph",
+	"Amplify",
+	"Provoke",
+	"Storm",
+	"Affinity",
+	"Entwine",
+	"Modular",
+	"Sunburst",
+	"Bushido",
+	"Soulshift",
+	"Splice",
+	"Offering",
+	"Ninjutsu",
+	"Epic",
+	"Convoke",
+	"Dredge",
+	"Transmute",
+	"Bloodthirst",
+	"Haunt",
+	"Replicate",
+	"Forecast",
+	"Graft",
+	"Recover",
+	"Ripple",
+	"Split Second",
+	"Suspend",
+	"Vanishing",
+	"Absorb",
+	"Aura Swap",
+	"Delve",
+	"Fortify",
+	"Frenzy",
+	"Gravestorm",
+	"Poisonous",
+	"Transfigure",
+	"Champion",
+	"Changeling",
+	"Evoke",
+	"Hideaway",
+	"Prowl",
+	"Reinforce",
+	"Conspire",
+	"Persist",
+	"Wither",
+	"Retrace",
+	"Devour",
+	"Exalted",
+	"Unearth",
+	"Cascade",
+	"Annihilator",
+	"Level Up",
+	"Rebound",
+	"Totem Armor",
+	"Infect",
+	"Battle Cry",
+	"Living Weapon",
+	"Undying",
+	"Miracle",
+	"Soulbond",
+	"Overload",
+	"Scavenge",
+	"Unleash",
+	"Cipher",
+	"Evolve",
+	"Extort",
+	"Fuse",
+	"Bestow",
+	"Tribute",
+	"Dethrone",
+	"Hidden Agenda",
+	"Outlast",
+	"Prowess",
+	"Dash",
+	"Exploit",
+	"Menace",
+	"Renown",
+	"Awaken",
+	"Devoid",
+	"Ingest",
+	"Myriad",
+	"Surge",
+	"Skulk",
+	"Emerge",
+	"Escalate",
+	"Melee",
+	"Crew",
+	"Fabricate",
+	"Partner",
+	"Undaunted",
+];
 
 export class CardInfo {
 	data: {[key: string]: ScryfallCard} = {};
@@ -265,6 +390,37 @@ export class CardInfo {
 			CardInfo.instance.updateInfo();
 		}
 	}
+	static keywords(cards: {[key: string]: number}) {
+		let keywords = Keywords.map((keyword: string)=>{
+			return keyword.toLowerCase();
+		});
+		// Count instaces of keyword
+		// for each card
+		let keyword_map: {[key:string]: string[]} = {};
+		let keyword_count: {[key:string]: number} = {};
+		Object.keys(cards).forEach((card: string)=>{
+			if(!CardInfo.data(card)) {
+				return
+			}
+			let oracle_text = CardInfo.data(card).oracle_text.toLowerCase();
+			keywords.forEach((keyword: string)=>{
+				if(oracle_text.indexOf(keyword) > -1) {
+					if(!keyword_count.hasOwnProperty(keyword)) {
+						keyword_count[keyword] = 0;
+					}
+					if(!keyword_map.hasOwnProperty(keyword)) {
+						keyword_map[keyword] = [];
+					}
+					keyword_count[keyword] += cards[card];
+					keyword_map[keyword].push(card);
+				}
+			});
+		});
+		return {
+			keyword_count: keyword_count,
+			keyword_map: keyword_map,
+		};
+	}
 	static sort(cards: {[key: string]: number}, sort: Sort): {name: string, list: {card: string, count: number}[]}[] {
 		let buckets: {[key: string]: {card: string, count: number}[]} = {}
 		let lists: {name: string, list: {card: string, count: number}[]}[] = []
@@ -438,7 +594,6 @@ export class CardInfo {
 			});
 			break;
 		case Sort.Name:
-		case Sort.Keyword: //TODO
 			lists.push({
 				name: null,
 				list: known.sort().map((card: string)=>{
