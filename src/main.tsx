@@ -39,11 +39,18 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	}
 	onReset() {
 		this.state.library.push(...this.state.hand,...this.state.battlefield);
+		this.shuffle(this.state.library);
 		this.setState({
 			library: this.state.library,
 			hand: [],
 			battlefield: [],
 		});
+	}
+	onDraw = ()=>{
+		if(this.state.library.length) {
+			this.state.hand.unshift(this.state.library.pop());
+			this.setState(this.state);
+		}
 	}
 	onScry() {
 	}
@@ -83,11 +90,8 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={()=>this.onSearch()}/>
 				</div>
 				<div className="deck-player-hand">
-					<div className="deck-player-library"
-						onClick={()=>{
-							this.state.hand.unshift(this.state.library.pop());
-							this.setState(this.state);
-						}}
+					<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
+						onClick={this.onDraw}
 					/>
 					{
 						this.state.hand.map((card: string, idx: number)=>{
