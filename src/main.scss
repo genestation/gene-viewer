@@ -80,15 +80,17 @@ $rogue-cool-purple: #3e438e;
 
 @import "./card-list.scss";
 
-.library-img{
-	height: 8.8em;
-	width: 6.3em;
-	border-radius: 0.3em;
-	overflow: hidden;
-	background: url('../image/Magic_the_gathering-card_back.jpg');
-	background-size: cover;
-}
 .deck-player {
+	&-actions {
+		padding: 0.2em 0.5em;
+		display: flex;
+		width: 7em;
+		justify-content: space-around;
+	}
+	&-action {
+		cursor: pointer;
+		padding: 0 0.5em;
+	}
 	&-body {
 		position: relative;
 		min-height: 28em;
@@ -99,8 +101,33 @@ $rogue-cool-purple: #3e438e;
 	}
 	&-battlefield {
 		flex: 1;
+		display: flex;
+		flex-wrap: wrap;
+		margin-bottom: 2em;
+		min-height: 14em;
 	}
 	&-hand {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	&-card {
+		height: 11em;
+		width: 8em;
+		border-radius: 0.3em;
+		overflow: hidden;
+		background: black;
+		&-img {
+			width: 100%;
+		}
+	}
+	&-library {
+		height: 11em;
+		width: 8em;
+		border-radius: 0.3em;
+		margin-right: 2em;
+		overflow: hidden;
+		background: url('../image/Magic_the_gathering-card_back.jpg');
+		background-size: cover;
 	}
 }
 

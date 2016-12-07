@@ -36,7 +36,18 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			hand: hand,
 			battlefield: [],
 		};
-		console.log(this.state);
+	}
+	onReset() {
+		this.state.library.push(...this.state.hand,...this.state.battlefield);
+		this.setState({
+			library: this.state.library,
+			hand: [],
+			battlefield: [],
+		});
+	}
+	onScry() {
+	}
+	onSearch() {
 	}
 	shuffle(cards: string[]) {
 		for (let i = cards.length; i; i--) {
@@ -52,9 +63,45 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			</div>
 			<div className="deck-player-body">
 				<div className="deck-player-battlefield">
+					{
+						this.state.battlefield.map((card: string, idx: number)=>{
+							return <div key={idx} className="deck-player-card"
+								onClick={()=>{
+									this.state.hand.push(card);
+									this.state.battlefield.splice(idx,1);
+									this.setState(this.state);
+								}}
+							>
+								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+							</div>
+						})
+					}
+				</div>
+				<div className="deck-player-actions" >
+					<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={()=>this.onReset()}/>
+					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={()=>this.onScry()}/>
+					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={()=>this.onSearch()}/>
 				</div>
 				<div className="deck-player-hand">
-					<div className="library-img"/>
+					<div className="deck-player-library"
+						onClick={()=>{
+							this.state.hand.unshift(this.state.library.pop());
+							this.setState(this.state);
+						}}
+					/>
+					{
+						this.state.hand.map((card: string, idx: number)=>{
+							return <div key={idx} className="deck-player-card"
+								onClick={()=>{
+									this.state.battlefield.push(card);
+									this.state.hand.splice(idx,1);
+									this.setState(this.state);
+								}}
+							>
+								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+							</div>
+						})
+					}
 				</div>
 			</div>
 		</div>
