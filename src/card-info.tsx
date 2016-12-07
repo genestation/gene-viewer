@@ -390,7 +390,16 @@ export class CardInfo {
 			CardInfo.instance.updateInfo();
 		}
 	}
-	static keywords(cards: {[key: string]: number}) {
+	static keywords(cardss: {[key: string]: number}[]) {
+		let cards: {[key: string]: number} = {};
+		cardss.forEach((cardss_iter: {[key: string]: number})=>{
+			Object.keys(cardss_iter).forEach((card: string)=>{
+				if(!cards.hasOwnProperty(card)) {
+					cards[card] = 0;
+				}
+				cards[card] += cardss_iter[card];
+			})
+		});
 		let keywords = Keywords.map((keyword: string)=>{
 			return keyword.toLowerCase();
 		});

@@ -252,14 +252,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		});
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Count keywords
-		let {keyword_count, keyword_map} = CardInfo.keywords(this.props.mainboard);
+		let {keyword_count, keyword_map} = CardInfo.keywords([this.props.mainboard,this.props.sideboard]);
 		let keyword_order = Object.keys(keyword_count).sort((a: string, b: string)=>{
 			return keyword_count[b] - keyword_count[a];
 		});
 		let highlight = this.state.highlight?keyword_map[this.state.highlight]:[];
 		let filtered: string[] = null;
 		if(!this.state.highlight && this.state.filter) {
-			filtered = keyword_map[this.state.filter[0]]:null;
+			filtered = keyword_map[this.state.filter[0]];
 			this.state.filter.forEach((filter: string)=>{
 				filtered = filtered.filter((card: string)=>{
 					return keyword_map[filter].indexOf(card) > -1;
