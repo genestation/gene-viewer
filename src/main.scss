@@ -103,8 +103,10 @@ $rogue-cool-purple: #3e438e;
 		flex: 1;
 		display: flex;
 		flex-wrap: wrap;
-		margin-bottom: 2em;
+		margin-bottom: 1em;
+		padding-bottom: 1em;
 		min-height: 14em;
+		background: $background-color;
 	}
 	&-hand {
 		display: flex;
