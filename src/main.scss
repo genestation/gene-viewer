@@ -32,7 +32,32 @@ $rogue-fishbone: #ded3b7;
 $rogue-rich-purple: #723270;
 $rogue-cool-purple: #3e438e;
 
-@import "card-list.scss";
+.dropdown {
+	&-container {
+		line-height: 1.5em;
+		margin-top: 0.25em;
+		margin-bottom: 0.25em;
+		&:hover {
+			background: lighten($background-color,10%);
+		}
+	}
+	&-label {
+		margin-right: 0.25em;
+	}
+	&-button {
+		padding-left: 0.5em;
+		background: $background-color;
+		font-weight: bold;
+	}
+	&-items {
+		background: lighten($opaque-background-color, 30%);
+	}
+	&-item:hover {
+		background: $opaque-background-color;
+	}
+}
+
+@import "./card-list.scss";
 
 div.roguebuilder {
 	.hidden-input {
@@ -135,15 +160,8 @@ div.roguebuilder {
 			left: 1em;
 			bottom: 0;
 			@media (max-width: $breakpoint-small) {
+				width: 22em;
 				position: relative;
-			}
-		}
-		.keyword-table {
-			position: absolute;
-			left: 1em;
-			top: 100%;
-			background: $background-color;
-			@media (max-width: $breakpoint-small) {
 			}
 		}
 	}

@@ -1,0 +1,22 @@
+.dropdown-container {
+	cursor: pointer;
+	display: flex;
+}
+.dropdown-label {
+	display: inline-block;
+}
+.dropdown-button-container {
+	position: relative;
+	display: inline-block;
+	flex: 1;
+}
+.dropdown-items {
+	position: absolute;
+	right: 0;
+	top: 100%;
+	width: 100%;
+	z-index: 1000;
+	&-keyword {
+		text-align: right;
+	}
+}

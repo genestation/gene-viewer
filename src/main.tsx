@@ -1,11 +1,12 @@
 "use strict";
 
+import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as FileSaver from 'file-saver';
-import './main.scss';
 import {CardList, CardListItem} from './card-list.tsx';
 import {CardInfo, CardPrice, Sort} from './card-info.tsx';
+import {Dropdown} from './dropdown.tsx';
 
 const enum Media {
 	Small,
@@ -276,16 +277,15 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							<option value={Sort.Name.toString()}>Name</option>
 						</select>
 						<br/>
-						Keywords
-					</div>
-					<div className="keyword-table">
-						<table> {
-							Object.keys(keyword_count).map((keyword: string)=>{
-								return <tr>
-									<td>{keyword}</td><td>{keyword_count[keyword]}</td>
-								</tr>
-							})
-						} </table>
+						<Dropdown label="Keywords" value="Select">
+							<table><tbody>{
+								Object.keys(keyword_count).map((keyword: string, idx: number)=>{
+									return <tr key={idx}>
+										<td className="keyword-table-keyword">{keyword}</td><td>{keyword_count[keyword]}</td>
+									</tr>
+								})
+							}</tbody></table>
+						</Dropdown>
 					</div>
 				</div>
 			</div>
