@@ -104,6 +104,7 @@ interface DeckListState{
 	curr?: string;
 	sort?: Sort;
 	scroll?: string;
+	highlight?: string;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
 	static defaultProps: DeckListProps = {
@@ -121,17 +122,18 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		preview?: Element;
 		track?: Element;
 	} = {};
+	state = {
+		curr: curr,
+		sort: Sort.Type,
+		scroll: "top",
+		highlight: null,
+	};
 	constructor(props: DeckListProps) {
 		super(props);
 		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
 		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		let curr = props.cover?props.cover:
 			props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null;
-		this.state = {
-			curr: curr,
-			sort: Sort.Type,
-			scroll: "top",
-		};
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
 		if(nextProps.cover) this.setState({curr: nextProps.cover});
@@ -278,10 +280,24 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 						</select>
 						<br/>
 						<Dropdown label="Keywords" value="Select">
-							<table><tbody>{
+							<table className="dropdown-table"><tbody>{
 								Object.keys(keyword_count).map((keyword: string, idx: number)=>{
-									return <tr key={idx}>
-										<td className="keyword-table-keyword">{keyword}</td><td>{keyword_count[keyword]}</td>
+									return <tr className="dropdown-item" key={idx}
+									onClick={()=>{
+										console.log(keyword);
+									}}
+									onMouseEnter={()=>{
+										this.setState({
+											highlight: keyword,
+										})
+									}}
+									onMouseLeave={()=>{
+										this.setState({
+											highlight: null,
+										})
+									}} >
+										<td className="dropdown-item-keyword">{keyword}</td>
+										<td className="dropdown-item-count">{keyword_count[keyword]}</td>
 									</tr>
 								})
 							}</tbody></table>
@@ -291,7 +307,8 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			</div>
 			<div className="body">
 				<div className="footprint"/>
-				<div className="lists" style={{height: cutoff + 'em'}}>
+				<div className={"lists" +(this.state.highlight?" cardlist-keyword-highlight-"+this.state.hightlight:"")}
+					style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
 						return <CardList key={idx} deck={this.props.name} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />

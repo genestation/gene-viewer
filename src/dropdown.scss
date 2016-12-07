@@ -1,6 +1,17 @@
 .dropdown-container {
 	cursor: pointer;
 	display: flex;
+	outline: none;
+}
+.dropdown-close {
+	display: none;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 1000;
+	.dropdown-container:focus & {
+		display: inherit;
+	}
 }
 .dropdown-label {
 	display: inline-block;
@@ -11,12 +22,16 @@
 	flex: 1;
 }
 .dropdown-items {
+	display: none;
 	position: absolute;
 	right: 0;
 	top: 100%;
 	width: 100%;
-	z-index: 1000;
+	z-index: 1001;
 	&-keyword {
 		text-align: right;
+	}
+	.dropdown-container:focus & {
+		display: inherit;
 	}
 }

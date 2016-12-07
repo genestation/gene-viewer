@@ -5,20 +5,29 @@ import * as ReactDOM from 'react-dom';
 export interface DropdownProps{
 	label?: string;
 	value?: string;
+	tabindex?: number;
 }
 export interface DropdownState{
 	visible: boolean;
 }
 export class Dropdown extends React.Component<DropdownProps,DropdownState> {
+	child: {
+		container?: HTMLElement;
+	} = {};
 	constructor(props: DropdownProps) {
 		super(props);
-		this.state = {
-			visible: false,
-		};
+	}
+	blur() {
+		this.child.container.blur();
 	}
 	render() {
 		return <div className="dropdown-container"
-			onClick={()=>this.setState({visible:!this.state.visible})} >
+			tabIndex={this.props.tabindex?this.props.tabindex:0}
+			ref={(ref)=>this.child.container = ref}
+			>
+			<div className="dropdown-close"
+				onClick={()=>{this.child.container.blur()}}
+			/>
 			<div className="dropdown-label">
 				{this.props.label}
 			</div>
@@ -26,11 +35,11 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 				<div className="dropdown-button">
 					{this.props.value}
 				</div>
-				{this.state.visible?
-				<div className="dropdown-items">
+				<div className="dropdown-items"
+					onClick={()=>{console.log(1);this.child.container.blur()}}
+				>
 					{this.props.children}
 				</div>
-				:null}
 			</div>
 		</div>
 	}
