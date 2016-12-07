@@ -22,10 +22,27 @@ interface DeckPlayerState{
 class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
 		super(props)
+		let library: string[] = [];
+		let hand: string[] = [];
+		Object.keys(props.mainboard).forEach((card: string)=>{
+			library.push(...Array(props.mainboard[card]).fill(card,0,props.mainboard[card]));
+		});
+		this.shuffle(library);
+		for(let i = 0; i < 7; i++) {
+			hand.push(library.pop());
+		}
 		this.state = {
-			hand: [],
+			library: library,
+			hand: hand,
 			battlefield: [],
 		};
+		console.log(this.state);
+	}
+	shuffle(cards: string[]) {
+		for (let i = cards.length; i; i--) {
+			let j = Math.floor(Math.random() * i);
+			[cards[i - 1], cards[j]] = [cards[j], cards[i - 1]];
+		}
 	}
 	render() {
 		return <div className="decklist" >
@@ -33,7 +50,12 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
 				<h1>{this.props.name}</h1>
 			</div>
-			<div className="body">
+			<div className="deck-player-body">
+				<div className="deck-player-battlefield">
+				</div>
+				<div className="deck-player-hand">
+					<div className="library-img"/>
+				</div>
 			</div>
 		</div>
 	}

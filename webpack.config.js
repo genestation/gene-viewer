@@ -42,7 +42,7 @@ let base = {
 				loader: ExtractTextPlugin.extract("css-loader?sourceMap!sass-loader?sourceMap"),
 			},
 			{
-				test: /\.(eot|woff|woff2|ttf|svg)(\?.*$|$)/,
+				test: /\.(eot|woff|woff2|ttf|jpg|svg)(\?.*$|$)/,
 				loader: "file-loader?name=[name]-[hash].[ext]",
 			},
 		],

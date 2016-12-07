@@ -80,6 +80,30 @@ $rogue-cool-purple: #3e438e;
 
 @import "./card-list.scss";
 
+.library-img{
+	height: 8.8em;
+	width: 6.3em;
+	border-radius: 0.3em;
+	overflow: hidden;
+	background: url('../image/Magic_the_gathering-card_back.jpg');
+	background-size: cover;
+}
+.deck-player {
+	&-body {
+		position: relative;
+		min-height: 28em;
+		background: $background-color;
+		font-size: 0.9em;
+		display: flex;
+		flex-direction: column;
+	}
+	&-battlefield {
+		flex: 1;
+	}
+	&-hand {
+	}
+}
+
 div.roguebuilder {
 	.hidden-input {
 		width: 0.1px;
