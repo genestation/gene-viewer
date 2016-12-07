@@ -8,6 +8,37 @@ import {CardInfo} from './card-info.tsx';
 import {CardListItem} from './card-list.tsx';
 import {DeckList} from './deck-list.tsx';
 
+interface DeckPlayerProps{
+	name?: string;
+	mainboard?: {[key: string]: number};
+	sideboard?: {[key: string]: number};
+	onClose: ()=>any;
+}
+interface DeckPlayerState{
+	library?: string[];
+	hand?: string[];
+	battlefield?: string[];
+}
+class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
+	constructor(props: DeckPlayerProps) {
+		super(props)
+		this.state = {
+			hand: [],
+			battlefield: [],
+		};
+	}
+	render() {
+		return <div className="decklist" >
+			<div className="head" >
+				<i className="fa fa-window-close" onClick={this.props.onClose}/>
+				<h1>{this.props.name}</h1>
+			</div>
+			<div className="body">
+			</div>
+		</div>
+	}
+}
+
 interface DeckListMenuProps{
 	decks: {name:string,cover:string}[];
 	onSelect: (name: string)=>any;
@@ -257,9 +288,15 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		FileSaver.saveAs(file);
 	}
 	onClose = () => {
-		this.setState({
-			curr: null,
-		});
+		if(this.state.play) {
+			this.setState({
+				play: false,
+			});
+		} else {
+			this.setState({
+				curr: null,
+			});
+		}
 	}
 	cleanFilename(filename: string) {
 		return filename.replace(/\.[a-z]*$/,"");
@@ -299,21 +336,36 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			name: name,
 			cover: this.state.library[name].cover,
 		}});
-		return <div className="roguebuilder">
-			{this.state.curr?
-			<DeckList
-				name={this.state.curr}
-				{...this.state.library[this.state.curr]}
-				onBuy={this.onBuy}
-				onPlay={this.onPlay}
-				onCopy={this.onCopy}
-				onDownload={this.onDownload}
-				onClose={this.onClose}
-			/>:<DeckListMenu
-				decks={decks}
-				onSelect={this.onSelect}
-				handleFile={this.handleFile}
-			/>}
-		</div>
+		if(this.state.curr) {
+			if(this.state.play) {
+				return <div className="roguebuilder">
+					<DeckPlayer
+						name={this.state.curr}
+						{...this.state.library[this.state.curr]}
+						onClose={this.onClose}
+					/>
+				</div>
+			} else {
+				return <div className="roguebuilder">
+					<DeckList
+						name={this.state.curr}
+						{...this.state.library[this.state.curr]}
+						onBuy={this.onBuy}
+						onPlay={this.onPlay}
+						onCopy={this.onCopy}
+						onDownload={this.onDownload}
+						onClose={this.onClose}
+					/>
+				</div>
+			}
+		} else {
+			return <div className="roguebuilder">
+				<DeckListMenu
+					decks={decks}
+					onSelect={this.onSelect}
+					handleFile={this.handleFile}
+				/>
+			</div>
+		}
 	}
 }
