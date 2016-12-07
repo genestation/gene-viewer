@@ -41,9 +41,23 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 		}).reduce((a: number, b: number)=>{
 			return a + b;
 		}, 0);
+		let first = this.props.cards
+			.reduce((accum: string, {card: card}: CardListItem)=>{
+				if(accum !== null) {
+					return accum;
+				} else if(this.props.filtered) {
+					if(this.props.filtered.indexOf(card) > -1) {
+						return card;
+					} else {
+						return accum;
+					}
+				} else {
+					return card;
+				}
+		}, null);
 		let title = this.props.title + " (" + count + ")";
-		return <div className="card-list"
-			onMouseOver={()=>this.props.setCurr(this.props.cards[0].card)} >
+		return <div className={"card-list" + (first?"":" card-list-empty")}
+			onMouseOver={first?()=>this.props.setCurr(first):null} >
 			{this.props.title?(this.props.sublist?<h3 className="title">{title}</h3>:<h2 className="title">{title}</h2>):<h2 className="title">&nbsp;</h2>}
 			<div className="card-list-actions" >
 				<i className="card-list-action fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.cards)}/>
