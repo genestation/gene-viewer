@@ -253,13 +253,19 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Count keywords
 		let {keyword_count, keyword_map} = CardInfo.keywords(this.props.mainboard);
-		let highlight = this.state.highlight?keyword_map[this.state.highlight]:[];
-		let filtered: string[] = this.state.filter?keyword_map[this.state.filter[0]]:null;
-		this.state.filter.forEach((filter: string)=>{
-			filtered = filtered.filter((card: string)=>{
-				return keyword_map[filter].indexOf(card) > -1;
-			});
+		let keyword_order = Object.keys(keyword_count).sort((a: string, b: string)=>{
+			return keyword_count[b] - keyword_count[a];
 		});
+		let highlight = this.state.highlight?keyword_map[this.state.highlight]:[];
+		let filtered: string[] = null;
+		if(!this.state.highlight && this.state.filter) {
+			filtered = keyword_map[this.state.filter[0]]:null;
+			this.state.filter.forEach((filter: string)=>{
+				filtered = filtered.filter((card: string)=>{
+					return keyword_map[filter].indexOf(card) > -1;
+				});
+			});
+		}
 		// Return DOM
 		return <div className="decklist">
 			<div className="head" >
@@ -298,7 +304,7 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 								><td colSpan={2}>Reset</td></tr>
 							</thead>
 							<tbody>{
-								Object.keys(keyword_count).map((keyword: string, idx: number)=>{
+								keyword_order.map((keyword: string, idx: number)=>{
 									return <tr className="dropdown-item" key={idx}
 									onClick={()=>{
 										this.setState({

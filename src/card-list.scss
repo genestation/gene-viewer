@@ -34,7 +34,7 @@
 		cursor: pointer;
 		position: relative;
 		&-filter {
-			color: $light-text-color;
+			opacity: 0.2;
 		}
 		&:hover, &-highlight {
 			background: darken($background_color,20%);
