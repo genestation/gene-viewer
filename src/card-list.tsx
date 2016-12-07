@@ -16,7 +16,7 @@ export interface CardListProps{
 	filtered: string[];
 	setCurr: (card: string)=>any;
 	showPreview: ()=>any;
-	onCopy: (name: string, list?: CardListItem[])=>any;
+	onCopy: (list?: CardListItem[])=>any;
 	onDownload: (name: string, list?: CardListItem[])=>any;
 }
 export interface CardListState{ }
@@ -46,7 +46,7 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 			onMouseOver={()=>this.props.setCurr(this.props.cards[0].card)} >
 			{this.props.title?(this.props.sublist?<h3 className="title">{title}</h3>:<h2 className="title">{title}</h2>):<h2 className="title">&nbsp;</h2>}
 			<div className="card-list-actions" >
-				<i className="card-list-action fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
+				<i className="card-list-action fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.cards)}/>
 				&nbsp;
 				<i className="card-list-action fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.deck + " (" + this.props.title + ")", this.props.cards)}/>
 			</div>

@@ -93,9 +93,10 @@ interface DeckListProps{
 	cover?: string;
 	mainboard?: {[key: string]: number};
 	sideboard?: {[key: string]: number};
-	onBuy?: (name: string, list?: CardListItem[])=>any;
+	onBuy?: (list?: CardListItem[])=>any;
 	onDownload?: (name: string, list?: CardListItem[])=>any;
-	onCopy?: (name: string, list?: CardListItem[])=>any;
+	onCopy?: (list?: CardListItem[])=>any;
+	onPlay?: ()=>any;
 	onClose?: ()=>any;
 }
 interface DeckListState{
@@ -272,12 +273,14 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
 				<div className="head-upper">
 					<h1>{this.props.name}</h1>
-					<span className="price" onClick={()=>this.props.onBuy(this.props.name)}>{price.usd} USD / {price.tix} TIX
+					<span className="price" onClick={()=>this.props.onBuy()}>{price.usd} USD / {price.tix} TIX
 						&nbsp;
 						<i className="fa fa-shopping-cart" aria-hidden="true"/>
 					</span>
 					<span className="actions" >
-						<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy(this.props.name)}/>
+						<i className="fa fa-play" aria-hidden="true" onClick={()=>this.props.onPlay()}/>
+						&nbsp;
+						<i className="fa fa-clipboard" aria-hidden="true" onClick={()=>this.props.onCopy()}/>
 						&nbsp;
 						<i className="fa fa-download" aria-hidden="true" onClick={()=>this.props.onDownload(this.props.name)}/>
 					</span>
@@ -484,6 +487,7 @@ export interface DeckManagerState{
 	},
 	decks?: string[],
 	curr?: string,
+	play?: boolean,
 }
 export default class DeckManager extends React.Component<DeckManagerProps,DeckManagerState> {
 	static defaultProps: DeckManagerProps = {
@@ -501,6 +505,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				props.deckTexts?props.deckTexts.map((input: {name: string, text: string})=>input.name):[],
 				props.deckFiles?props.deckFiles.map(this.cleanFilename):[],
 			),
+			play: false,
 		}
 		// Load decks
 		if(props.deckTexts) {
@@ -536,11 +541,11 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			curr: name,
 		});
 	}
-	toText = (name: string, list?: CardListItem[]) => {
+	toText = (list?: CardListItem[]) => {
 		let lines: string[] = [];
 		if(list === undefined) {
 			// Export whole deck
-			let deck = this.state.library[name];
+			let deck = this.state.library[this.state.curr];
 			lines.push(deck.mainboard[deck.cover] + " " + deck.cover + "\n");
 			Object.keys(deck.mainboard).forEach((card: string)=>{
 				if(card !== deck.cover) {
@@ -558,19 +563,24 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		}
 		return lines;
 	}
-	onBuy = (name: string, list?: CardListItem[]) => {
-		alert("Add to cart:\n"+this.toText(name,list).join(''));
+	onBuy = (list?: CardListItem[]) => {
+		alert("Add to cart:\n"+this.toText(list).join(''));
 	}
-	onCopy = (name: string, list?: CardListItem[]) => {
+	onPlay = () => {
+		this.setState({
+			play: true,
+		});
+	}
+	onCopy = (list?: CardListItem[]) => {
 		let textField = document.createElement('textarea');
-		textField.textContent = this.toText(name, list).join('');
+		textField.textContent = this.toText(list).join('');
 		document.body.appendChild(textField);
 		textField.select();
 		document.execCommand('copy');
 		textField.remove();
 	}
 	onDownload = (name: string, list?: CardListItem[]) => {
-		let file = new File(this.toText(name,list), name + ".txt", {type: "text/plain;charset=utf-8"});
+		let file = new File(this.toText(list), name + ".txt", {type: "text/plain;charset=utf-8"});
 		FileSaver.saveAs(file);
 	}
 	onClose = () => {
@@ -623,6 +633,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				name={this.state.curr}
 				{...this.state.library[this.state.curr]}
 				onBuy={this.onBuy}
+				onPlay={this.onPlay}
 				onCopy={this.onCopy}
 				onDownload={this.onDownload}
 				onClose={this.onClose}
