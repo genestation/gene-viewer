@@ -36,9 +36,14 @@ $rogue-cool-purple: #3e438e;
 		width: 100%;
 		border-spacing: 0;
 	}
+	&-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
 	&-container {
 		line-height: 1.5em;
-		margin-top: 0.25em;
+		margin-top: 0.5em;
 		margin-bottom: 0.25em;
 		&:hover, &:focus {
 			background: lighten($background-color,10%);
@@ -56,6 +61,7 @@ $rogue-cool-purple: #3e438e;
 		background: lighten($opaque-background-color, 20%);
 	}
 	&-item {
+		padding-left: 0.5em;
 		&:hover, &:focus {
 			background: $opaque-background-color;
 		}

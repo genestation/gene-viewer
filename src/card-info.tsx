@@ -84,6 +84,13 @@ export const enum Sort {
 	Price,
 	Name,
 }
+let _SortName = {};
+_SortName[Sort.Type] = "Type";
+_SortName[Sort.CMC] = "Converted Mana Cost";
+_SortName[Sort.Color] = "Color";
+_SortName[Sort.Price] = "Price";
+_SortName[Sort.Name] = "Name";
+export const SortName = _SortName;
 
 const Keywords = [
 	"Deathtouch",

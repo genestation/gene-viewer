@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as FileSaver from 'file-saver';
 import {CardList, CardListItem} from './card-list.tsx';
-import {CardInfo, CardPrice, Sort} from './card-info.tsx';
+import {CardInfo, CardPrice, Sort, SortName} from './card-info.tsx';
 import {Dropdown} from './dropdown.tsx';
 
 const enum Media {
@@ -284,16 +284,20 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 				</div>
 				<div className="head-lower">
 					<div className="select">
-						<span>Sort by </span>
-						<select value={this.state.sort.toString()}
-							onChange={(e: React.FormEvent)=>this.setState({sort:parseInt(e.target.value)})}>
-							<option value={Sort.Type.toString()}>Type</option>
-							<option value={Sort.CMC.toString()}>Converted Mana Cost</option>
-							<option value={Sort.Color.toString()}>Color</option>
-							<option value={Sort.Price.toString()}>Price</option>
-							<option value={Sort.Name.toString()}>Name</option>
-						</select>
-						<br/>
+						<Dropdown label="Sort by" value={SortName[this.state.sort]}>
+							<ul className="dropdown-list">
+								<li className="dropdown-item"
+									onClick={()=>this.setState({sort:Sort.Type})}>Type</li>
+								<li className="dropdown-item"
+									onClick={()=>this.setState({sort:Sort.CMC})}>Converted Mana Cost</li>
+								<li className="dropdown-item"
+									onClick={()=>this.setState({sort:Sort.Color})}>Color</li>
+								<li className="dropdown-item"
+									onClick={()=>this.setState({sort:Sort.Price})}>Price</li>
+								<li className="dropdown-item"
+									onClick={()=>this.setState({sort:Sort.Name})}>Name</li>
+							</ul>
+						</Dropdown>
 						<Dropdown label="Keywords" value={this.state.filter.length?this.state.filter.join(" && "):"none"}>
 							<table className="dropdown-table">
 							<thead>
