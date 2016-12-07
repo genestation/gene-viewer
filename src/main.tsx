@@ -9,20 +9,26 @@ import {CardListItem} from './card-list.tsx';
 import {DeckList} from './deck-list.tsx';
 
 interface DeckListMenuProps{
-	onUpload: ()=>any;
-	onSelect: (name: string)=>any;
 	decks: {name:string,cover:string}[];
+	onSelect: (name: string)=>any;
+	handleFile: (event: React.FormEvent)=>any;
 }
 interface DeckListMenuState{
 	decksOpen?: boolean;
 	decksAnchor?: DOMEventTarget;
 }
 class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> {
+	child: {
+		input?: HTMLElement;
+	} = {};
 	constructor(props: DeckListMenuProps) {
 		super(props)
 		this.state = {
 			decksOpen: false,
 		};
+	}
+	onUpload = () => {
+		this.child.input.click();
 	}
 	openDecks = (event: React.MouseEvent)=>{
 		event.preventDefault()
@@ -38,6 +44,7 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 	}
 	render() {
 		return <div className="decklist" >
+			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.props.handleFile}/>
 			<div className="head" >
 				<h1>Rogue Deck Builder</h1>
 			</div>
@@ -46,7 +53,7 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 					<div className="overlay bottom" />
 					<div className="overlay side"/>
 					<div className="menu-items">
-						<div className="menu-item file-upload" onClick={this.props.onUpload}>
+						<div className="menu-item file-upload" onClick={this.onUpload}>
 							<i className="fa fa-plus-circle" style={{fontSize: '0.7em'}} aria-hidden="true" />
 							&nbsp;
 							<i className="fa fa-file-text-o" aria-hidden="true" />
@@ -166,9 +173,6 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		deckTexts: [],
 		deckFiles: [],
 	}
-	child: {
-		input?: HTMLElement;
-	} = {};
 	constructor(props: DeckManagerProps) {
 		super(props);
 		this.state = {
@@ -204,9 +208,6 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				});
 			});
 		}
-	}
-	onUpload = () => {
-		this.child.input.click();
 	}
 	onSelect = (name: string) => {
 		this.setState({
@@ -299,7 +300,6 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 			cover: this.state.library[name].cover,
 		}});
 		return <div className="roguebuilder">
-			<input ref={(ref)=>this.child.input=ref} className="hidden-input" type="file" onChange={this.handleFile}/>
 			{this.state.curr?
 			<DeckList
 				name={this.state.curr}
@@ -311,8 +311,8 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 				onClose={this.onClose}
 			/>:<DeckListMenu
 				decks={decks}
-				onUpload={this.onUpload}
 				onSelect={this.onSelect}
+				handleFile={this.handleFile}
 			/>}
 		</div>
 	}
