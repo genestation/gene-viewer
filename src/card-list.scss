@@ -30,11 +30,14 @@
 		border-collapse: collapse;
 		position: relative;
 	}
-	&-tr {
+	&-card {
 		cursor: pointer;
 		position: relative;
-		&:hover {
-			background: $dark-background_color;
+		&-filter {
+			color: $light-text-color;
+		}
+		&:hover, &-highlight {
+			background: darken($background_color,20%);
 		}
 	}
 	&-td {

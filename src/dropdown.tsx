@@ -36,7 +36,7 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 					{this.props.value}
 				</div>
 				<div className="dropdown-items"
-					onClick={()=>{console.log(1);this.child.container.blur()}}
+					onClick={()=>{this.child.container.blur()}}
 				>
 					{this.props.children}
 				</div>

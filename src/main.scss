@@ -20,7 +20,6 @@ $breakpoint-big: 60em;
 
 $background-color: rgba(168, 168, 168, 0.3);
 $opaque-background-color: #c5c5c5;
-$dark-background-color: rgba(100, 100, 100, 0.3);
 $text-color: #333;
 $light-text-color: #888;
 
@@ -59,6 +58,11 @@ $rogue-cool-purple: #3e438e;
 	&-item {
 		&:hover, &:focus {
 			background: $opaque-background-color;
+		}
+		&-reset {
+			text-align: center;
+			padding-right: 0.5em;
+			font-style: italic;
 		}
 		&-keyword {
 			text-align: right;

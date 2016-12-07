@@ -102,8 +102,9 @@ interface DeckListState{
 	setOrder?: {[key: string]: number};
 	price?: {[key: string]: CardPrice};
 	curr?: string;
-	sort?: Sort;
 	scroll?: string;
+	sort?: Sort;
+	filter?: string[];
 	highlight?: string;
 }
 class DeckList extends React.Component<DeckListProps,DeckListState> {
@@ -122,18 +123,19 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		preview?: Element;
 		track?: Element;
 	} = {};
-	state = {
-		curr: curr,
-		sort: Sort.Type,
-		scroll: "top",
-		highlight: null,
-	};
 	constructor(props: DeckListProps) {
 		super(props);
 		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
 		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		let curr = props.cover?props.cover:
 			props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null;
+		this.state = {
+			curr: curr,
+			sort: Sort.Type,
+			scroll: "top",
+			highlight: null,
+			filter: [],
+		};
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
 		if(nextProps.cover) this.setState({curr: nextProps.cover});
@@ -251,6 +253,13 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 		cutoff = Math.min(cutoff + last, sum - cutoff);
 		// Count keywords
 		let {keyword_count, keyword_map} = CardInfo.keywords(this.props.mainboard);
+		let highlight = this.state.highlight?keyword_map[this.state.highlight]:[];
+		let filtered: string[] = this.state.filter?keyword_map[this.state.filter[0]]:null;
+		this.state.filter.forEach((filter: string)=>{
+			filtered = filtered.filter((card: string)=>{
+				return keyword_map[filter].indexOf(card) > -1;
+			});
+		});
 		// Return DOM
 		return <div className="decklist">
 			<div className="head" >
@@ -279,12 +288,22 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 							<option value={Sort.Name.toString()}>Name</option>
 						</select>
 						<br/>
-						<Dropdown label="Keywords" value="Select">
-							<table className="dropdown-table"><tbody>{
+						<Dropdown label="Keywords" value={this.state.filter.length?this.state.filter.join(" && "):"none"}>
+							<table className="dropdown-table">
+							<thead>
+								<tr className="dropdown-item dropdown-item-reset"
+									onClick={()=>this.setState({
+										filter: [],
+									})}
+								><td colSpan={2}>Reset</td></tr>
+							</thead>
+							<tbody>{
 								Object.keys(keyword_count).map((keyword: string, idx: number)=>{
 									return <tr className="dropdown-item" key={idx}
 									onClick={()=>{
-										console.log(keyword);
+										this.setState({
+											filter: [keyword],
+										});
 									}}
 									onMouseEnter={()=>{
 										this.setState({
@@ -307,16 +326,45 @@ class DeckList extends React.Component<DeckListProps,DeckListState> {
 			</div>
 			<div className="body">
 				<div className="footprint"/>
-				<div className={"lists" +(this.state.highlight?" cardlist-keyword-highlight-"+this.state.hightlight:"")}
+				<div className="lists"
 					style={{height: cutoff + 'em'}}>
 				{
 					lists.map((item: {name: string, list: CardListItem[]}, idx: number)=>{
-						return <CardList key={idx} deck={this.props.name} title={item.name} sublist={true} cards={item.list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
+						return <CardList
+							key={idx}
+							deck={this.props.name}
+							title={item.name}
+							sublist={true}
+							cards={item.list}
+							highlight={highlight}
+							filtered={filtered}
+							setCurr={this.setCurr}
+							showPreview={this.showPreview}
+							onCopy={this.props.onCopy}
+							onDownload={this.props.onDownload} />
 					})
 				}
-					<CardList deck={this.props.name} title="Sideboard" cards={sideboard[0].list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
+					<CardList
+						deck={this.props.name}
+						title="Sideboard"
+						cards={sideboard[0].list}
+						highlight={highlight}
+						filtered={filtered}
+						setCurr={this.setCurr}
+						showPreview={this.showPreview}
+						onCopy={this.props.onCopy}
+						onDownload={this.props.onDownload} />
 				{sideboard[1]?
-					<CardList deck={this.props.name} sublist={true} cards={sideboard[1].list} setCurr={this.setCurr} showPreview={this.showPreview} onCopy={this.props.onCopy} onDownload={this.props.onDownload} />
+					<CardList
+						deck={this.props.name}
+						sublist={true}
+						cards={sideboard[1].list}
+						highlight={highlight}
+						filtered={filtered}
+						setCurr={this.setCurr}
+						showPreview={this.showPreview}
+						onCopy={this.props.onCopy}
+						onDownload={this.props.onDownload} />
 				:null}
 				</div>
 				<div ref={(ref)=>{this.child.track=ref}} className="preview-track">

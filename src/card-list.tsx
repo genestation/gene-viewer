@@ -12,6 +12,8 @@ export interface CardListProps{
 	sublist?: boolean;
 	deck: string;
 	cards: CardListItem[];
+	highlight: string[];
+	filtered: string[];
 	setCurr: (card: string)=>any;
 	showPreview: ()=>any;
 	onCopy: (name: string, list?: CardListItem[])=>any;
@@ -53,7 +55,13 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 					let mana_cost: string[] = CardInfo.manaCost(card);
 					// Calculate width
 					let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
-					return <tr className="card-list-tr" key={idx}
+					return <tr key={idx}
+						className={"card-list-card"
+							+(this.props.highlight.indexOf(card) > -1?
+								" card-list-card-highlight":"")
+							+(this.props.filtered && this.props.filtered.indexOf(card) == -1?
+								" card-list-card-filter":"")
+						}
 						onMouseOver={(e: React.SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
 						<td className="card-list-td card-list-quantity">{count + "×"}</td>
