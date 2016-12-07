@@ -38,7 +38,7 @@ interface DeckListState{
 	curr?: string;
 	scroll?: string;
 	sort?: Sort;
-	filter?: string[];
+	filter?: string;
 	highlight?: string;
 }
 export class DeckList extends React.Component<DeckListProps,DeckListState> {
@@ -68,7 +68,7 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 			sort: Sort.Type,
 			scroll: "top",
 			highlight: null,
-			filter: [],
+			filter: null,
 		};
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
@@ -193,12 +193,7 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 		let highlight = this.state.highlight?keyword_map[this.state.highlight]:[];
 		let filtered: string[] = null;
 		if(!this.state.highlight && this.state.filter) {
-			filtered = keyword_map[this.state.filter[0]];
-			this.state.filter.forEach((filter: string)=>{
-				filtered = filtered.filter((card: string)=>{
-					return keyword_map[filter].indexOf(card) > -1;
-				});
-			});
+			filtered = keyword_map[this.state.filter];
 		}
 		// Return DOM
 		return <div className="decklist">
@@ -234,12 +229,12 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 									onClick={()=>this.setState({sort:Sort.Name})}>Name</li>
 							</ul>
 						</Dropdown>
-						<Dropdown label="Keywords" value={this.state.filter.length?this.state.filter.join(" && "):"none"}>
+						<Dropdown label="Keywords" value={this.state.filter?this.state.filter:"none"}>
 							<table className="dropdown-table">
 							<thead>
 								<tr className="dropdown-item dropdown-item-reset"
 									onClick={()=>this.setState({
-										filter: [],
+										filter: null,
 									})}
 								><td colSpan={2}>Reset</td></tr>
 							</thead>
@@ -248,7 +243,7 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 									return <tr className="dropdown-item" key={idx}
 									onClick={()=>{
 										this.setState({
-											filter: [keyword],
+											filter: keyword,
 										});
 									}}
 									onMouseEnter={()=>{
