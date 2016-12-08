@@ -20,6 +20,7 @@ interface DeckPlayerState{
 	hand?: string[];
 	graveyard?: string[];
 	battlefield?: {[card: string]: number};
+	mulligan?: number;
 }
 class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
@@ -38,25 +39,52 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			hand: hand,
 			graveyard: [],
 			battlefield: {},
+			mulligan: 7,
 		};
 	}
-	onReset() {
+	onReset = ()=>{
 		let library: string[] = [];
+		let hand: string[] = [];
 		Object.keys(this.props.mainboard).forEach((card: string)=>{
 			library.push(...Array(this.props.mainboard[card])
 				.fill(card,0,this.props.mainboard[card]));
 		});
 		this.shuffle(library);
+		for(let i = 0; i < 7; i++) {
+			hand.push(library.pop());
+		}
 		this.setState({
 			library: library,
-			hand: [],
+			hand: hand,
 			graveyard: [],
 			battlefield: {},
+			mulligan: 7,
+		});
+	}
+	onMulligan = ()=>{
+		let mulligan = this.state.mulligan - 1;
+		let library: string[] = [];
+		let hand: string[] = [];
+		Object.keys(this.props.mainboard).forEach((card: string)=>{
+			library.push(...Array(this.props.mainboard[card])
+				.fill(card,0,this.props.mainboard[card]));
+		});
+		this.shuffle(library);
+		for(let i = 0; i < mulligan; i++) {
+			hand.push(library.pop());
+		}
+		this.setState({
+			library: library,
+			hand: hand,
+			graveyard: [],
+			battlefield: {},
+			mulligan: mulligan,
 		});
 	}
 	onDraw = ()=>{
 		if(this.state.library.length) {
 			this.state.hand.unshift(this.state.library.pop());
+			this.state.mulligan = null;
 			this.setState(this.state);
 		}
 	}
@@ -75,6 +103,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			this.state.graveyard.push(card);
 		}
 		this.state.hand.splice(idx,1);
+		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onScry() {
@@ -110,9 +139,6 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			<div className="head" >
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
 				<h1>{this.props.name}</h1>
-				<div className="deck-player-actions" >
-					<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={()=>this.onReset()}/>
-				</div>
 			</div>
 			<div className="deck-player-body">
 				<div className="deck-player-battlefield">
@@ -148,6 +174,12 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
 							</div>
 						})
+					}
+				</div>
+				<div className="deck-player-actions" >
+					{!this.state.mulligan?
+						<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={this.onReset}/>:
+						<i className="deck-player-action fa fa-retweet" aria-hidden="true" onClick={this.onMulligan}/>
 					}
 				</div>
 				<div className="deck-player-zone deck-player-graveyard"> {
