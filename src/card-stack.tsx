@@ -8,28 +8,27 @@ export interface CardStackProps{
 	count: number,
 }
 export interface CardStackState{
-	tapped: number,
+	tapped?: number,
 }
 export class CardStack extends React.Component<CardStackProps,CardStackState> {
 	state = {
-		tapped: 0
+		tapped: 0,
 	};
 	render() {
-		let tapped: JSX.Element[] = [];
-		let untapped: JSX.Element[] = [];
+		let cards: JSX.Element[] = [];
 		let width = 12.5 + 1.5 * this.props.count;
-		for(let i = 0; i < this.props.count - this.state.tapped; i++) {
-			untapped.push(<div key={i}
-				className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-untapped"
-				onClick={()=>this.setState({tapped: this.state.tapped+1})}
+		for(let i = 0; i < this.state.tapped; i++) {
+			cards.push(<div key={i}
+			className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped"
+				onClick={()=>this.setState({tapped: this.state.tapped-1})}
 				>
 				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
 			</div>);
 		}
-		for(let i = this.props.count - this.state.tapped; i < this.props.count; i++) {
-			tapped.push(<div key={i}
-			className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped"
-				onClick={()=>this.setState({tapped: this.state.tapped-1})}
+		for(let i = this.state.tapped; i < this.props.count; i++) {
+			cards.push(<div key={i}
+				className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-untapped"
+				onClick={()=>this.setState({tapped: this.state.tapped+1})}
 				>
 				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
 			</div>);
@@ -37,11 +36,8 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 		return <div className="deck-player-card-stack"
 			style={{width: width + 'em'}}
 		>
-			<div className="deck-player-card-stack-untapped">
-				{untapped}
-			</div>
-			<div className="deck-player-card-stack-tapped">
-				{tapped}
+			<div className="deck-player-card-stack-items">
+				{cards}
 			</div>
 		</div>
 	}
