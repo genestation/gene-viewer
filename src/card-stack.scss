@@ -1,6 +1,7 @@
 .deck-player-card-stack {
 	display: flex;
 	flex-direction: column-reverse;
+	flex-shrink: 0;
 	&-untapped {
 		height: 14em;
 		display: flex;

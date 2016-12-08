@@ -103,14 +103,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 						})
 					} </div>
 					<div className="deck-player-battlefield-row"> {
-						nonlands.map((card: string, idx: number)=>{
-							return <CardStack key={idx}
-								card={card}
-								count={this.state.battlefield[card]}/>;
-						})
-					} </div>
-					<div className="deck-player-battlefield-row deck-player-battlefield-lands"> {
-						basiclands.concat(lands).map((card: string, idx: number)=>{
+						basiclands.concat(lands,nonlands).map((card: string, idx: number)=>{
 							return <CardStack key={idx}
 								card={card}
 								count={this.state.battlefield[card]}/>;

@@ -103,15 +103,13 @@ $rogue-cool-purple: #3e438e;
 	&-battlefield {
 		flex: 1;
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
+		flex-direction: column;
+		overflow-x: scroll;
 		padding: 1em 0;
-		min-height: 21em;
 		background: $background-color;
 		&-row {
+			height: 14em;
 			display: flex;
-			flex-wrap: wrap;
-			justify-content: center;
 		}
 		&-lands {
 			flex-basis: 100%;
