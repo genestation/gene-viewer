@@ -109,13 +109,20 @@ $rogue-cool-purple: #3e438e;
 		background: $background-color;
 		&-row {
 			height: 14em;
+			padding-left: 2em;
 			display: flex;
 		}
 		&-lands {
 			flex-basis: 100%;
 		}
 	}
-	&-hand {
+	&-graveyard {
+		margin-top: 1em;
+		padding: 1em 0;
+		background: $background-color;
+	}
+	&-zone {
+		height: 20em;
 		display: flex;
 		overflow-x: scroll;
 		&-item {

@@ -18,6 +18,7 @@ interface DeckPlayerProps{
 interface DeckPlayerState{
 	library?: string[];
 	hand?: string[];
+	graveyard?: string[];
 	battlefield?: {[card: string]: number};
 }
 class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
@@ -35,6 +36,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		this.state = {
 			library: library,
 			hand: hand,
+			graveyard: [],
 			battlefield: {},
 		};
 	}
@@ -48,6 +50,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		this.setState({
 			library: library,
 			hand: [],
+			graveyard: [],
 			battlefield: {},
 		});
 	}
@@ -56,6 +59,23 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			this.state.hand.unshift(this.state.library.pop());
 			this.setState(this.state);
 		}
+	}
+	onPlay = (card: string, idx: number)=>{
+		let permanents = ["Artifact","Creature","Enchantment","Land","Planeswalker"];
+		let type_line = CardInfo.data(card).type_line;
+		let is_permanent = permanents.reduce((accum: boolean, card_type: string)=>{
+			return accum || type_line.indexOf(card_type) > -1
+		}, false);
+		if(is_permanent) {
+			if(!this.state.battlefield.hasOwnProperty(card)) {
+				this.state.battlefield[card] = 0
+			}
+			this.state.battlefield[card]++;
+		} else {
+			this.state.graveyard.push(card);
+		}
+		this.state.hand.splice(idx,1);
+		this.setState(this.state);
 	}
 	onScry() {
 	}
@@ -73,10 +93,11 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		let lands: string[] = [];
 		let nonlands: string[] = [];
 		Object.keys(this.state.battlefield).forEach((card: string)=>{
-			if(CardInfo.data(card).type_line.indexOf("Creature") > -1) {
+			let type_line = CardInfo.data(card).type_line;
+			if(type_line.indexOf("Creature") > -1) {
 					creatures.push(card);
-			} else if(CardInfo.data(card).type_line.indexOf("Land") > -1) {
-				if(CardInfo.data(card).type_line.indexOf("Basic") > -1) {
+			} else if(type_line.indexOf("Land") > -1) {
+				if(type_line.indexOf("Basic") > -1) {
 					basiclands.push(card);
 				} else {
 					lands.push(card);
@@ -115,28 +136,29 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
 					<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
 				</div>
-				<div className="deck-player-hand">
+				<div className="deck-player-zone">
 					<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
 						onClick={this.onDraw}
 					/>
 					{
 						this.state.hand.map((card: string, idx: number)=>{
 							return <div key={idx}
-								className="deck-player-card deck-player-hand-item"
-								onClick={()=>{
-									if(!this.state.battlefield.hasOwnProperty(card)) {
-										this.state.battlefield[card] = 0
-									}
-									this.state.battlefield[card]++;
-									this.state.hand.splice(idx,1);
-									this.setState(this.state);
-								}}
-							>
+								className="deck-player-card deck-player-zone-item"
+								onClick={()=>this.onPlay(card,idx)} >
 								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
 							</div>
 						})
 					}
 				</div>
+				<div className="deck-player-zone deck-player-graveyard"> {
+						this.state.graveyard.map((card: string, idx: number)=>{
+							return <div key={idx}
+								className="deck-player-card deck-player-zone-item"
+							>
+								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+							</div>
+						})
+				} </div>
 			</div>
 		</div>
 	}
