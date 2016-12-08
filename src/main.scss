@@ -79,126 +79,13 @@ $rogue-cool-purple: #3e438e;
 }
 
 @import "./card-list.scss";
+@import "./deck-player.scss";
 .deck-player-card-stack-control {
 	&-actions {
 		color: $light-text-color;
 	}
 	&-action:hover{
 		color: lighten($light-text-color,20%);
-	}
-}
-
-.deck-player {
-	&-actions {
-		padding: 0.2em 0;
-		display: flex;
-		width: 14.4em;
-		justify-content: space-around;
-	}
-	&-action {
-		cursor: pointer;
-		padding: 0 0.5em;
-	}
-	&-body {
-		position: relative;
-		overflow: hidden;
-		min-height: 28em;
-		background: $background-color;
-		font-size: 0.9em;
-		display: flex;
-		flex-direction: column;
-	}
-	&-zone {
-		height: 23em;
-		display: flex;
-		overflow-x: scroll;
-		padding-right: 10em;
-		&-item {
-			margin-right: -9em;
-			&:hover {
-				margin-right: 0;
-			}
-			&-actions {
-				padding: 0.2em 0;
-				display: flex;
-				width: 14.4em;
-				justify-content: space-around;
-				color: $light-text-color;
-				visibility: hidden;
-			}
-			&:hover > &-actions {
-				visibility: inherit;
-			}
-			&-action {
-				cursor: pointer;
-			}
-			&-action:hover{
-				color: lighten($light-text-color,20%);
-			}
-		}
-	}
-	&-battlefield {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		overflow-x: scroll;
-		padding: 1em 0;
-		background: $background-color;
-		&-row {
-			height: 15em;
-			padding-left: 2em;
-			padding-top: 0.5em;
-			display: flex;
-		}
-		&-lands {
-			flex-basis: 100%;
-		}
-	}
-	&-outerfield {
-		flex: 1;
-		display: flex;
-		justify-content: space-between;
-	}
-	&-graveyard {
-		width: 49%;
-		padding: 1em 0;
-		background: $background-color;
-	}
-	&-exile {
-		width: 49%;
-		padding: 1em 0;
-		background: darken($background-color,10%);
-	}
-	&-main {
-		display: flex;
-	}
-	&-card {
-		flex-shrink: 0;
-		height: 20em;
-		width: 14.4em;
-		border-radius: 0.6em;
-		overflow: hidden;
-		background: black;
-		&-button{
-			cursor: pointer;
-		}
-		&-img {
-			width: 100%;
-		}
-	}
-	&-library {
-		flex-shrink: 0;
-		height: 20em;
-		width: 14.4em;
-		border-radius: 0.6em;
-		margin-right: 0.5em;
-		overflow: hidden;
-		background: url('../image/Magic_the_gathering-card_back.jpg');
-		background-size: cover;
-		cursor: pointer;
-		&-empty {
-			background: black;
-		}
 	}
 }
 
