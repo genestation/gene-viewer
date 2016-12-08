@@ -104,11 +104,14 @@ $rogue-cool-purple: #3e438e;
 		flex: 1;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		padding: 1em 0;
 		min-height: 21em;
 		background: $background-color;
 		&-row {
 			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
 		}
 		&-lands {
 			flex-basis: 100%;

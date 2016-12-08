@@ -17,12 +17,18 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 	render() {
 		let stack: JSX.Element[] = [];
 		for(let i = 0; i < this.props.count - this.state.tapped; i++) {
-			stack.push(<div key={i} className="deck-player-card deck-player-card-stack-item">
+			stack.push(<div key={i}
+				className="deck-player-card deck-player-card-stack-item"
+				onClick={()=>this.setState({tapped: this.state.tapped+1})}
+				>
 				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
 			</div>);
 		}
 		for(let i = this.props.count - this.state.tapped; i < this.props.count; i++) {
-			stack.push(<div key={i} className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
+			stack.push(<div key={i}
+			className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped"
+				onClick={()=>this.setState({tapped: this.state.tapped-1})}
+				>
 				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
 			</div>);
 		}
