@@ -120,10 +120,15 @@ $rogue-cool-purple: #3e438e;
 		padding: 1em 0;
 		background: $background-color;
 	}
+	&-main {
+		height: 20em;
+		display: flex;
+	}
 	&-zone {
 		height: 20em;
 		display: flex;
 		overflow-x: scroll;
+		padding-right: 10em;
 		&-item {
 			margin-right: -9em;
 			&:hover {
@@ -148,7 +153,7 @@ $rogue-cool-purple: #3e438e;
 		height: 20em;
 		width: 14.4em;
 		border-radius: 0.6em;
-		margin-right: 2em;
+		margin-right: 0.5em;
 		overflow: hidden;
 		background: url('../image/Magic_the_gathering-card_back.jpg');
 		background-size: cover;

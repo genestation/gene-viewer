@@ -162,19 +162,21 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
 					<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
 				</div>
-				<div className="deck-player-zone">
+				<div className="deck-player-main">
 					<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
 						onClick={this.onDraw}
 					/>
-					{
-						this.state.hand.map((card: string, idx: number)=>{
-							return <div key={idx}
-								className="deck-player-card deck-player-zone-item"
-								onClick={()=>this.onPlay(card,idx)} >
-								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-							</div>
-						})
-					}
+					<div className="deck-player-zone">
+						{
+							this.state.hand.map((card: string, idx: number)=>{
+								return <div key={idx}
+									className="deck-player-card deck-player-zone-item"
+									onClick={()=>this.onPlay(card,idx)} >
+									<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+								</div>
+							})
+						}
+					</div>
 				</div>
 				<div className="deck-player-actions" >
 					{!this.state.mulligan?
