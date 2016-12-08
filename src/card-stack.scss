@@ -1,14 +1,17 @@
 .deck-player-card-stack {
 	display: flex;
+	flex-direction: column-reverse;
 	&-untapped {
 		margin-right: 14em;
+		margin-left: -1.5em;
+		height: 14em;
 		display: flex;
 		justify-content: flex-end;
 	}
 	&-tapped {
 		display: flex;
+		flex-direction: row-reverse;
 		justify-content: flex-end;
-		flex-direction: column;
 	}
 	&-item {
 		height: 14em;
@@ -18,7 +21,10 @@
 			margin-right: -11.5em;
 		}
 		&-tapped {
-			transform: rotate(90deg) translate(2em,-2em);
+			margin-top:-14em;
+			margin-right:-8.5em;
+			transform: rotate(90deg) translateX(4em);
+			transform-origin: bottom left;
 		}
 	}
 }
