@@ -17,6 +17,7 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 	render() {
 		let tapped: JSX.Element[] = [];
 		let untapped: JSX.Element[] = [];
+		let width = 12.5 + 1.5 * this.props.count;
 		for(let i = 0; i < this.props.count - this.state.tapped; i++) {
 			untapped.push(<div key={i}
 				className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-untapped"
@@ -33,7 +34,9 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
 			</div>);
 		}
-		return <div className="deck-player-card-stack">
+		return <div className="deck-player-card-stack"
+			style={{width: width + 'em'}}
+		>
 			<div className="deck-player-card-stack-untapped">
 				{untapped}
 			</div>
