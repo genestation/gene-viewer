@@ -3,6 +3,7 @@
 	display: flex;
 	flex-direction: row-reverse;
 	justify-content: flex-end;
+	flex-shrink: 0;
 	position: relative;
 	&-control {
 		position: absolute;
@@ -48,12 +49,12 @@
 		width: 10.1em;
 		border-radius: 0.4em;
 		&-untapped {
-			margin-right: -8.5em;
+			margin-right: -8.6em;
 			transform: rotate(0);
 		}
 		&-tapped {
 			margin-top:-14em;
-			margin-right:-8.5em;
+			margin-right:-8.6em;
 			transform: rotate(90deg) translateX(4em);
 			transform-origin: bottom left;
 		}
