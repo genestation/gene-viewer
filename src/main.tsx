@@ -85,10 +85,6 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				nonlands.push(card);
 			}
 		});
-		console.log(basiclands,lands,creatures,nonlands);
-		let battlefield = Object.keys(this.state.battlefield).map((card: string, idx: number)=>{
-			return <CardStack key={idx} card={card} count={this.state.battlefield[card]}/>
-		});
 		return <div className="decklist" >
 			<div className="head" >
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
@@ -98,7 +94,29 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				</div>
 			</div>
 			<div className="deck-player-body">
-				<div className="deck-player-battlefield"> {battlefield} </div>
+				<div className="deck-player-battlefield">
+					<div className="deck-player-battlefield-row"> {
+						creatures.map((card: string, idx: number)=>{
+							return <CardStack key={idx}
+								card={card}
+								count={this.state.battlefield[card]}/>;
+						})
+					} </div>
+					<div className="deck-player-battlefield-row"> {
+						nonlands.map((card: string, idx: number)=>{
+							return <CardStack key={idx}
+								card={card}
+								count={this.state.battlefield[card]}/>;
+						})
+					} </div>
+					<div className="deck-player-battlefield-row deck-player-battlefield-lands"> {
+						basiclands.concat(lands).map((card: string, idx: number)=>{
+							return <CardStack key={idx}
+								card={card}
+								count={this.state.battlefield[card]}/>;
+						})
+					} </div>
+				</div>
 				<div className="deck-player-actions" >
 					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
 					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>

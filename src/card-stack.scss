@@ -1,0 +1,11 @@
+.deck-player-card-stack {
+	display: flex;
+	flex-direction: column;
+	padding-top: 12.5em;
+	&-item {
+		margin-top: -12.5em;
+		height: 14em;
+		width: 10.1em;
+		border-radius: 0.4em;
+	}
+}
