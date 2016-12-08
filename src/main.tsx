@@ -19,6 +19,7 @@ interface DeckPlayerState{
 	library?: string[];
 	hand?: string[];
 	graveyard?: string[];
+	exile?: string[];
 	battlefield?: {[card: string]: number};
 	mulligan?: number;
 }
@@ -38,6 +39,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			library: library,
 			hand: hand,
 			graveyard: [],
+			exile: [],
 			battlefield: {},
 			mulligan: 7,
 		};
@@ -57,6 +59,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			library: library,
 			hand: hand,
 			graveyard: [],
+			exile: [],
 			battlefield: {},
 			mulligan: 7,
 		});
@@ -77,6 +80,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			library: library,
 			hand: hand,
 			graveyard: [],
+			exile: [],
 			battlefield: {},
 			mulligan: mulligan,
 		});
@@ -126,6 +130,12 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	}
 	onHand = (card: string, idx: number, zone: string[])=>{
 		this.state.hand.push(card);
+		zone.splice(idx,1);
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
+	onExile = (card: string, idx: number, zone: string[])=>{
+		this.state.exile.push(card);
 		zone.splice(idx,1);
 		this.state.mulligan = null;
 		this.setState(this.state);
@@ -205,7 +215,8 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 									className="deck-player-zone-item" >
 									<div className="deck-player-zone-item-actions" >
 										<i className="deck-player-zone-item-action fa fa-ban"
-											aria-hidden="true" onClick={null}/>
+											aria-hidden="true"
+											onClick={()=>this.onExile(card,idx,this.state.hand)}/>
 										<i className="deck-player-zone-item-action fa fa-trash"
 											aria-hidden="true"
 											onClick={()=>this.onDiscard(card,idx,this.state.hand)}/>
@@ -231,35 +242,68 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 						}
 					</div>
 				</div>
-				<div className="deck-player-zone deck-player-graveyard"> {
-						this.state.graveyard.map((card: string, idx: number)=>{
-							return <div key={idx}
-								className="deck-player-zone-item" >
-								<div className="deck-player-zone-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-ban"
-										aria-hidden="true" onClick={null}/>
-									<i className="deck-player-zone-item-action fa fa-hand-paper-o"
-										aria-hidden="true"
-										onClick={()=>this.onHand(card,idx,this.state.graveyard)}/>
-									<i className="deck-player-zone-item-action fa fa-chevron-up"
-										aria-hidden="true"
-										onClick={()=>this.onPlay(card,idx,this.state.graveyard)}/>
+				<div className="deck-player-outerfield">
+					<div className="deck-player-zone deck-player-graveyard"> {
+							this.state.graveyard.map((card: string, idx: number)=>{
+								return <div key={idx}
+									className="deck-player-zone-item" >
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-ban"
+											aria-hidden="true"
+											onClick={()=>this.onExile(card,idx,this.state.graveyard)}/>
+										<i className="deck-player-zone-item-action fa fa-hand-paper-o"
+											aria-hidden="true"
+											onClick={()=>this.onHand(card,idx,this.state.graveyard)}/>
+										<i className="deck-player-zone-item-action fa fa-chevron-up"
+											aria-hidden="true"
+											onClick={()=>this.onPlay(card,idx,this.state.graveyard)}/>
+									</div>
+									<div className="deck-player-card">
+										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+									</div>
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-arrow-up"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryTop(card,idx,this.state.graveyard)}/>
+										<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-zone-item-action fa fa-arrow-down"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryBottom(card,idx,this.state.graveyard)}/>
+									</div>
 								</div>
-								<div className="deck-player-card">
-									<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+							})
+					} </div>
+					<div className="deck-player-zone deck-player-exile"> {
+							this.state.exile.map((card: string, idx: number)=>{
+								return <div key={idx}
+									className="deck-player-zone-item" >
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-trash"
+											aria-hidden="true"
+											onClick={()=>this.onDiscard(card,idx,this.state.exile)}/>
+										<i className="deck-player-zone-item-action fa fa-hand-paper-o"
+											aria-hidden="true"
+											onClick={()=>this.onHand(card,idx,this.state.exile)}/>
+										<i className="deck-player-zone-item-action fa fa-chevron-up"
+											aria-hidden="true"
+											onClick={()=>this.onPlay(card,idx,this.state.exile)}/>
+									</div>
+									<div className="deck-player-card">
+										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+									</div>
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-arrow-up"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryTop(card,idx,this.state.exile)}/>
+										<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-zone-item-action fa fa-arrow-down"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryBottom(card,idx,this.state.exile)}/>
+									</div>
 								</div>
-								<div className="deck-player-zone-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-arrow-up"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryTop(card,idx,this.state.graveyard)}/>
-									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
-									<i className="deck-player-zone-item-action fa fa-arrow-down"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryBottom(card,idx,this.state.graveyard)}/>
-								</div>
-							</div>
-						})
-				} </div>
+							})
+					} </div>
+				</div>
 			</div>
 		</div>
 	}

@@ -116,9 +116,20 @@ $rogue-cool-purple: #3e438e;
 			flex-basis: 100%;
 		}
 	}
+	&-outerfield {
+		flex: 1;
+		display: flex;
+		justify-content: space-between;
+	}
 	&-graveyard {
+		width: 23em;
 		padding: 1em 0;
 		background: $background-color;
+	}
+	&-exile {
+		width: 23em;
+		padding: 1em 0;
+		background: darken($background-color,10%);
 	}
 	&-main {
 		display: flex;
