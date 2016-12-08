@@ -88,7 +88,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			this.setState(this.state);
 		}
 	}
-	onPlay = (card: string, idx: number)=>{
+	onPlay = (card: string, idx: number, zone: string[])=>{
 		let permanents = ["Artifact","Creature","Enchantment","Land","Planeswalker"];
 		let type_line = CardInfo.data(card).type_line;
 		let is_permanent = permanents.reduce((accum: boolean, card_type: string)=>{
@@ -102,26 +102,26 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		} else {
 			this.state.graveyard.push(card);
 		}
-		this.state.hand.splice(idx,1);
+		zone.splice(idx,1);
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onLibraryTop = (card: string, idx: number)=>{
+	onLibraryTop = (card: string, idx: number, zone: string[])=>{
 		this.state.library.push(card);
 		this.state.hand.splice(idx,1);
-		this.state.mulligan = null;
+		zone.mulligan = null;
 		this.setState(this.state);
 	}
-	onLibraryBottom = (card: string, idx: number)=>{
+	onLibraryBottom = (card: string, idx: number, zone: string[])=>{
 		this.state.library.unshift(card);
 		this.state.hand.splice(idx,1);
-		this.state.mulligan = null;
+		zone.mulligan = null;
 		this.setState(this.state);
 	}
-	onDiscard = (card: string, idx: number)=>{
+	onDiscard = (card: string, idx: number, zone: string[])=>{
 		this.state.graveyard.push(card);
 		this.state.hand.splice(idx,1);
-		this.state.mulligan = null;
+		zone.mulligan = null;
 		this.setState(this.state);
 	}
 	onScry() {
@@ -198,27 +198,27 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 								return <div key={idx}
 									className="deck-player-zone-item" >
 									<div className="deck-player-zone-item-actions" >
-										<i className="deck-player-action fa fa-ban"
+										<i className="deck-player-zone-item-action fa fa-ban"
 											aria-hidden="true" onClick={null}/>
-										<i className="deck-player-action fa fa-trash"
+										<i className="deck-player-zone-item-action fa fa-trash"
 											aria-hidden="true"
-											onClick={()=>this.onDiscard(card,idx)}/>
-										<i className="deck-player-action fa fa-chevron-up"
+											onClick={()=>this.onDiscard(card,idx,this.state.hand)}/>
+										<i className="deck-player-zone-item-action fa fa-chevron-up"
 											aria-hidden="true"
-											onClick={()=>this.onPlay(card,idx)}/>
+											onClick={()=>this.onPlay(card,idx,this.state.hand)}/>
 									</div>
 									<div className="deck-player-card"
-										onClick={()=>this.onPlay(card,idx)} >
+										onClick={()=>this.onPlay(card,idx,this.state.hand)} >
 										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
 									</div>
 									<div className="deck-player-zone-item-actions" >
-										<i className="deck-player-action fa fa-arrow-up"
+										<i className="deck-player-zone-item-action fa fa-arrow-up"
 											aria-hidden="true"
-											onClick={()=>this.onLibraryTop(card,idx)}/>
-										<i className="deck-player-action fa fa-random" aria-hidden="true" onClick={null}/>
-										<i className="deck-player-action fa fa-arrow-down"
+											onClick={()=>this.onLibraryTop(card,idx,this.state.hand)}/>
+										<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-zone-item-action fa fa-arrow-down"
 											aria-hidden="true"
-											onClick={()=>this.onLibraryBottom(card,idx)}/>
+											onClick={()=>this.onLibraryBottom(card,idx,this.state.hand)}/>
 									</div>
 								</div>
 							})

@@ -121,7 +121,6 @@ $rogue-cool-purple: #3e438e;
 		background: $background-color;
 	}
 	&-main {
-		height: 23em;
 		display: flex;
 	}
 	&-zone {
@@ -139,10 +138,14 @@ $rogue-cool-purple: #3e438e;
 				display: flex;
 				width: 14.4em;
 				justify-content: space-around;
+				color: $light-text-color;
 				visibility: hidden;
 			}
 			&:hover > &-actions {
 				visibility: inherit;
+			}
+			&-action:hover{
+				color: lighten($light-text-color,20%);
 			}
 		}
 	}
