@@ -9,6 +9,9 @@ import {CardListItem} from './card-list.tsx';
 import {CardStack} from './card-stack.tsx';
 import {DeckList} from './deck-list.tsx';
 
+interface CardCount {
+	[card: string]: number
+}
 interface DeckPlayerProps{
 	name?: string;
 	mainboard?: {[key: string]: number};
@@ -20,10 +23,10 @@ interface DeckPlayerState{
 	hand?: string[];
 	graveyard?: string[];
 	exile?: string[];
-	battlefield?: {[card: string]: number};
+	battlefield?: CardCount;
 	mulligan?: number;
 }
-class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
+export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
 		super(props)
 		let library: string[] = [];
@@ -106,37 +109,79 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		} else {
 			this.state.graveyard.push(card);
 		}
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onLibraryTop = (card: string, idx: number, zone: string[])=>{
 		this.state.library.push(card);
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onLibraryBottom = (card: string, idx: number, zone: string[])=>{
 		this.state.library.unshift(card);
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onDiscard = (card: string, idx: number, zone: string[])=>{
 		this.state.graveyard.push(card);
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onHand = (card: string, idx: number, zone: string[])=>{
 		this.state.hand.push(card);
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onExile = (card: string, idx: number, zone: string[])=>{
 		this.state.exile.push(card);
-		zone.splice(idx,1);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
@@ -178,60 +223,19 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				<div className="deck-player-battlefield">
 					<div className="deck-player-battlefield-row"> {
 						creatures.map((card: string, idx: number)=>{
-							return <div className="deck-player-zone-item deck-player-battlefield-item">
-								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-ban"
-										aria-hidden="true"
-										onClick={()=>this.onExile(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-trash"
-										aria-hidden="true"
-										onClick={()=>this.onDiscard(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-chevron-up"
-										aria-hidden="true"
-										onClick={()=>this.onHand(card,null,this.state.library)}/>
-								</div>
-								<CardStack key={idx}
-									card={card}
-									count={this.state.battlefield[card]}/>
-								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-arrow-up"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryTop(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
-									<i className="deck-player-zone-item-action fa fa-arrow-down"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryBottom(card,null,this.state.library)}/>
-								</div>
-							</div>
+							return <CardStack key={idx} card={card}
+								count={this.state.battlefield[card]}
+								parent={this}
+							/>
 						})
 					} </div>
 					<div className="deck-player-battlefield-row"> {
 						basiclands.concat(lands,nonlands).map((card: string, idx: number)=>{
-							return <div className="deck-player-zone-item deck-player-battlefield-item">
-								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-ban"
-										aria-hidden="true"
-										onClick={()=>this.onExile(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-trash"
-										aria-hidden="true"
-										onClick={()=>this.onDiscard(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-chevron-up"
-										aria-hidden="true"
-										onClick={()=>this.onHand(card,null,this.state.library)}/>
-								</div>
-								<CardStack key={idx}
-									card={card}
-									count={this.state.battlefield[card]}/>
-								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
-									<i className="deck-player-zone-item-action fa fa-arrow-up"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryTop(card,null,this.state.library)}/>
-									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
-									<i className="deck-player-zone-item-action fa fa-arrow-down"
-										aria-hidden="true"
-										onClick={()=>this.onLibraryBottom(card,null,this.state.library)}/>
-								</div>
-							</div>
+							return <CardStack key={idx}
+								card={card}
+								count={this.state.battlefield[card]}
+								parent={this}
+							/>
 						})
 					} </div>
 				</div>

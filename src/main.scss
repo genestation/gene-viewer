@@ -79,6 +79,14 @@ $rogue-cool-purple: #3e438e;
 }
 
 @import "./card-list.scss";
+.deck-player-card-stack-control {
+	&-actions {
+		color: $light-text-color;
+	}
+	&-action:hover{
+		color: lighten($light-text-color,20%);
+	}
+}
 
 .deck-player {
 	&-actions {
@@ -141,12 +149,6 @@ $rogue-cool-purple: #3e438e;
 		&-lands {
 			flex-basis: 100%;
 		}
-		&-item {
-			margin-right: 0em;
-			&-actions {
-				width: 10em;
-			}
-		}
 	}
 	&-outerfield {
 		flex: 1;
@@ -154,12 +156,12 @@ $rogue-cool-purple: #3e438e;
 		justify-content: space-between;
 	}
 	&-graveyard {
-		width: 23em;
+		width: 49%;
 		padding: 1em 0;
 		background: $background-color;
 	}
 	&-exile {
-		width: 23em;
+		width: 49%;
 		padding: 1em 0;
 		background: darken($background-color,10%);
 	}
