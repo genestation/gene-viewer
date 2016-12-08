@@ -178,16 +178,60 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				<div className="deck-player-battlefield">
 					<div className="deck-player-battlefield-row"> {
 						creatures.map((card: string, idx: number)=>{
-							return <CardStack key={idx}
-								card={card}
-								count={this.state.battlefield[card]}/>;
+							return <div className="deck-player-zone-item deck-player-battlefield-item">
+								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-ban"
+										aria-hidden="true"
+										onClick={()=>this.onExile(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-trash"
+										aria-hidden="true"
+										onClick={()=>this.onDiscard(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-chevron-up"
+										aria-hidden="true"
+										onClick={()=>this.onHand(card,null,this.state.library)}/>
+								</div>
+								<CardStack key={idx}
+									card={card}
+									count={this.state.battlefield[card]}/>
+								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-arrow-up"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryTop(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+									<i className="deck-player-zone-item-action fa fa-arrow-down"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryBottom(card,null,this.state.library)}/>
+								</div>
+							</div>
 						})
 					} </div>
 					<div className="deck-player-battlefield-row"> {
 						basiclands.concat(lands,nonlands).map((card: string, idx: number)=>{
-							return <CardStack key={idx}
-								card={card}
-								count={this.state.battlefield[card]}/>;
+							return <div className="deck-player-zone-item deck-player-battlefield-item">
+								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-ban"
+										aria-hidden="true"
+										onClick={()=>this.onExile(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-trash"
+										aria-hidden="true"
+										onClick={()=>this.onDiscard(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-chevron-up"
+										aria-hidden="true"
+										onClick={()=>this.onHand(card,null,this.state.library)}/>
+								</div>
+								<CardStack key={idx}
+									card={card}
+									count={this.state.battlefield[card]}/>
+								<div className="deck-player-zone-item-actions deck-player-battlefield-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-arrow-up"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryTop(card,null,this.state.library)}/>
+									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+									<i className="deck-player-zone-item-action fa fa-arrow-down"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryBottom(card,null,this.state.library)}/>
+								</div>
+							</div>
 						})
 					} </div>
 				</div>

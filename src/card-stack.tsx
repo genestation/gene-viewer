@@ -36,9 +36,7 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 		return <div className="deck-player-card-stack"
 			style={{width: width + 'em'}}
 		>
-			<div className="deck-player-card-stack-items">
-				{cards}
-			</div>
+			{cards}
 		</div>
 	}
 }

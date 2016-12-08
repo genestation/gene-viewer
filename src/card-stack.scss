@@ -1,13 +1,8 @@
 .deck-player-card-stack {
 	height: 14em;
 	display: flex;
-	flex-direction: column-reverse;
-	flex-shrink: 0;
-	&-items {
-		display: flex;
-		flex-direction: row-reverse;
-		justify-content: flex-end;
-	}
+	flex-direction: row-reverse;
+	justify-content: flex-end;
 	&-item {
 		height: 14em;
 		width: 10.1em;
