@@ -6,6 +6,7 @@ import * as ReactDOM from 'react-dom';
 import * as FileSaver from 'file-saver';
 import {CardInfo} from './card-info.tsx';
 import {CardListItem} from './card-list.tsx';
+import {CardStack} from './card-stack.tsx';
 import {DeckList} from './deck-list.tsx';
 
 interface DeckPlayerProps{
@@ -17,7 +18,7 @@ interface DeckPlayerProps{
 interface DeckPlayerState{
 	library?: string[];
 	hand?: string[];
-	battlefield?: {[card: string]: {count: number, tapped: number}};
+	battlefield?: {[card: string]: number};
 }
 class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
@@ -86,21 +87,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		});
 		console.log(basiclands,lands,creatures,nonlands);
 		let battlefield = Object.keys(this.state.battlefield).map((card: string, idx: number)=>{
-			let stack = this.state.battlefield[card];
-			let cards: JSX.Element[] = [];
-			for(let i = 0; i < stack.count - stack.tapped; i++) {
-				cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item">
-					<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-				</div>);
-			}
-			for(let i = stack.count - stack.tapped; i < stack.count; i++) {
-				cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
-					<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-				</div>);
-			}
-			return <div key={idx} className="deck-player-card-stack">
-				{cards}
-			</div>
+			return <CardStack key={idx} card={card} count={this.state.battlefield[card]}/>
 		});
 		return <div className="decklist" >
 			<div className="head" >
@@ -127,12 +114,9 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 								className="deck-player-card deck-player-hand-item"
 								onClick={()=>{
 									if(!this.state.battlefield.hasOwnProperty(card)) {
-										this.state.battlefield[card] = {
-											count: 0,
-											tapped: 0,
-										}
+										this.state.battlefield[card] = 0
 									}
-									this.state.battlefield[card].count++;
+									this.state.battlefield[card]++;
 									this.state.hand.splice(idx,1);
 									this.setState(this.state);
 								}}
