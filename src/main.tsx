@@ -118,6 +118,12 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
+	onDiscard = (card: string, idx: number)=>{
+		this.state.graveyard.push(card);
+		this.state.hand.splice(idx,1);
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
 	onScry() {
 	}
 	onSearch() {
@@ -192,19 +198,25 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 								return <div key={idx}
 									className="deck-player-zone-item" >
 									<div className="deck-player-zone-item-actions" >
-										<i className="deck-player-action fa fa-trash" aria-hidden="true" onClick={null}/>
-										<i className="deck-player-action fa fa-ban" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-action fa fa-ban"
+											aria-hidden="true" onClick={null}/>
+										<i className="deck-player-action fa fa-trash"
+											aria-hidden="true"
+											onClick={()=>this.onDiscard(card,idx)}/>
+										<i className="deck-player-action fa fa-chevron-up"
+											aria-hidden="true"
+											onClick={()=>this.onPlay(card,idx)}/>
 									</div>
 									<div className="deck-player-card"
 										onClick={()=>this.onPlay(card,idx)} >
 										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
 									</div>
 									<div className="deck-player-zone-item-actions" >
-										<i className="deck-player-action fa fa-sort-asc"
+										<i className="deck-player-action fa fa-arrow-up"
 											aria-hidden="true"
 											onClick={()=>this.onLibraryTop(card,idx)}/>
 										<i className="deck-player-action fa fa-random" aria-hidden="true" onClick={null}/>
-										<i className="deck-player-action fa fa-sort-desc"
+										<i className="deck-player-action fa fa-arrow-down"
 											aria-hidden="true"
 											onClick={()=>this.onLibraryBottom(card,idx)}/>
 									</div>
