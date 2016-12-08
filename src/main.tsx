@@ -67,6 +67,41 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		}
 	}
 	render() {
+		let creatures: string[] = [];
+		let basiclands: string[] = [];
+		let lands: string[] = [];
+		let nonlands: string[] = [];
+		Object.keys(this.state.battlefield).forEach((card: string)=>{
+			if(CardInfo.data(card).type_line.indexOf("Creature") > -1) {
+					creatures.push(card);
+			} else if(CardInfo.data(card).type_line.indexOf("Land") > -1) {
+				if(CardInfo.data(card).type_line.indexOf("Basic") > -1) {
+					basiclands.push(card);
+				} else {
+					lands.push(card);
+				}
+			} else {
+				nonlands.push(card);
+			}
+		});
+		console.log(basiclands,lands,creatures,nonlands);
+		let battlefield = Object.keys(this.state.battlefield).map((card: string, idx: number)=>{
+			let stack = this.state.battlefield[card];
+			let cards: JSX.Element[] = [];
+			for(let i = 0; i < stack.count - stack.tapped; i++) {
+				cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item">
+					<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+				</div>);
+			}
+			for(let i = stack.count - stack.tapped; i < stack.count; i++) {
+				cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
+					<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+				</div>);
+			}
+			return <div key={idx} className="deck-player-card-stack">
+				{cards}
+			</div>
+		});
 		return <div className="decklist" >
 			<div className="head" >
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
@@ -76,25 +111,7 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				</div>
 			</div>
 			<div className="deck-player-body">
-				<div className="deck-player-battlefield"> {
-					Object.keys(this.state.battlefield).map((card: string, idx: number)=>{
-						let stack = this.state.battlefield[card];
-						let cards: JSX.Element[] = [];
-						for(let i = 0; i < stack.count - stack.tapped; i++) {
-							cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item">
-								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-							</div>);
-						}
-						for(let i = stack.count - stack.tapped; i < stack.count; i++) {
-							cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
-								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-							</div>);
-						}
-						return <div key={idx} className="deck-player-card-stack">
-							{cards}
-						</div>
-					})
-				} </div>
+				<div className="deck-player-battlefield"> {battlefield} </div>
 				<div className="deck-player-actions" >
 					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
 					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
