@@ -67,6 +67,9 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 			<div className="head" >
 				<i className="fa fa-window-close" onClick={this.props.onClose}/>
 				<h1>{this.props.name}</h1>
+				<div className="deck-player-actions" >
+					<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={()=>this.onReset()}/>
+				</div>
 			</div>
 			<div className="deck-player-body">
 				<div className="deck-player-battlefield">
@@ -85,9 +88,9 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 					}
 				</div>
 				<div className="deck-player-actions" >
-					<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={()=>this.onReset()}/>
-					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={()=>this.onScry()}/>
-					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={()=>this.onSearch()}/>
+					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
+					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
+					<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
 				</div>
 				<div className="deck-player-hand">
 					<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
