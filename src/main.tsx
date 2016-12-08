@@ -108,20 +108,26 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	}
 	onLibraryTop = (card: string, idx: number, zone: string[])=>{
 		this.state.library.push(card);
-		this.state.hand.splice(idx,1);
-		zone.mulligan = null;
+		zone.splice(idx,1);
+		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onLibraryBottom = (card: string, idx: number, zone: string[])=>{
 		this.state.library.unshift(card);
-		this.state.hand.splice(idx,1);
-		zone.mulligan = null;
+		zone.splice(idx,1);
+		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onDiscard = (card: string, idx: number, zone: string[])=>{
 		this.state.graveyard.push(card);
-		this.state.hand.splice(idx,1);
-		zone.mulligan = null;
+		zone.splice(idx,1);
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
+	onHand = (card: string, idx: number, zone: string[])=>{
+		this.state.hand.push(card);
+		zone.splice(idx,1);
+		this.state.mulligan = null;
 		this.setState(this.state);
 	}
 	onScry() {
@@ -228,9 +234,29 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				<div className="deck-player-zone deck-player-graveyard"> {
 						this.state.graveyard.map((card: string, idx: number)=>{
 							return <div key={idx}
-								className="deck-player-card deck-player-zone-item"
-							>
-								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+								className="deck-player-zone-item" >
+								<div className="deck-player-zone-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-ban"
+										aria-hidden="true" onClick={null}/>
+									<i className="deck-player-zone-item-action fa fa-hand-paper-o"
+										aria-hidden="true"
+										onClick={()=>this.onHand(card,idx,this.state.graveyard)}/>
+									<i className="deck-player-zone-item-action fa fa-chevron-up"
+										aria-hidden="true"
+										onClick={()=>this.onPlay(card,idx,this.state.graveyard)}/>
+								</div>
+								<div className="deck-player-card">
+									<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+								</div>
+								<div className="deck-player-zone-item-actions" >
+									<i className="deck-player-zone-item-action fa fa-arrow-up"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryTop(card,idx,this.state.graveyard)}/>
+									<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+									<i className="deck-player-zone-item-action fa fa-arrow-down"
+										aria-hidden="true"
+										onClick={()=>this.onLibraryBottom(card,idx,this.state.graveyard)}/>
+								</div>
 							</div>
 						})
 				} </div>
