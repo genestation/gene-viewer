@@ -17,7 +17,7 @@ interface DeckPlayerProps{
 interface DeckPlayerState{
 	library?: string[];
 	hand?: string[];
-	battlefield?: string[];
+	battlefield?: {[card: string]: {count: number, tapped: number}};
 }
 class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
@@ -34,16 +34,20 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		this.state = {
 			library: library,
 			hand: hand,
-			battlefield: [],
+			battlefield: {},
 		};
 	}
 	onReset() {
-		this.state.library.push(...this.state.hand,...this.state.battlefield);
-		this.shuffle(this.state.library);
+		let library: string[] = [];
+		Object.keys(this.props.mainboard).forEach((card: string)=>{
+			library.push(...Array(this.props.mainboard[card])
+				.fill(card,0,this.props.mainboard[card]));
+		});
+		this.shuffle(library);
 		this.setState({
-			library: this.state.library,
+			library: library,
 			hand: [],
-			battlefield: [],
+			battlefield: {},
 		});
 	}
 	onDraw = ()=>{
@@ -72,21 +76,25 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 				</div>
 			</div>
 			<div className="deck-player-body">
-				<div className="deck-player-battlefield">
-					{
-						this.state.battlefield.map((card: string, idx: number)=>{
-							return <div key={idx} className="deck-player-card"
-								onClick={()=>{
-									this.state.hand.push(card);
-									this.state.battlefield.splice(idx,1);
-									this.setState(this.state);
-								}}
-							>
+				<div className="deck-player-battlefield"> {
+					Object.keys(this.state.battlefield).map((card: string, idx: number)=>{
+						let stack = this.state.battlefield[card];
+						let cards: JSX.Element[] = [];
+						for(let i = 0; i < stack.count - stack.tapped; i++) {
+							cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item">
 								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-							</div>
-						})
-					}
-				</div>
+							</div>);
+						}
+						for(let i = stack.count - stack.tapped; i < stack.count; i++) {
+							cards.push(<div key={i} className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
+								<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+							</div>);
+						}
+						return <div key={idx} className="deck-player-card-stack">
+							{cards}
+						</div>
+					})
+				} </div>
 				<div className="deck-player-actions" >
 					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
 					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
@@ -98,9 +106,16 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 					/>
 					{
 						this.state.hand.map((card: string, idx: number)=>{
-							return <div key={idx} className="deck-player-card"
+							return <div key={idx}
+								className="deck-player-card deck-player-hand-item"
 								onClick={()=>{
-									this.state.battlefield.push(card);
+									if(!this.state.battlefield.hasOwnProperty(card)) {
+										this.state.battlefield[card] = {
+											count: 0,
+											tapped: 0,
+										}
+									}
+									this.state.battlefield[card].count++;
 									this.state.hand.splice(idx,1);
 									this.setState(this.state);
 								}}
@@ -385,7 +400,7 @@ export default class DeckManager extends React.Component<DeckManagerProps,DeckMa
 		// Register cover
 		CardInfo.register([deck.cover], this.handleInfo)
 		// Update state
-		if(!this.state.decks.includes(name)) {
+		if(this.state.decks.indexOf(name) == -1) {
 			this.state.decks.unshift(name);
 			// TODO solve name collisions
 		}

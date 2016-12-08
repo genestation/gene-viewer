@@ -111,12 +111,14 @@ $rogue-cool-purple: #3e438e;
 	&-hand {
 		display: flex;
 		overflow-x: scroll;
+		&-item {
+			margin-right: -9em;
+		}
 	}
 	&-card {
 		flex-shrink: 0;
 		height: 20em;
 		width: 14.4em;
-		margin-right: -9em;
 		border-radius: 0.6em;
 		overflow: hidden;
 		background: black;
@@ -126,6 +128,14 @@ $rogue-cool-purple: #3e438e;
 		}
 		&-img {
 			width: 100%;
+		}
+		&-stack {
+			display: flex;
+			flex-direction: column;
+			padding-top: 17.7em;
+			&-item {
+				margin-top: -17.7em;
+			}
 		}
 	}
 	&-library {
