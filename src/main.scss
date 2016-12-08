@@ -132,9 +132,12 @@ $rogue-cool-purple: #3e438e;
 		&-stack {
 			display: flex;
 			flex-direction: column;
-			padding-top: 17.7em;
+			padding-top: 12.5em;
 			&-item {
-				margin-top: -17.7em;
+				margin-top: -12.5em;
+				height: 14em;
+				width: 10.1em;
+				border-radius: 0.4em;
 			}
 		}
 	}
