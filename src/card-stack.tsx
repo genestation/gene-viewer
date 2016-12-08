@@ -22,7 +22,6 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 	render() {
 		let cards: JSX.Element[] = [];
 		let width = 12.5 + 1.5 * this.props.count;
-		let untap_width = (12.5 - 1.5 * this.props.count) * (this.props.count > this.state.tapped?1:0);
 		for(let i = 0; i < this.state.tapped; i++) {
 			cards.push(<div key={i}
 			className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
@@ -40,7 +39,7 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 		>
 			{this.state.tapped > 0?
 			<div className="deck-player-card-stack-control deck-player-card-stack-control-tapped"
-				style={{left: untap_width + 'em'}}>
+				style={{left: (this.props.count==this.state.tapped?0:null)}}>
 				<div className="deck-player-card-stack-control-actions" >
 					<i className="deck-player-card-stack-control-action fa fa-ban"
 						aria-hidden="true"

@@ -129,6 +129,9 @@ $rogue-cool-purple: #3e438e;
 			&:hover > &-actions {
 				visibility: inherit;
 			}
+			&-action {
+				cursor: pointer;
+			}
 			&-action:hover{
 				color: lighten($light-text-color,20%);
 			}
@@ -176,7 +179,9 @@ $rogue-cool-purple: #3e438e;
 		border-radius: 0.6em;
 		overflow: hidden;
 		background: black;
-		cursor: pointer;
+		&-button{
+			cursor: pointer;
+		}
 		&-img {
 			width: 100%;
 		}

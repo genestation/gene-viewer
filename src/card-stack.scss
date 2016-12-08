@@ -10,6 +10,10 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
+		cursor: pointer;
+		&-action {
+			cursor: pointer;
+		}
 		&-actions {
 			padding: 0.2em 0;
 			display: flex;
