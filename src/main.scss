@@ -122,6 +122,9 @@ $rogue-cool-purple: #3e438e;
 		overflow-x: scroll;
 		&-item {
 			margin-right: -9em;
+			&:hover {
+				margin-right: 0;
+			}
 		}
 	}
 	&-card {
@@ -132,9 +135,6 @@ $rogue-cool-purple: #3e438e;
 		overflow: hidden;
 		background: black;
 		cursor: pointer;
-		&:hover {
-			margin-right: 0;
-		}
 		&-img {
 			width: 100%;
 		}
