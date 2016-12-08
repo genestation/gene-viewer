@@ -106,6 +106,18 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
+	onLibraryTop = (card: string, idx: number)=>{
+		this.state.library.push(card);
+		this.state.hand.splice(idx,1);
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
+	onLibraryBottom = (card: string, idx: number)=>{
+		this.state.library.unshift(card);
+		this.state.hand.splice(idx,1);
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
 	onScry() {
 	}
 	onSearch() {
@@ -157,32 +169,49 @@ class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 						})
 					} </div>
 				</div>
-				<div className="deck-player-actions" >
-					<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
-					<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
-					<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
-				</div>
 				<div className="deck-player-main">
-					<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
-						onClick={this.onDraw}
-					/>
+					<div className="deck-player-library-context">
+						<div className="deck-player-actions" >
+							<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
+							<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
+							<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
+						</div>
+						<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
+							onClick={this.onDraw}
+						/>
+						<div className="deck-player-actions" >
+							{!this.state.mulligan?
+								<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={this.onReset}/>:
+								<i className="deck-player-action fa fa-retweet" aria-hidden="true" onClick={this.onMulligan}/>
+							}
+						</div>
+					</div>
 					<div className="deck-player-zone">
 						{
 							this.state.hand.map((card: string, idx: number)=>{
 								return <div key={idx}
-									className="deck-player-card deck-player-zone-item"
-									onClick={()=>this.onPlay(card,idx)} >
-									<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+									className="deck-player-zone-item" >
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-action fa fa-trash" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-action fa fa-ban" aria-hidden="true" onClick={null}/>
+									</div>
+									<div className="deck-player-card"
+										onClick={()=>this.onPlay(card,idx)} >
+										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
+									</div>
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-action fa fa-sort-asc"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryTop(card,idx)}/>
+										<i className="deck-player-action fa fa-random" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-action fa fa-sort-desc"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryBottom(card,idx)}/>
+									</div>
 								</div>
 							})
 						}
 					</div>
-				</div>
-				<div className="deck-player-actions" >
-					{!this.state.mulligan?
-						<i className="deck-player-action fa fa-refresh" aria-hidden="true" onClick={this.onReset}/>:
-						<i className="deck-player-action fa fa-retweet" aria-hidden="true" onClick={this.onMulligan}/>
-					}
 				</div>
 				<div className="deck-player-zone deck-player-graveyard"> {
 						this.state.graveyard.map((card: string, idx: number)=>{
