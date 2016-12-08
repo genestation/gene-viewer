@@ -95,7 +95,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 			this.setState(this.state);
 		}
 	}
-	onPlay = (card: string, idx: number, zone: string[])=>{
+	onPlay = (card: string, idx: number, zone?: string[])=>{
 		let permanents = ["Artifact","Creature","Enchantment","Land","Planeswalker"];
 		let type_line = CardInfo.data(card).type_line;
 		let is_permanent = permanents.reduce((accum: boolean, card_type: string)=>{
@@ -120,7 +120,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onLibraryTop = (card: string, idx: number, zone: string[])=>{
+	onLibraryTop = (card: string, idx: number, zone?: string[])=>{
 		this.state.library.push(card);
 		if(idx !== null) {
 			zone.splice(idx,1);
@@ -133,7 +133,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onLibraryBottom = (card: string, idx: number, zone: string[])=>{
+	onLibraryBottom = (card: string, idx: number, zone?: string[])=>{
 		this.state.library.unshift(card);
 		if(idx !== null) {
 			zone.splice(idx,1);
@@ -146,7 +146,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onDiscard = (card: string, idx: number, zone: string[])=>{
+	onDiscard = (card: string, idx: number, zone?: string[])=>{
 		this.state.graveyard.push(card);
 		if(idx !== null) {
 			zone.splice(idx,1);
@@ -159,7 +159,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onHand = (card: string, idx: number, zone: string[])=>{
+	onHand = (card: string, idx: number, zone?: string[])=>{
 		this.state.hand.push(card);
 		if(idx !== null) {
 			zone.splice(idx,1);
@@ -172,7 +172,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onExile = (card: string, idx: number, zone: string[])=>{
+	onExile = (card: string, idx: number, zone?: string[])=>{
 		this.state.exile.push(card);
 		if(idx !== null) {
 			zone.splice(idx,1);
@@ -225,7 +225,11 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 						creatures.map((card: string, idx: number)=>{
 							return <CardStack key={idx} card={card}
 								count={this.state.battlefield[card]}
-								parent={this}
+								onLibraryTop={this.onLibraryTop}
+								onLibraryBottom={this.onLibraryBottom}
+								onDiscard={this.onDiscard}
+								onHand={this.onHand}
+								onExile={this.onExile}
 							/>
 						})
 					} </div>
@@ -234,7 +238,11 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 							return <CardStack key={idx}
 								card={card}
 								count={this.state.battlefield[card]}
-								parent={this}
+								onLibraryTop={this.onLibraryTop}
+								onLibraryBottom={this.onLibraryBottom}
+								onDiscard={this.onDiscard}
+								onHand={this.onHand}
+								onExile={this.onExile}
 							/>
 						})
 					} </div>
