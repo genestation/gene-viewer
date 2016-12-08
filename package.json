@@ -5,7 +5,7 @@
   "homepage": "http://roguedeckbuilder.com/",
   "repository": "git+https://github.com/autochthe/",
   "keywords": [
-    "react-component"
+    "magic-the-gathering"
   ],
   "author": "Mara Kim <mara@autochthe.net> (https://github.com/autochthe)",
   "license": "GPL-3.0",
