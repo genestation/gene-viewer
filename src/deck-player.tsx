@@ -22,42 +22,36 @@ export interface DeckPlayerState{
 export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
 	constructor(props: DeckPlayerProps) {
 		super(props)
+		let mulligan = 7;
 		let library: string[] = [];
-		let hand: string[] = [];
 		Object.keys(props.mainboard).forEach((card: string)=>{
 			library.push(...Array(props.mainboard[card]).fill(card,0,props.mainboard[card]));
 		});
 		this.shuffle(library);
-		for(let i = 0; i < 7; i++) {
-			hand.push(library.pop());
-		}
 		this.state = {
-			library: library,
-			hand: hand,
+			library: library.slice(mulligan),
+			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
 			battlefield: {},
-			mulligan: 7,
+			mulligan: mulligan,
 		};
 	}
 	onReset = ()=>{
+		let mulligan = 7;
 		let library: string[] = [];
-		let hand: string[] = [];
 		Object.keys(this.props.mainboard).forEach((card: string)=>{
 			library.push(...Array(this.props.mainboard[card])
 				.fill(card,0,this.props.mainboard[card]));
 		});
 		this.shuffle(library);
-		for(let i = 0; i < 7; i++) {
-			hand.push(library.pop());
-		}
 		this.setState({
-			library: library,
-			hand: hand,
+			library: library.slice(mulligan),
+			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
 			battlefield: {},
-			mulligan: 7,
+			mulligan: mulligan,
 		});
 	}
 	onMulligan = ()=>{
@@ -69,12 +63,9 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 				.fill(card,0,this.props.mainboard[card]));
 		});
 		this.shuffle(library);
-		for(let i = 0; i < mulligan; i++) {
-			hand.push(library.pop());
-		}
 		this.setState({
-			library: library,
-			hand: hand,
+			library: library.slice(mulligan),
+			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
 			battlefield: {},
