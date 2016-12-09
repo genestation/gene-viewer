@@ -59,8 +59,6 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 	} = {};
 	constructor(props: DeckListProps) {
 		super(props);
-		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
-		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 		let curr = props.cover?props.cover:
 			props.mainboard && Object.keys(props.mainboard).length > 0?Object.keys(props.mainboard).sort()[0]:null;
 		this.state = {
@@ -70,6 +68,8 @@ export class DeckList extends React.Component<DeckListProps,DeckListState> {
 			highlight: null,
 			filter: null,
 		};
+		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
+		if(props.sideboard) CardInfo.register(Object.keys(props.sideboard), this.handleInfo);
 	}
 	componentWillReceiveProps(nextProps: DeckListProps) {
 		if(nextProps.cover) this.setState({curr: nextProps.cover});

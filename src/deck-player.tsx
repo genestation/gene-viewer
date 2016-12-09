@@ -20,6 +20,7 @@ export interface DeckPlayerState{
 	mulligan?: number;
 }
 export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState> {
+	updatingInfo: boolean = false;
 	constructor(props: DeckPlayerProps) {
 		super(props)
 		let mulligan = 7;
@@ -36,6 +37,18 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 			battlefield: {},
 			mulligan: mulligan,
 		};
+		if(props.mainboard) CardInfo.register(Object.keys(props.mainboard), this.handleInfo);
+	}
+	handleInfo = (card: string)=>{
+		if(!this.updatingInfo) {
+			requestAnimationFrame(this.updateInfo);
+		}
+		this.updatingInfo = true;
+	}
+	updateInfo = ()=>{
+		this.forceUpdate(()=>{
+			this.updatingInfo=false;
+		});
 	}
 	onReset = ()=>{
 		let mulligan = 7;
