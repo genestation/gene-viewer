@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {CardInfo} from './card-info.tsx';
 import {CardStack} from './card-stack.tsx';
+import {CardImage} from './card-image.tsx';
 
 export interface CardCount {
 	[card: string]: number
@@ -277,10 +278,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 											aria-hidden="true"
 											onClick={()=>this.onPlay(card,idx,this.state.hand)}/>
 									</div>
-									<div className="deck-player-card-button deck-player-card"
-										onClick={()=>this.onPlay(card,idx,this.state.hand)} >
-										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-									</div>
+									<CardImage card={card} onClick={()=>this.onPlay(card,idx,this.state.hand)}/>
 									<div className="deck-player-zone-item-actions" >
 										<i className="deck-player-zone-item-action fa fa-arrow-up"
 											aria-hidden="true"
@@ -311,9 +309,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 											aria-hidden="true"
 											onClick={()=>this.onPlay(card,idx,this.state.graveyard)}/>
 									</div>
-									<div className="deck-player-card-button deck-player-card">
-										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-									</div>
+									<CardImage card={card} />
 									<div className="deck-player-zone-item-actions" >
 										<i className="deck-player-zone-item-action fa fa-arrow-up"
 											aria-hidden="true"
@@ -341,9 +337,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 											aria-hidden="true"
 											onClick={()=>this.onPlay(card,idx,this.state.exile)}/>
 									</div>
-									<div className="deck-player-card-button deck-player-card">
-										<img className="deck-player-card-img" src={CardInfo.image(card)}/>
-									</div>
+									<CardImage card={card} />
 									<div className="deck-player-zone-item-actions" >
 										<i className="deck-player-zone-item-action fa fa-arrow-up"
 											aria-hidden="true"

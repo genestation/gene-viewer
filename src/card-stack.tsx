@@ -2,6 +2,7 @@ import "./card-stack.scss";
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {CardInfo} from './card-info.tsx';
+import {CardImage} from './card-image.tsx';
 
 export interface CardStackProps{
 	card: string,
@@ -23,16 +24,12 @@ export class CardStack extends React.Component<CardStackProps,CardStackState> {
 		let cards: JSX.Element[] = [];
 		let width = 12.5 + 1.5 * this.props.count;
 		for(let i = 0; i < this.state.tapped; i++) {
-			cards.push(<div key={i}
-			className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-tapped">
-				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
-			</div>);
+			cards.push(<CardImage key={i} card={this.props.card}
+				className="deck-player-card-stack-item deck-player-card-stack-item-tapped"/>)
 		}
 		for(let i = this.state.tapped; i < this.props.count; i++) {
-			cards.push(<div key={i}
-				className="deck-player-card deck-player-card-stack-item deck-player-card-stack-item-untapped">
-				<img className="deck-player-card-img" src={CardInfo.image(this.props.card)}/>
-			</div>);
+			cards.push(<CardImage key={i} card={this.props.card}
+				className="deck-player-card-stack-item deck-player-card-stack-item-untapped"/>)
 		}
 		return <div className="deck-player-card-stack"
 			style={{width: width + 'em'}}

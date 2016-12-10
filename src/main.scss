@@ -78,6 +78,7 @@ $rogue-cool-purple: #3e438e;
 	}
 }
 
+@import "./card-image.scss";
 @import "./card-list.scss";
 @import "./deck-player.scss";
 .deck-player-card-stack-control {

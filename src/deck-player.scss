@@ -82,20 +82,6 @@
 	&-main {
 		display: flex;
 	}
-	&-card {
-		flex-shrink: 0;
-		height: 20em;
-		width: 14.4em;
-		border-radius: 0.6em;
-		overflow: hidden;
-		background: black;
-		&-button{
-			cursor: pointer;
-		}
-		&-img {
-			width: 100%;
-		}
-	}
 	&-library {
 		flex-shrink: 0;
 		height: 20em;
