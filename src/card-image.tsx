@@ -32,7 +32,10 @@ export class CardImage extends React.Component<CardImageProps,CardImageState> {
 				+ (this.props.onClick?" deckbuilder-card-button":"")
 				+ (this.props.className?" "+this.props.className:"")}
 			onClick={this.props.onClick}>
-			<img className="deckbuilder-card-img" src={CardInfo.image(this.props.card)}/>
+			<div className="deckbuilder-card-name">{this.props.card}</div>
+			<img className="deckbuilder-card-img"
+				alt={this.props.card}
+				src={CardInfo.image(this.props.card)}/>
 		</div>
 	}
 }
