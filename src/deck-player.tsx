@@ -95,7 +95,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 	}
 	onPlay = (card: string, idx: number, zone?: string[])=>{
 		let permanents = ["Artifact","Creature","Enchantment","Land","Planeswalker"];
-		let type_line = CardInfo.data(card).type_line;
+		let type_line = CardInfo.data(card)[0].type_line;
 		let is_permanent = permanents.reduce((accum: boolean, card_type: string)=>{
 			return accum || type_line.indexOf(card_type) > -1
 		}, false);
@@ -199,7 +199,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		let lands: string[] = [];
 		let nonlands: string[] = [];
 		Object.keys(this.state.battlefield).forEach((card: string)=>{
-			let type_line = CardInfo.data(card).type_line;
+			let type_line = CardInfo.data(card)[0].type_line;
 			if(type_line.indexOf("Creature") > -1) {
 					creatures.push(card);
 			} else if(type_line.indexOf("Land") > -1) {

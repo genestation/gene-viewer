@@ -66,7 +66,7 @@ class DeckListMenu extends React.Component<DeckListMenuProps,DeckListMenuState> 
 								<h2>{deck.name}</h2>
 								<div className="preview-img">
 									<div className="overlay"/>
-									{CardInfo.data(deck.cover)?
+									{CardInfo.image(deck.cover)?
 										<img src={CardInfo.image(deck.cover)} />
 									:null}
 								</div>

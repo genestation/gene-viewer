@@ -30,9 +30,8 @@
 		border-collapse: collapse;
 		position: relative;
 	}
-	&-card {
+	&-item {
 		cursor: pointer;
-		position: relative;
 		&-filter {
 			opacity: 0.2;
 			pointer-events: none;
@@ -43,6 +42,9 @@
 	}
 	&-td {
 		padding: 0.25em 0.1em;
+	}
+	&-card {
+		position: relative;
 	}
 	&-mana-cost {
 		display: inline-block;
@@ -59,10 +61,10 @@
 		transform-origin: left;
 		max-width: 16em;
 		padding-right: 0.1em;
-		&.valid {
+		&-valid {
 			font-family: $beleren;
 		}
-		&.invalid {
+		&-invalid {
 			color: red;
 		}
 	}

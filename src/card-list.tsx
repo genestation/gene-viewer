@@ -28,9 +28,9 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 	}
 	cardNameStyle(card: string) {
 		if(CardInfo.valid(card) === true) {
-			return "card-list-card-name valid";
+			return "card-list-card-name card-list-card-name-valid";
 		} else if(CardInfo.valid(card) === false) {
-			return "card-list-card-name invalid";
+			return "card-list-card-name card-list-card-name-invalid";
 		} else {//if(CardInfo.valid(card) === null)
 			return "card-list-card-name";
 		}
@@ -66,23 +66,26 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 			</div>
 			<table className="card-list-table"><tbody>{
 				this.props.cards.map(({card: card, count: count}: CardListItem, idx: number)=>{
-					let mana_cost: string[] = CardInfo.manaCost(card);
-					// Calculate width
-					let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost?mana_cost.length:0))/(card.length*0.5);
+					let mana_cost: string[][] = CardInfo.manaCost(card);
+					let cardNameStyle = this.cardNameStyle(card)
 					return <tr key={idx}
-						className={"card-list-card"
+						className={"card-list-item"
 							+(this.props.highlight.indexOf(card) > -1?
-								" card-list-card-highlight":"")
+								" card-list-item-highlight":"")
 							+(this.props.filtered && this.props.filtered.indexOf(card) == -1?
-								" card-list-card-filter":"")
+								" card-list-item-filter":"")
 						}
 						onMouseOver={(e: React.SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
 						<td className="card-list-td card-list-quantity">{count + "×"}</td>
-						<td className="card-list-td">
-							<div className={this.cardNameStyle(card)} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{card}</div>
-							<div className="card-list-mana-cost">{this.renderManaCost(mana_cost)}</div>
-						</td>
+						{CardInfo.splitCard(card).map((part: string, idx: number)=>{
+							// Calculate width
+							let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost[idx].length))/(part.length*0.5);
+							return <td key={idx} className="card-list-td card-list-card">
+								<div className={cardNameStyle} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{part}</div>
+								<div className="card-list-mana-cost">{this.renderManaCost(mana_cost[idx])}</div>
+							</td>
+						})}
 					</tr>
 				})
 			}</tbody></table>

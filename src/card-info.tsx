@@ -319,20 +319,24 @@ export class CardInfo {
 		})
 	}
 	static splitCard(card: string) {
-		return card?card.replace(/ \/\/ .*$/,""):null;
+		return card?card.split(' // '):[];
 	}
 	static data(card: string) {
-		return CardInfo.instance.data[CardInfo.splitCard(card)];
+		return CardInfo.splitCard(card).map((part: string)=>{
+			return CardInfo.instance.data[part]
+		});
 	}
 	static valid(card: string) {
-		return CardInfo.instance.valid[CardInfo.splitCard(card)];
+		return CardInfo.splitCard(card).reduce((accum: boolean, part: string)=>{
+			return accum && CardInfo.instance.valid[part];
+		}, true);
 	}
 	static image(card: string) {
-		let data = CardInfo.data(card);
+		let data = CardInfo.data(card)[0];
 		return data?data.image_uri:null;
 	}
 	static price(card: string) {
-		let price = CardInfo.instance.price[CardInfo.splitCard(card)];
+		let price = CardInfo.instance.price[CardInfo.splitCard(card)[0]];
 		return price?price:{
 			usd: Number.POSITIVE_INFINITY,
 			tix: Number.POSITIVE_INFINITY,
@@ -363,14 +367,20 @@ export class CardInfo {
 			tix: CardInfo.roundOff(tix),
 		};
 	}
-	static manaCost(card: string) {
-		let data = CardInfo.data(card);
-		return data&&data.mana_cost?data.mana_cost.slice(0,-1).split('}{').map((sym: string)=>{
+	static splitManaCost(mana_cost: string) {
+		return mana_cost?mana_cost.slice(0,-1).split('}{').map((sym: string)=>{
 			return sym.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 		}):[];
 	}
+	static manaCost(card: string) {
+		return CardInfo.data(card).map((data: ScryfallCard)=>{
+			return data?CardInfo.splitManaCost(data.mana_cost):[]
+		});
+	}
 	static register(rawCards: string[], listener: (card: string)=>any) {
-		let cards = rawCards.map(CardInfo.splitCard);
+		let cards = rawCards.map(CardInfo.splitCard).reduce((accum: string[], parts: string[])=>{
+			return accum.concat(parts);
+		}, []);
 		cards.forEach((card: string)=>{
 			if(!CardInfo.instance.data.hasOwnProperty(card)) {
 				CardInfo.instance.data[card] = null
@@ -418,7 +428,9 @@ export class CardInfo {
 			if(!CardInfo.data(card)) {
 				return
 			}
-			let oracle_text = CardInfo.data(card).oracle_text.toLowerCase();
+			let oracle_text = CardInfo.data(card).map((data: ScryfallCard)=>{
+				return data?data.oracle_text.replace(RegExp(data.name,'g'),'CARDNAME').toLowerCase():""
+			}).join('\n//\n');
 			keywords.forEach((keyword: string)=>{
 				if(oracle_text.indexOf(keyword) > -1) {
 					if(!keyword_count.hasOwnProperty(keyword)) {
@@ -443,40 +455,66 @@ export class CardInfo {
 		let known: string[] = []
 		let unknown: string[] = [];
 		Object.keys(cards).forEach((card: string)=>{
-			if(!CardInfo.data(card)) {
-				unknown.push(card);
-			} else {
+			if(CardInfo.data(card).reduce((accum: boolean, data: ScryfallCard)=>{
+				return accum && (data !== null);
+			}, true)) {
 				known.push(card);
+			} else {
+				unknown.push(card);
 			}
 		});
 		function secondSort({card: a}: {card: string}, {card: b}: {card: string}) {
 			// Check converted mana cost
-			let cmc_a = parseFloat(CardInfo.data(a).converted_mana_cost);
-			let cmc_b = parseFloat(CardInfo.data(b).converted_mana_cost);
-			let diff = cmc_a - cmc_b;
+			let mana_a = CardInfo.data(a).reduce((accum: {cmc: number, syms: string[], colors: string[]}, data: ScryfallCard)=>{
+				let cmc = parseFloat(data.converted_mana_cost);
+				if(cmc < accum.cmc) {
+					return {
+						cmc: cmc,
+						syms: CardInfo.splitManaCost(data.mana_cost),
+					}
+				} else {
+					return accum
+				}
+			}, {cmc: Number.POSITIVE_INFINITY, syms: []})
+			let mana_b = CardInfo.data(b).reduce((accum: {cmc: number, syms: string[], colors: string[]}, data: ScryfallCard)=>{
+				let cmc = parseFloat(data.converted_mana_cost);
+				if(cmc < accum.cmc) {
+					return {
+						cmc: cmc,
+						syms: CardInfo.splitManaCost(data.mana_cost),
+					}
+				} else {
+					return accum
+				}
+			}, {cmc: Number.POSITIVE_INFINITY, syms: []})
+			let diff = mana_a.cmc - mana_b.cmc;
 			if(diff == 0) {
 				// Check phyrexian mana
-				let phyr_a = CardInfo.manaCost(a).map((sym: string)=>{
+				let phyr_a = mana_a.syms.map((sym: string)=>{
 					return sym.length==2 && sym[1]=='p'?-1:0;
 				}).reduce((a:number, b:number)=>a+b,0);
-				let phyr_b = CardInfo.manaCost(b).map((sym: string)=>{
+				let phyr_b = mana_b.syms.map((sym: string)=>{
 					return sym.length==2 && sym[1]=='p'?-1:0;
 				}).reduce((a:number, b:number)=>a+b,0);
 				let diff = phyr_a - phyr_b;
 				if(diff == 0) {
 					// Check number of mana symbols
-					let syms_a = CardInfo.manaCost(a).length;
-					let syms_b = CardInfo.manaCost(b).length;
-					let diff = syms_a - syms_b;
+					let diff = mana_a.syms.length - mana_b.syms.length;
 					if(diff == 0) {
+						let colors_a = CardInfo.data(a).reduce((colors: string[], data: ScryfallCard)=>{
+							return colors.concat(data.colors.filter((color: string)=>{
+								return colors.indexOf(color) == -1
+							}));
+						},[]);
+						let colors_b = CardInfo.data(b).reduce((colors: string[], data: ScryfallCard)=>{
+							return colors.concat(data.colors.filter((color: string)=>{
+								return colors.indexOf(color) == -1
+							}));
+						},[]);
 						// Check number of colors
-						let cols_a = CardInfo.data(a).colors.length;
-						let cols_b = CardInfo.data(b).colors.length;
-						let diff = cols_a - cols_b;
+						let diff = colors_a.length - colors_b.length;
 						if(diff == 0) {
 							// Sort by color
-							let colors_a = CardInfo.data(a).colors;
-							let colors_b = CardInfo.data(b).colors;
 							for(let color of ['W','U','B','R','G']) {
 								let match_a = colors_a.indexOf(color) > -1;
 								let match_b = colors_b.indexOf(color) > -1;
@@ -510,7 +548,9 @@ export class CardInfo {
 		switch (sort) {
 		case Sort.Type:
 			known.forEach((card: string)=>{
-				let type_line = CardInfo.data(card).type_line;
+				let type_line = CardInfo.data(card).map((data: ScryfallCard)=>{
+					return data.type_line;
+				}).join('\n//\n');
 				for(let item of ["Land","Creature","Artifact","Enchantment","Planeswalker","Instant","Sorcery"]) {
 					if(type_line.includes(item)) {
 						if(!buckets.hasOwnProperty(item)) {
@@ -532,7 +572,10 @@ export class CardInfo {
 			break;
 		case Sort.CMC:
 			known.forEach((card: string)=>{
-				let cmc = CardInfo.data(card).converted_mana_cost;
+				let cmc = CardInfo.data(card).reduce((accum: number, data: ScryfallCard)=>{
+					let cmc = parseFloat(data.converted_mana_cost);
+					return Math.min(cmc,accum);
+				}, Number.POSITIVE_INFINITY)
 				if(!buckets.hasOwnProperty(cmc)) {
 					buckets[cmc] = []
 				}
@@ -551,7 +594,11 @@ export class CardInfo {
 			break;
 		case Sort.Color:
 			known.forEach((card: string)=>{
-				let colors = CardInfo.data(card).colors;
+				let colors = CardInfo.data(card).reduce((colors: string[], data: ScryfallCard)=>{
+					return colors.concat(data.colors.filter((color: string)=>{
+						return colors.indexOf(color) == -1
+					}));
+				},[]);
 				if(colors.length == 0) {
 					if(!buckets.hasOwnProperty("Colorless")) {
 						buckets["Colorless"] = [];
