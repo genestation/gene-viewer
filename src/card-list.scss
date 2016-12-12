@@ -44,12 +44,20 @@
 		padding: 0.25em 0.1em;
 	}
 	&-card {
-		position: relative;
+		display: flex;
+		&-part {
+			flex: 1;
+			position: relative;
+			margin-right: 0.5em;
+			&-divider {
+				margin-right: 0.5em;
+			}
+		}
 	}
 	&-mana-cost {
 		display: inline-block;
 		position: absolute;
-		right: 1em;
+		right: 0;
 	}
 	&-quantity {
 		text-align: right;

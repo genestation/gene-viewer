@@ -78,14 +78,23 @@ export class CardList extends React.Component<CardListProps,CardListState> {
 						onMouseOver={(e: React.SyntheticEvent)=>{e.stopPropagation(); this.props.setCurr(card)}}
 						onClick={()=>{this.props.setCurr(card); this.props.showPreview()}} >
 						<td className="card-list-td card-list-quantity">{count + "×"}</td>
+						<td className="card-list-td card-list-card">
 						{CardInfo.splitCard(card).map((part: string, idx: number)=>{
 							// Calculate width
-							let ratio = (20/*table width*/ - 2.5/*quantity-width*/ - 1 - (mana_cost[idx].length))/(part.length*0.5);
-							return <td key={idx} className="card-list-td card-list-card">
+							let ratio = (20/*table width*/ - 2.5/*quantity width*/ - 1 - (mana_cost[idx].length))/(mana_cost.length/*split parts*/ * part.length*0.5);
+							return <div key={idx} className="card-list-card-part">
 								<div className={cardNameStyle} style={ratio<1?{transform: "scaleX("+ratio+")"}:null}>{part}</div>
 								<div className="card-list-mana-cost">{this.renderManaCost(mana_cost[idx])}</div>
-							</td>
-						})}
+							</div>
+						}).reduce((accum: JSX.Element[], part: JSX.Element)=>{
+							if(accum.length == 0) {
+								return [part]
+							} else {
+								accum.push(<div className="card-list-card-part-divider">&nbsp;//&nbsp;</div>,part);
+								return accum;
+							}
+						}, [])}
+						</td>
 					</tr>
 				})
 			}</tbody></table>
