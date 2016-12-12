@@ -14,6 +14,7 @@ export interface DeckPlayerProps{
 }
 export interface DeckPlayerState{
 	library?: string[];
+	revealed?: string[];
 	hand?: string[];
 	graveyard?: string[];
 	exile?: string[];
@@ -32,6 +33,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.shuffle(library);
 		this.state = {
 			library: library.slice(mulligan),
+			revealed: [],
 			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
@@ -61,6 +63,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.shuffle(library);
 		this.setState({
 			library: library.slice(mulligan),
+			revealed: [],
 			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
@@ -79,6 +82,7 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.shuffle(library);
 		this.setState({
 			library: library.slice(mulligan),
+			revealed: [],
 			hand: library.slice(0,mulligan),
 			graveyard: [],
 			exile: [],
@@ -86,8 +90,32 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 			mulligan: mulligan,
 		});
 	}
-	onDraw = ()=>{
+	onScry = ()=>{
 		if(this.state.library.length) {
+			this.state.revealed.unshift(this.state.library.pop());
+			this.state.mulligan = null;
+			this.setState(this.state);
+		}
+	}
+	onDraw = (card: string, idx: number, zone?: string[])=>{
+		this.state.hand.unshift(card);
+		if(idx !== null) {
+			zone.splice(idx,1);
+		} else {
+			let count = --this.state.battlefield[card];
+			if(count == 0) {
+				delete this.state.battlefield[card];
+			}
+		}
+		this.state.mulligan = null;
+		this.setState(this.state);
+	}
+	onAutoDraw = ()=>{
+		if(this.state.revealed.length) {
+			this.state.hand.unshift(this.state.revealed.pop());
+			this.state.mulligan = null;
+			this.setState(this.state);
+		} else if(this.state.library.length) {
 			this.state.hand.unshift(this.state.library.pop());
 			this.state.mulligan = null;
 			this.setState(this.state);
@@ -183,8 +211,6 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 		this.state.mulligan = null;
 		this.setState(this.state);
 	}
-	onScry() {
-	}
 	onSearch() {
 	}
 	shuffle(cards: string[]) {
@@ -246,14 +272,14 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 					} </div>
 				</div>
 				<div className="deck-player-main">
-					<div className="deck-player-library-context">
+					<div className="deck-player-library">
 						<div className="deck-player-actions" >
 							<i className="deck-player-action fa fa-search" aria-hidden="true" onClick={this.onSearch}/>
 							<i className="deck-player-action fa fa-eye" aria-hidden="true" onClick={this.onScry}/>
-							<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onDraw}/>
+							<i className="deck-player-action fa fa-plus" aria-hidden="true" onClick={this.onAutoDraw}/>
 						</div>
-						<div className={"deck-player-library"+(this.state.library.length?"":" deck-player-library-empty")}
-							onClick={this.onDraw}
+						<div className={"deck-player-library-button"+(this.state.library.length?"":" deck-player-library-button-empty")}
+							onClick={this.onAutoDraw}
 						/>
 						<div className="deck-player-actions" >
 							{!this.state.mulligan?
@@ -262,7 +288,38 @@ export class DeckPlayer extends React.Component<DeckPlayerProps,DeckPlayerState>
 							}
 						</div>
 					</div>
-					<div className="deck-player-zone">
+					{this.state.revealed.length?
+					<div className="deck-player-zone deck-player-revealed">
+						{
+							this.state.revealed.map((card: string, idx: number)=>{
+								return <div key={idx}
+									className="deck-player-zone-item" >
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-ban"
+											aria-hidden="true"
+											onClick={()=>this.onExile(card,idx,this.state.revealed)}/>
+										<i className="deck-player-zone-item-action fa fa-trash"
+											aria-hidden="true"
+											onClick={()=>this.onDiscard(card,idx,this.state.revealed)}/>
+										<i className="deck-player-zone-item-action fa fa-chevron-up"
+											aria-hidden="true"
+											onClick={()=>this.onPlay(card,idx,this.state.revealed)}/>
+									</div>
+									<CardImage card={card} onClick={()=>this.onDraw(card,idx,this.state.revealed)}/>
+									<div className="deck-player-zone-item-actions" >
+										<i className="deck-player-zone-item-action fa fa-arrow-up"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryTop(card,idx,this.state.revealed)}/>
+										<i className="deck-player-zone-item-action fa fa-random" aria-hidden="true" onClick={null}/>
+										<i className="deck-player-zone-item-action fa fa-arrow-down"
+											aria-hidden="true"
+											onClick={()=>this.onLibraryBottom(card,idx,this.state.revealed)}/>
+									</div>
+								</div>
+							})
+						}
+					</div>:null}
+					<div className="deck-player-zone deck-player-hand">
 						{
 							this.state.hand.map((card: string, idx: number)=>{
 								return <div key={idx}
