@@ -67,8 +67,6 @@
 	&-outerfield {
 		flex: 1;
 		display: flex;
-		justify-content: space-between;
-		padding: 1em 0;
 	}
 	&-main {
 		display: flex;
@@ -100,11 +98,11 @@
 		flex: 1;
 	}
 	&-graveyard {
-		width: 49%;
+		width: 50%;
 		background: $background-color;
 	}
 	&-exile {
-		width: 49%;
+		width: 50%;
 		background: darken($background-color,10%);
 	}
 }
