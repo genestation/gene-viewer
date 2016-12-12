@@ -28,3 +28,4 @@ Spells [23]
 10 Fire // Ice
 200 Progenitus
 1000 Our Market Research Shows That Players Like Really Long Card Names So We Made this Card to Have the Absolute Longest Card Name Ever Elemental
+1200 Who // What // When // Where // Why
