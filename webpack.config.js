@@ -2,8 +2,8 @@
 
 // Project settings
 
-let project = 'roguebuilder';
-let library = 'RogueBuilder';
+let project = 'gene-viewer';
+let library = 'GeneViewer';
 let externals = {
 	"react": "React",
 	"react-dom": "ReactDOM",

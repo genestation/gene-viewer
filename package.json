@@ -1,11 +1,11 @@
 {
-  "name": "RogueBuilder",
+  "name": "GeneViewer",
   "version": "0.0.1",
-  "description": "Rogue Deckbuilder",
-  "homepage": "http://roguedeckbuilder.com/",
+  "description": "Gene Viewer visualizes a gene within it's genomic neighborhood",
+  "homepage": "http://www.genestation.org",
   "repository": "git+https://github.com/autochthe/",
   "keywords": [
-    "magic-the-gathering"
+    "genomics"
   ],
   "author": "Mara Kim <mara@autochthe.net> (https://github.com/autochthe)",
   "license": "GPL-3.0",
