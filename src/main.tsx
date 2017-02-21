@@ -3,6 +3,7 @@
 import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as scale from 'd3-scale';
 
 interface Location {
 	start: number,
@@ -31,6 +32,7 @@ export default class GeneViewer extends React.Component<GeneViewerProps,GeneView
 		this.state = { }
 	}
 	render() {
+		console.log(scale)
 		return <div className="geneviewer">
 		</div>
 	}

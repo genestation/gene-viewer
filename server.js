@@ -2,7 +2,7 @@
 
 "use strict";
 
-const PORT=8080;
+const PORT=8888;
 
 const webpack = require('webpack');
 const karma = require('karma');
