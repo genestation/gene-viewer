@@ -157,7 +157,7 @@ let gene: Feature = {
 				strand: -1,
 			}],
 		},{
-			name: '',
+			name: 'NP_000136.2',
 			ftype: 'CDS',
 			loc: [{
 				start: 49154265,
