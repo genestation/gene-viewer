@@ -186,7 +186,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			currFeature: feature,
 		}, ()=>{this.handlingMouseOver=false});
 	}
-	renderGenome = (height: number, dnaHeight: number, strandHeight: number, start: number, end: number)=>{
+	renderGenome = (height: number, dnaHeight: number, strandHeight: number,
+	start: number, end: number, highlightStart?: number, highlightEnd?: number)=>{
 		const width = end - start;
 		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
@@ -209,6 +210,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{ this.props.features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} shape={shape} feature={feature} />
 			}) }
+			{highlightStart !== undefined && highlightEnd !== undefined?
+				<rect x={highlightStart-this.state.viewStart} y={dnaY}
+				 width={highlightEnd-highlightStart} height={dnaHeight}
+				 style={{fill:"black", opacity: 0.2}} />
+			:null}
 		</svg>;
 	}
 	render() {
@@ -221,7 +227,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onClick={this.onClickNavigation} >
-				{this.renderGenome(20,10,4,this.state.viewStart,this.state.viewEnd)}
+				{this.renderGenome(20,10,4,this.state.viewStart,this.state.viewEnd, trackStart, trackEnd)}
 			</div>
 			<div className="geneviewer-track">
 				{this.renderGenome(40,20,8,trackStart,trackEnd)}
