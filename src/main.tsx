@@ -103,7 +103,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								const strandY = this.props.shape.plusStrandY
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
-								r = <path key={idx}
+								r = <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
@@ -114,7 +114,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
-								r = <path key={idx}
+								r = <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
