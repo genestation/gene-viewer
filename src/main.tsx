@@ -44,6 +44,18 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 		this.state = { }
 	}
 	render():JSX.Element {
+		let color: string = null;
+		switch(this.props.feature.ftype) {
+		case 'exon':
+			color = '#56876a';
+			break;
+		case 'CDS':
+			color = '#3e53bc';
+			break;
+		case 'sequence_alteration':
+			color = '#e00f24';
+			break;
+		}
 		switch(this.props.feature.ftype) {
 		case 'gene':
 		case 'mRNA':
@@ -62,13 +74,16 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 						switch(loc.strand) {
 						case 1:
 							return <rect x={rectX} y={this.props.shape.plusStrandY}
-								width={rectWidth} height={this.props.shape.strandHeight}/>
+								width={rectWidth} height={this.props.shape.strandHeight}
+								style={{fill:color}} />
 						case -1:
 							return <rect x={rectX} y={this.props.shape.minusStrandY}
-								width={rectWidth} height={this.props.shape.strandHeight}/>
+								width={rectWidth} height={this.props.shape.strandHeight}
+								style={{fill:color}} />
 						default:
 							return <rect x={rectX} y={this.props.shape.dnaY}
-								width={rectWidth} height={this.props.shape.dnaHeight}/>
+								width={rectWidth} height={this.props.shape.dnaHeight}
+								style={{fill:color}} />
 						}
 					})
 				:null}
