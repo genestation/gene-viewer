@@ -118,6 +118,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	child: {
 		navigation?: HTMLElement;
 	} = {};
+	handlingMouseOver: boolean = false;
 	constructor(props: GeneViewerProps) {
 		super(props);
 		const viewStart = props.features.length && props.features[0].loc && props.features[0].loc.length?
@@ -142,9 +143,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 	}
 	onMouseOver = (feature: Feature)=>{
+		if(!this.handlingMouseOver) {
+			requestAnimationFrame(()=>{this.handleMouseOver(feature)});
+		}
+		this.handlingMouseOver = true;
+	}
+	handleMouseOver = (feature: Feature)=>{
 		this.setState({
 			currFeature: feature,
-		});
+		}, ()=>{this.handlingMouseOver=false});
 	}
 	renderGenome = (height: number, dnaHeight: number, strandHeight: number, start: number, end: number)=>{
 		const width = end - start;
