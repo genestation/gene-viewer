@@ -29,6 +29,7 @@ interface GenomeShape {
 	dnaY: number,
 	dnaHeight: number,
 	strandHeight: number,
+	intronHeight: number,
 	plusStrandY: number,
 	minusStrandY: number,
 	minWidth: number,
@@ -89,6 +90,38 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								width={rectWidth} height={this.props.shape.dnaHeight}
 								style={{fill:color}} />
 						}
+					})
+				:null}
+				{this.props.feature.loc?
+					this.props.feature.loc.map((loc: Location, idx: number, array: Location[])=>{
+						let r: JSX.Element;
+						if(idx > 0) {
+							const lastLoc = array[idx-1];
+							if(loc.strand == 1 && lastLoc.strand == 1) {
+								const startX = lastLoc.end - this.props.shape.viewStart;
+								const endX = loc.start - this.props.shape.viewStart;
+								const strandY = this.props.shape.plusStrandY
+								const midX = (startX + endX)/2;
+								const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
+								r = <path key={idx}
+									d={"M "+startX+" "+strandY
+										+" L "+midX+" "+midY
+										+" L "+endX+" "+strandY
+									} style={{fill: "none", stroke: color, strokeWidth: 0.5}} />
+							} else if(loc.strand == -1 && lastLoc.strand == -1) {
+								const startX = lastLoc.start - this.props.shape.viewStart;
+								const endX = loc.end - this.props.shape.viewStart;
+								const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
+								const midX = (startX + endX)/2;
+								const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
+								r = <path key={idx}
+									d={"M "+startX+" "+strandY
+										+" L "+midX+" "+midY
+										+" L "+endX+" "+strandY
+									} style={{fill: "none", stroke: color, strokeWidth: 0.5}} />
+							}
+						}
+						return r;
 					})
 				:null}
 				{this.props.feature.child?
@@ -162,6 +195,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			dnaY: dnaY,
 			dnaHeight: dnaHeight,
 			strandHeight: strandHeight,
+			intronHeight: strandHeight/2,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
 			minWidth: width/1000,
@@ -182,7 +216,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			Math.max(this.state.focus - this.state.zoom/2, this.state.viewStart));
 		const trackEnd = Math.max(this.state.viewStart + this.state.zoom,
 			Math.min(this.state.focus + this.state.zoom/2, this.state.viewEnd));
-		console.log(this.state.focus, trackStart, trackEnd);
 		// Render
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
