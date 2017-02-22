@@ -5,17 +5,23 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as scale from 'd3-scale';
 
+export interface Feature {
+	name?: string,
+	ftype: string,
+	loc?: Location[],
+	child?: Feature[],
+	data?: Datum[],
+}
+
 interface Location {
 	start: number,
 	end: number,
 	strand?: number,
 }
 
-interface Feature {
-	name?: string,
-	ftype: string,
-	loc?: Location[],
-	child?: Feature[],
+interface Datum {
+	key: string,
+	value: any,
 }
 
 interface ViewerShape {
@@ -25,6 +31,7 @@ interface ViewerShape {
 	strandHeight: number,
 	plusStrandY: number,
 	minusStrandY: number,
+	minWidth: number,
 }
 
 interface GenomeFeatureProps {
@@ -51,7 +58,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 				{this.props.feature.loc?
 					this.props.feature.loc.map((loc: Location)=>{
 						const rectX = loc.start - this.props.shape.viewStart;
-						const rectWidth = loc.end - loc.start;
+						const rectWidth = Math.max(loc.end - loc.start, this.props.shape.minWidth);
 						switch(loc.strand) {
 						case 1:
 							return <rect x={rectX} y={this.props.shape.plusStrandY}
@@ -82,7 +89,7 @@ export interface GeneViewerState{
 	viewStart: number,
 	viewEnd: number,
 }
-export default class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
+export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
 		features: [],
 	}
@@ -109,6 +116,7 @@ export default class GeneViewer extends React.Component<GeneViewerProps,GeneView
 			strandHeight: strandHeight,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
+			minWidth: viewWidth/1000,
 		};
 		return <div className="geneviewer">
 			<svg width="100%" height="100%"
