@@ -181,7 +181,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onClick={this.onClickNavigation} >
-				{this.renderGenome(40,10,4,this.state.viewStart,this.state.viewEnd)}
+				{this.renderGenome(20,10,4,this.state.viewStart,this.state.viewEnd)}
 			</div>
 			<div className="geneviewer-track">
 				{this.renderGenome(40,20,8,trackStart,trackEnd)}
