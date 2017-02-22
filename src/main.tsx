@@ -24,7 +24,7 @@ interface Datum {
 	value: any,
 }
 
-interface ViewerShape {
+interface GenomeShape {
 	viewStart: number,
 	dnaY: number,
 	dnaHeight: number,
@@ -35,7 +35,7 @@ interface ViewerShape {
 }
 
 interface GenomeFeatureProps {
-	shape: ViewerShape,
+	shape: GenomeShape,
 	feature: Feature,
 }
 class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
@@ -120,7 +120,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				props.features[0].loc[0].start:0,
 			viewEnd: props.features.length && props.features[0].loc && props.features[0].loc.length?
 				props.features[0].loc[0].end:0,
-			zoom: 200,
+			zoom: 20000,
 		}
 	}
 	onClickNavigation = (e: React.MouseEvent)=>{
@@ -130,39 +130,48 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const percentX = (clickX - offsetLeft)/width;
 		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
 		this.setState({
-			focus: percentX * (this.state.viewEnd - this.state.viewStart),
+			focus: this.state.viewStart + Math.round(percentX * (this.state.viewEnd - this.state.viewStart)),
 		});
 	}
-	render() {
-		const viewWidth = this.state.viewEnd - this.state.viewStart;
-		const viewHeight = 50;
-		const minY = -viewHeight/2;
-		const dnaHeight = 10;
-		const strandHeight = 4;
+	renderGenome = (height: number, dnaHeight: number, strandHeight: number, start: number, end: number)=>{
+		const width = end - start;
+		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
 		const shape = {
-			viewStart: this.state.viewStart,
+			viewStart: start,
 			dnaY: dnaY,
 			dnaHeight: dnaHeight,
 			strandHeight: strandHeight,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
-			minWidth: viewWidth/1000,
+			minWidth: width/1000,
 		};
+		return <svg width="100%" height="100%"
+		 viewBox={"0 "+minY+" "+width+" "+height}
+		 preserveAspectRatio="none">
+			<rect x="0" y={dnaY}
+			 width={width} height={dnaHeight}
+			 style={{fill:"#8b96a8"}} />
+			{ this.props.features.map((feature: Feature, idx: number)=>{
+				return <GenomeFeature key={idx} shape={shape} feature={feature} />
+			}) }
+		</svg>;
+	}
+	render() {
+		const trackStart = Math.min(this.state.viewEnd - this.state.zoom,
+			Math.max(this.state.focus - this.state.zoom/2, this.state.viewStart));
+		const trackEnd = Math.max(this.state.viewStart + this.state.zoom,
+			Math.min(this.state.focus + this.state.zoom/2, this.state.viewEnd));
+		console.log(this.state.focus, trackStart, trackEnd);
+		// Render
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onClick={this.onClickNavigation} >
-				<svg width="100%" height="100%"
-				 viewBox={"0 "+minY+" "+viewWidth+" "+viewHeight}
-				 preserveAspectRatio="none">
-					<rect x="0" y={dnaY}
-					 width={viewWidth} height={dnaHeight}
-					 style={{fill:"#8b96a8"}} />
-					{ this.props.features.map((feature: Feature, idx: number)=>{
-						return <GenomeFeature key={idx} shape={shape} feature={feature} />
-					}) }
-				</svg>
+				{this.renderGenome(50,10,4,this.state.viewStart,this.state.viewEnd)}
+			</div>
+			<div className="geneviewer-track">
+				{this.renderGenome(50,20,8,trackStart,trackEnd)}
 			</div>
 		</div>
 	}
