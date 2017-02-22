@@ -35,6 +35,7 @@ interface GenomeShape {
 }
 
 interface GenomeFeatureProps {
+	onMouseOver: (feature: Feature)=>any,
 	shape: GenomeShape,
 	feature: Feature,
 }
@@ -62,7 +63,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return <g>
 				<rect /> //TODO viewport height highlight this.props.feature.loc
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
-					return <GenomeFeature key={idx} shape={this.props.shape} feature={feature}/>
+					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver} shape={this.props.shape} feature={feature}/>
 				}) }
 			</g>;
 		default:
@@ -73,15 +74,18 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 						const rectWidth = Math.max(loc.end - loc.start, this.props.shape.minWidth);
 						switch(loc.strand) {
 						case 1:
-							return <rect key={idx} x={rectX} y={this.props.shape.plusStrandY}
+							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+								x={rectX} y={this.props.shape.plusStrandY}
 								width={rectWidth} height={this.props.shape.strandHeight}
 								style={{fill:color}} />
 						case -1:
-							return <rect key={idx} x={rectX} y={this.props.shape.minusStrandY}
+							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+								x={rectX} y={this.props.shape.minusStrandY}
 								width={rectWidth} height={this.props.shape.strandHeight}
 								style={{fill:color}} />
 						default:
-							return <rect key={idx} x={rectX} y={this.props.shape.dnaY}
+							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+								x={rectX} y={this.props.shape.dnaY}
 								width={rectWidth} height={this.props.shape.dnaHeight}
 								style={{fill:color}} />
 						}
@@ -89,7 +93,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 				:null}
 				{this.props.feature.child?
 					this.props.feature.child.map((feature: Feature, idx: number)=>{
-						return <GenomeFeature key={idx} shape={this.props.shape} feature={feature}/>
+						return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver} shape={this.props.shape} feature={feature}/>
 					})
 				:null}
 			</g>;
@@ -105,6 +109,7 @@ export interface GeneViewerState{
 	viewEnd?: number,
 	focus?: number,
 	zoom?: number,
+	currFeature?: Feature,
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
@@ -116,9 +121,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	constructor(props: GeneViewerProps) {
 		super(props);
 		const viewStart = props.features.length && props.features[0].loc && props.features[0].loc.length?
-			props.features[0].loc[0].start:0,
+			props.features[0].loc[0].start:0;
 		const viewEnd = props.features.length && props.features[0].loc && props.features[0].loc.length?
-			props.features[0].loc[0].end:0,
+			props.features[0].loc[0].end:0;
 		this.state = {
 			viewStart: viewStart,
 			viewEnd: viewEnd,
@@ -134,6 +139,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
 		this.setState({
 			focus: this.state.viewStart + Math.round(percentX * (this.state.viewEnd - this.state.viewStart)),
+		});
+	}
+	onMouseOver = (feature: Feature)=>{
+		this.setState({
+			currFeature: feature,
 		});
 	}
 	renderGenome = (height: number, dnaHeight: number, strandHeight: number, start: number, end: number)=>{
@@ -156,7 +166,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ this.props.features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} shape={shape} feature={feature} />
+				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} shape={shape} feature={feature} />
 			}) }
 		</svg>;
 	}
@@ -171,11 +181,27 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onClick={this.onClickNavigation} >
-				{this.renderGenome(50,10,4,this.state.viewStart,this.state.viewEnd)}
+				{this.renderGenome(40,10,4,this.state.viewStart,this.state.viewEnd)}
 			</div>
 			<div className="geneviewer-track">
-				{this.renderGenome(50,20,8,trackStart,trackEnd)}
+				{this.renderGenome(40,20,8,trackStart,trackEnd)}
 			</div>
+			{this.state.currFeature?
+				<div>
+					<h1>{this.state.currFeature.name}</h1>
+					<h2>{this.state.currFeature.ftype}</h2>
+					{this.state.currFeature.data?
+						<table>
+						{this.state.currFeature.data.map((datum: Datum)=>{
+							return <tr>
+								<td>{datum.key}</td>
+								<td>{datum.value}</td>
+							</tr>
+						})}
+						</table>
+					:null}
+				</div>
+			:null}
 		</div>
 	}
 }
