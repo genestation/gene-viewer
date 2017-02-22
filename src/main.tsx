@@ -115,12 +115,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	} = {};
 	constructor(props: GeneViewerProps) {
 		super(props);
+		const viewStart = props.features.length && props.features[0].loc && props.features[0].loc.length?
+			props.features[0].loc[0].start:0,
+		const viewEnd = props.features.length && props.features[0].loc && props.features[0].loc.length?
+			props.features[0].loc[0].end:0,
 		this.state = {
-			viewStart: props.features.length && props.features[0].loc && props.features[0].loc.length?
-				props.features[0].loc[0].start:0,
-			viewEnd: props.features.length && props.features[0].loc && props.features[0].loc.length?
-				props.features[0].loc[0].end:0,
+			viewStart: viewStart,
+			viewEnd: viewEnd,
 			zoom: 20000,
+			focus: viewStart,
 		}
 	}
 	onClickNavigation = (e: React.MouseEvent)=>{
