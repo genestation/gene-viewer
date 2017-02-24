@@ -162,7 +162,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.state = {
 			viewStart: this.scale.range[0],
 			viewEnd: this.scale.range[1],
-			zoom: 200,
+			zoom: 2000,
 			focus: this.scale.range[0],
 		}
 	}
@@ -173,7 +173,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const percentX = (clickX - offsetLeft)/width;
 		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
 		this.setState({
-			focus: this.state.viewStart + Math.round(percentX * (this.state.viewEnd - this.state.viewStart)),
+			focus: this.scale.invert(coordX),
 		});
 	}
 	onMouseOver = (feature: Feature)=>{
