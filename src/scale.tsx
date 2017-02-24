@@ -37,14 +37,16 @@ interface Datum {
 // Compressed representation of locs
 class Scale {
 	loc: Location[] = [];
-	scale: {[domain: number]: d3.Linear<{}> | d3.Log<{}>} = {};
-	scaleKey: number[] = [];
-	inverse: {[range: number]: number} = {};
-	inverseKey: number[] = [];
+	scale: {[domainKey: number]: d3.Linear<{}> | d3.Log<{}>} = {};
+	domainKey: number[] = [];
+	inverse: {[rangeKey: number]: number} = {};
+	rangeKey: number[] = [];
 	setLoc(features: Feature[]) {
 		this.loc = [];
-		this.scale = [];
-		this.scaleKey = [];
+		this.scale = {};
+		this.domainKey = [];
+		this.inverse = {};
+		this.rangeKey = [];
 		for(let feature of features) {
 			let ptr: Feature;
 			let stack = [feature]
@@ -86,11 +88,11 @@ class Scale {
 				const iStart = array[idx-1].end;
 				const iEnd = loc.start;
 				const iLength = Math.log(iEnd - iStart);
-				this.scaleKey.push(iStart);
+				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLog().base(Math.E)
 					.domain([iStart, iEnd])
 					.range([sum, sum+iLength])
-				this.inverseKey.push(sum);
+				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
 			}
@@ -98,20 +100,40 @@ class Scale {
 			const fStart = loc.start;
 			const fEnd = loc.end;
 			const fLength = fEnd - fStart;
-			this.scaleKey.push(fStart);
+			this.domainKey.push(fStart);
 			this.scale[fStart] = d3.scaleLinear()
 				.domain([fStart, fEnd])
 				.range([sum, sum+fLength])
-			this.inverseKey.push(sum);
+			this.rangeKey.push(sum);
 			this.inverse[sum] = fStart;
 			sum += fLength;
 		});
 	}
-	get min() {
-		return this.loc.length?this.loc[0].start:Number.NEGATIVE_INFINITY;
+	get(dValue: number) {
+		let dKey: number;
+		this.domainKey.forEach((key: number)=>{
+			if(key < dValue) {
+				dKey = key;
+			}
+		});
+		return this.scale[dKey](dValue);
 	}
-	get max() {
-		return this.loc.length?this.loc[this.loc.length-1].end:Number.POSITIVE_INFINITY;
+	invert(rValue: number) {
+		let rKey: number;
+		this.rangeKey.forEach((key: number)=>{
+			if(key < rValue) {
+				rKey = key;
+			}
+		});
+		return this.scale[this.inverse[rKey]](rValue);
+	}
+	get domain() {
+		return [this.scale[this.domainKey[0]].domain()[0],
+			this.scale[this.domainKey[this.domainKey.length-1]].domain()[1]];
+	}
+	get range() {
+		return [this.scale[this.domainKey[0]].range()[0],
+			this.scale[this.domainKey[this.domainKey.length-1]].range()[1]];
 	}
 }
 
