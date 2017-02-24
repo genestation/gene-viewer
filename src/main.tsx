@@ -3,7 +3,7 @@
 import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import * as scale from 'd3-scale';
+import {scale} from './scale.tsx';
 
 export interface Feature {
 	name?: string,
@@ -158,6 +158,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			props.features[0].loc[0].start:0;
 		const viewEnd = props.features.length && props.features[0].loc && props.features[0].loc.length?
 			props.features[0].loc[0].end:0;
+		scale().setLoc(props.features);
 		this.state = {
 			viewStart: viewStart,
 			viewEnd: viewEnd,
