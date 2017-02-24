@@ -37,7 +37,8 @@ interface Datum {
 // Compressed representation of locs
 class Scale {
 	loc: Location[] = [];
-	setLoc = (features: Feature[])=>{
+	sum = 0;
+	setLoc(features: Feature[]) {
 		this.loc = [];
 		for(let feature of features) {
 			let ptr: Feature;
@@ -50,24 +51,42 @@ class Scale {
 					ptr.loc.forEach((ptrloc: Location)=>{
 						let spliceStart = this.loc.length;
 						let spliceDelete = 0;
+						if(spliceStart && this.loc[0].start >= ptrloc.start) {
+							spliceStart = 0;
+						}
 						this.loc.forEach((loc: Location, idx: number)=>{
 							if(loc.start <= ptrloc.end && loc.end >= ptrloc.start) { // Intersects
 								spliceDelete++;
-								if(spliceStart == this.loc.length) {
+								if(spliceDelete == 1) {
 									spliceStart = idx;
 								}
+							} else if (spliceStart == this.loc.length && loc.start > ptrloc.start) { // TODO better test?
+								spliceStart = idx;
 							}
 						});
 						this.loc.splice(spliceStart, spliceDelete, {
 							start: Math.min(ptrloc.start,
-								spliceStart < this.loc.length?this.loc[spliceStart].start:Number.POSITIVE_INFINITY),
+								spliceDelete?this.loc[spliceStart].start:Number.POSITIVE_INFINITY),
 							end: Math.max(ptrloc.end,
-								spliceStart < this.loc.length?this.loc[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
+								spliceDelete?this.loc[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
 						});
 					});
 				}
 			}
 		}
+		let sum = 0;
+		this.loc.forEach((loc: Location, idx: number, array: Location[])=>{
+			sum += loc.end - loc.start;
+			if(idx > 0) {
+				sum += Math.log(loc.start - array[idx-1].end);
+			}
+		});
+	}
+	get min() {
+		return this.loc.length?this.loc[0].start:Number.NEGATIVE_INFINITY;
+	}
+	get max() {
+		return this.loc.length?this.loc[this.loc.length-1].end:Number.POSITIVE_INFINITY;
 	}
 }
 
