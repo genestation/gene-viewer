@@ -3,7 +3,7 @@
 import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {scale} from './scale.tsx';
+import {Scale} from './scale.tsx';
 
 export interface Feature {
 	name?: string,
@@ -25,7 +25,6 @@ interface Datum {
 }
 
 interface GenomeShape {
-	viewStart: number,
 	dnaY: number,
 	dnaHeight: number,
 	strandHeight: number,
@@ -37,6 +36,7 @@ interface GenomeShape {
 
 interface GenomeFeatureProps {
 	onMouseOver: (feature: Feature)=>any,
+	scale: Scale,
 	shape: GenomeShape,
 	feature: Feature,
 }
@@ -64,15 +64,17 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return <g>
 				<rect /> //TODO viewport height highlight this.props.feature.loc
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
-					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver} shape={this.props.shape} feature={feature}/>
+					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
+						scale={this.props.scale} shape={this.props.shape} feature={feature}/>
 				}) }
 			</g>;
 		default:
 			return <g>
 				{this.props.feature.loc?
 					this.props.feature.loc.map((loc: Location, idx: number)=>{
-						const rectX = loc.start - this.props.shape.viewStart;
-						const rectWidth = Math.max(loc.end - loc.start, this.props.shape.minWidth);
+						const rectX = this.props.scale.get(loc.start);
+						const rectWidth = Math.max(this.props.scale.get(loc.end) - this.props.scale.get(loc.start),
+							this.props.shape.minWidth);
 						switch(loc.strand) {
 						case 1:
 							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
@@ -98,8 +100,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 						if(idx > 0) {
 							const lastLoc = array[idx-1];
 							if(loc.strand == 1 && lastLoc.strand == 1) {
-								const startX = lastLoc.end - this.props.shape.viewStart;
-								const endX = loc.start - this.props.shape.viewStart;
+								const startX = this.props.scale.get(lastLoc.end);
+								const endX = this.props.scale.get(loc.start);
 								const strandY = this.props.shape.plusStrandY
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
@@ -109,8 +111,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 										+" L "+endX+" "+strandY
 									} style={{fill: "none", stroke: color, strokeWidth: 0.5}} />
 							} else if(loc.strand == -1 && lastLoc.strand == -1) {
-								const startX = lastLoc.start - this.props.shape.viewStart;
-								const endX = loc.end - this.props.shape.viewStart;
+								const startX = this.props.scale.get(lastLoc.start);
+								const endX = this.props.scale.get(loc.end);
 								const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
@@ -126,7 +128,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 				:null}
 				{this.props.feature.child?
 					this.props.feature.child.map((feature: Feature, idx: number)=>{
-						return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver} shape={this.props.shape} feature={feature}/>
+						return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
+							scale={this.props.scale} shape={this.props.shape} feature={feature}/>
 					})
 				:null}
 			</g>;
@@ -152,18 +155,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		navigation?: HTMLElement;
 	} = {};
 	handlingMouseOver: boolean = false;
+	scale: Scale = null;
 	constructor(props: GeneViewerProps) {
 		super(props);
-		const viewStart = props.features.length && props.features[0].loc && props.features[0].loc.length?
-			props.features[0].loc[0].start:0;
-		const viewEnd = props.features.length && props.features[0].loc && props.features[0].loc.length?
-			props.features[0].loc[0].end:0;
-		scale().setLoc(props.features);
+		this.scale = new Scale(props.features);
 		this.state = {
-			viewStart: viewStart,
-			viewEnd: viewEnd,
-			zoom: 20000,
-			focus: viewStart,
+			viewStart: this.scale.range[0],
+			viewEnd: this.scale.range[1],
+			zoom: 200,
+			focus: this.scale.range[0],
 		}
 	}
 	onClickNavigation = (e: React.MouseEvent)=>{
@@ -193,7 +193,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
 		const shape = {
-			viewStart: start,
 			dnaY: dnaY,
 			dnaHeight: dnaHeight,
 			strandHeight: strandHeight,
@@ -209,7 +208,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ this.props.features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} shape={shape} feature={feature} />
+				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} scale={this.scale} shape={shape} feature={feature} />
 			}) }
 			{highlightStart !== undefined && highlightEnd !== undefined?
 				<rect x={highlightStart-this.state.viewStart} y={dnaY}

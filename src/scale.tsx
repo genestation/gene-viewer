@@ -4,7 +4,6 @@ import * as d3 from 'd3-scale';
 // scale features linearly
 // scale intervening spaces logarithmically
 
-// Step 1:
 // Build up "zones" of features
 // Start with empty array
 // For each feature.loc
@@ -35,13 +34,13 @@ interface Datum {
 }
 
 // Compressed representation of locs
-class Scale {
-	loc: Location[] = [];
-	scale: {[domainKey: number]: d3.Linear<{}> | d3.Log<{}>} = {};
-	domainKey: number[] = [];
-	inverse: {[rangeKey: number]: number} = {};
-	rangeKey: number[] = [];
-	setLoc(features: Feature[]) {
+export class Scale {
+	loc: Location[];
+	scale: {[domainKey: number]: d3.Linear<number> | d3.Log<number>};
+	domainKey: number[];
+	inverse: {[rangeKey: number]: number};
+	rangeKey: number[];
+	constructor(features: Feature[]) {
 		this.loc = [];
 		this.scale = {};
 		this.domainKey = [];
@@ -87,11 +86,11 @@ class Scale {
 				// Interval
 				const iStart = array[idx-1].end;
 				const iEnd = loc.start;
-				const iLength = Math.log(iEnd - iStart);
+				const iLength = Math.log(iEnd - iStart)*10;
 				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLog().base(Math.E)
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength])
+					.range([sum, sum+iLength]) as d3.Log<number>;
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -103,7 +102,7 @@ class Scale {
 			this.domainKey.push(fStart);
 			this.scale[fStart] = d3.scaleLinear()
 				.domain([fStart, fEnd])
-				.range([sum, sum+fLength])
+				.range([sum, sum+fLength]) as d3.Linear<number>;
 			this.rangeKey.push(sum);
 			this.inverse[sum] = fStart;
 			sum += fLength;
@@ -112,7 +111,7 @@ class Scale {
 	get(dValue: number) {
 		let dKey: number;
 		this.domainKey.forEach((key: number)=>{
-			if(key < dValue) {
+			if(key <= dValue) {
 				dKey = key;
 			}
 		});
@@ -121,7 +120,7 @@ class Scale {
 	invert(rValue: number) {
 		let rKey: number;
 		this.rangeKey.forEach((key: number)=>{
-			if(key < rValue) {
+			if(key <= rValue) {
 				rKey = key;
 			}
 		});
@@ -136,10 +135,3 @@ class Scale {
 			this.scale[this.domainKey[this.domainKey.length-1]].range()[1]];
 	}
 }
-
-export function scale() {
-	return new Scale();
-}
-
-// Step 2 Provide a scale service
-// Allows for switching between not to scale to scale
