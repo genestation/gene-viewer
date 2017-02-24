@@ -1,4 +1,4 @@
-import * as d3scale from 'd3-scale';
+import * as d3 from 'd3-scale';
 
 // Read features
 // scale features linearly
@@ -37,9 +37,12 @@ interface Datum {
 // Compressed representation of locs
 class Scale {
 	loc: Location[] = [];
-	sum = 0;
+	scale: {[key: number]: d3.Linear<{}> | d3.Log<{}>} = [];
+	scaleKey: number[] = [];
 	setLoc(features: Feature[]) {
 		this.loc = [];
+		this.scale = [];
+		this.scaleKey = [];
 		for(let feature of features) {
 			let ptr: Feature;
 			let stack = [feature]
@@ -76,10 +79,24 @@ class Scale {
 		}
 		let sum = 0;
 		this.loc.forEach((loc: Location, idx: number, array: Location[])=>{
-			sum += loc.end - loc.start;
 			if(idx > 0) {
-				sum += Math.log(loc.start - array[idx-1].end);
+				const iStart = array[idx-1].end;
+				const iEnd = loc.start;
+				const iLength = Math.log(iEnd - iStart);
+				this.scaleKey.push(iStart);
+				this.scale[iStart] = d3.scaleLog().base(Math.E)
+					.domain([iStart, iEnd])
+					.range([sum, sum+iLength])
+				sum += iLength;
 			}
+			const fStart = loc.start;
+			const fEnd = loc.end;
+			const fLength = fEnd - fStart;
+			this.scaleKey.push(fStart);
+			this.scale[fStart] = d3.scaleLinear()
+				.domain([fStart, fEnd])
+				.range([sum, sum+fLength])
+			sum += fLength;
 		});
 	}
 	get min() {
