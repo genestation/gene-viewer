@@ -37,8 +37,10 @@ interface Datum {
 // Compressed representation of locs
 class Scale {
 	loc: Location[] = [];
-	scale: {[key: number]: d3.Linear<{}> | d3.Log<{}>} = [];
+	scale: {[domain: number]: d3.Linear<{}> | d3.Log<{}>} = {};
 	scaleKey: number[] = [];
+	inverse: {[range: number]: number} = {};
+	inverseKey: number[] = [];
 	setLoc(features: Feature[]) {
 		this.loc = [];
 		this.scale = [];
@@ -80,6 +82,7 @@ class Scale {
 		let sum = 0;
 		this.loc.forEach((loc: Location, idx: number, array: Location[])=>{
 			if(idx > 0) {
+				// Interval
 				const iStart = array[idx-1].end;
 				const iEnd = loc.start;
 				const iLength = Math.log(iEnd - iStart);
@@ -87,8 +90,11 @@ class Scale {
 				this.scale[iStart] = d3.scaleLog().base(Math.E)
 					.domain([iStart, iEnd])
 					.range([sum, sum+iLength])
+				this.inverseKey.push(sum);
+				this.inverse[sum] = iStart;
 				sum += iLength;
 			}
+			// Feature
 			const fStart = loc.start;
 			const fEnd = loc.end;
 			const fLength = fEnd - fStart;
@@ -96,6 +102,8 @@ class Scale {
 			this.scale[fStart] = d3.scaleLinear()
 				.domain([fStart, fEnd])
 				.range([sum, sum+fLength])
+			this.inverseKey.push(sum);
+			this.inverse[sum] = fStart;
 			sum += fLength;
 		});
 	}
