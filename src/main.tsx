@@ -79,50 +79,45 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 	}
 	render():JSX.Element {
 		if(this.props.feature.child) {
-			let renderConnectors = true;
-			this.props.feature.child.forEach((feature: Feature)=>{
-				if(feature.child) {
-					renderConnectors = false;
-				}
-			});
 			return <g>
 				<rect /> //TODO viewport height highlight this.props.feature.start - end
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
 					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
 						scale={this.props.scale} shape={this.props.shape} feature={feature}/>
 				}) }
-				{renderConnectors?
-					this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
-						let r: JSX.Element;
-						if(idx > 0) {
-							const lastChild = array[idx-1];
-							if(child.strand == 1 && lastChild.strand == 1) {
-								const startX = this.props.scale.get(lastChild.end);
-								const endX = this.props.scale.get(child.start);
-								const strandY = this.props.shape.plusStrandY
-								const midX = (startX + endX)/2;
-								const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
-								r = <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-									d={"M "+startX+" "+strandY
-										+" L "+midX+" "+midY
-										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
-							} else if(child.strand == -1 && lastChild.strand == -1) {
-								const startX = this.props.scale.get(lastChild.start);
-								const endX = this.props.scale.get(child.end);
-								const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
-								const midX = (startX + endX)/2;
-								const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
-								r = <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-									d={"M "+startX+" "+strandY
-										+" L "+midX+" "+midY
-										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
-							}
+				{this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
+					if(idx > 0) {
+						const lastChild = array[idx-1];
+						if(child.ftype != lastChild.ftype || child.child || lastChild.child) {
+							return null
 						}
-						return r;
-					})
-				:null}
+						if(child.strand == 1 && lastChild.strand == 1) {
+							const startX = this.props.scale.get(lastChild.end);
+							const endX = this.props.scale.get(child.start);
+							const strandY = this.props.shape.plusStrandY
+							const midX = (startX + endX)/2;
+							const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
+							return <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+								d={"M "+startX+" "+strandY
+									+" L "+midX+" "+midY
+									+" L "+endX+" "+strandY
+								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
+						} else if(child.strand == -1 && lastChild.strand == -1) {
+							const startX = this.props.scale.get(lastChild.start);
+							const endX = this.props.scale.get(child.end);
+							const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
+							const midX = (startX + endX)/2;
+							const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
+							return <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+								d={"M "+startX+" "+strandY
+									+" L "+midX+" "+midY
+									+" L "+endX+" "+strandY
+								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
+						}
+					} else {
+						return null
+					}
+				})}
 			</g>;
 		} else {
 			return <g>
