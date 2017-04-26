@@ -17,15 +17,16 @@ import * as d3 from 'd3-scale';
 interface Feature {
 	name?: string,
 	ftype?: string,
-	loc?: Location[],
+	start?: number,
+	end?: number,
+	strand?: number,
 	child?: Feature[],
 	data?: Datum[],
 }
 
-interface Location {
+interface Range {
 	start: number,
 	end: number,
-	strand?: number,
 }
 
 interface Datum {
@@ -35,13 +36,13 @@ interface Datum {
 
 // Compressed representation of locs
 export class Scale {
-	loc: Location[];
+	ranges: Range[];
 	scale: {[domainKey: number]: d3.Linear<number> | d3.Log<number>};
 	domainKey: number[];
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
 	constructor(features: Feature[]) {
-		this.loc = [];
+		this.ranges = [];
 		this.scale = {};
 		this.domainKey = [];
 		this.inverse = {};
@@ -53,39 +54,37 @@ export class Scale {
 				ptr = stack.pop()
 				if(ptr.child) {
 					stack = stack.concat(ptr.child);
-				} else if(ptr.loc) {
-					ptr.loc.forEach((ptrloc: Location)=>{
-						let spliceStart = this.loc.length;
-						let spliceDelete = 0;
-						if(spliceStart && this.loc[0].start >= ptrloc.start) {
-							spliceStart = 0;
-						}
-						this.loc.forEach((loc: Location, idx: number)=>{
-							if(loc.start <= ptrloc.end && loc.end >= ptrloc.start) { // Intersects
-								spliceDelete++;
-								if(spliceDelete == 1) {
-									spliceStart = idx;
-								}
-							} else if (spliceStart == this.loc.length && loc.start > ptrloc.start) { // TODO better test?
+				} else {
+					let spliceStart = this.ranges.length;
+					let spliceDelete = 0;
+					if(spliceStart && this.ranges[0].start >= ptr.start) {
+						spliceStart = 0;
+					}
+					this.ranges.forEach((range: Range, idx: number)=>{
+						if(range.start <= ptr.end && range.end >= ptr.start) { // Intersects
+							spliceDelete++;
+							if(spliceDelete == 1) {
 								spliceStart = idx;
 							}
-						});
-						this.loc.splice(spliceStart, spliceDelete, {
-							start: Math.min(ptrloc.start,
-								spliceDelete?this.loc[spliceStart].start:Number.POSITIVE_INFINITY),
-							end: Math.max(ptrloc.end,
-								spliceDelete?this.loc[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
-						});
+						} else if (spliceStart == this.ranges.length && range.start > ptr.start) { // TODO better test?
+							spliceStart = idx;
+						}
+					});
+					this.ranges.splice(spliceStart, spliceDelete, {
+						start: Math.min(ptr.start,
+							spliceDelete?this.ranges[spliceStart].start:Number.POSITIVE_INFINITY),
+						end: Math.max(ptr.end,
+							spliceDelete?this.ranges[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
 					});
 				}
 			}
 		}
 		let sum = 0;
-		this.loc.forEach((loc: Location, idx: number, array: Location[])=>{
+		this.ranges.forEach((range: Range, idx: number, array: Range[])=>{
 			if(idx > 0) {
 				// Interval
 				const iStart = array[idx-1].end;
-				const iEnd = loc.start;
+				const iEnd = range.start;
 				const iLength = Math.log(iEnd - iStart)*10;
 				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLog().base(Math.E)
@@ -96,8 +95,8 @@ export class Scale {
 				sum += iLength;
 			}
 			// Feature
-			const fStart = loc.start;
-			const fEnd = loc.end;
+			const fStart = range.start;
+			const fEnd = range.end;
 			const fLength = fEnd - fStart;
 			this.domainKey.push(fStart);
 			this.scale[fStart] = d3.scaleLinear()

@@ -8,15 +8,11 @@ import {Scale} from './scale.tsx';
 export interface Feature {
 	name?: string,
 	ftype?: string,
-	loc?: Location[],
+	start?: number,
+	end?: number,
+	strand?: number,
 	child?: Feature[],
 	data?: Datum[],
-}
-
-interface Location {
-	start: number,
-	end: number,
-	strand?: number,
 }
 
 interface Datum {
@@ -45,63 +41,68 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 		super(props);
 		this.state = { }
 	}
-	render():JSX.Element {
-		let color: string = null;
+	featureColor():string {
 		switch(this.props.feature.ftype) {
 		case 'exon':
-			color = '#56876a';
-			break;
+			return '#56876a';
 		case 'CDS':
-			color = '#3e53bc';
-			break;
+			return '#3e53bc';
 		case 'sequence_alteration':
-			color = '#e00f24';
-			break;
+			return '#e00f24';
+		default:
+			return null;
 		}
-		switch(this.props.feature.ftype) {
-		case 'gene':
-		case 'mRNA':
+	}
+	renderLeaf():JSX.Element {
+		if(typeof this.props.feature.start == "number" && typeof this.props.feature.end == "number") {
+			const rectX = this.props.scale.get(this.props.feature.start);
+			const rectWidth = Math.max(this.props.scale.get(this.props.feature.end) - this.props.scale.get(this.props.feature.start),
+				this.props.shape.minWidth);
+			switch(this.props.feature.strand) {
+			case 1:
+				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+					x={rectX} y={this.props.shape.plusStrandY}
+					width={rectWidth} height={this.props.shape.strandHeight}
+					style={{fill:this.featureColor()}} />
+			case -1:
+				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+					x={rectX} y={this.props.shape.minusStrandY}
+					width={rectWidth} height={this.props.shape.strandHeight}
+					style={{fill:this.featureColor()}} />
+			default:
+				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+					x={rectX} y={this.props.shape.dnaY}
+					width={rectWidth} height={this.props.shape.dnaHeight}
+					style={{fill:this.featureColor()}} />
+			}
+		}
+	}
+	render():JSX.Element {
+		if(this.props.feature.child) {
+			let renderConnectors = true;
+			let childFType: string = null;
+			this.props.feature.child.forEach((feature: Feature)=>{
+				if(childFType == null) {
+					childFType = feature.ftype;
+				}
+				if(feature.child || feature.ftype != childFType) {
+					renderConnectors = false;
+				}
+			});
 			return <g>
-				<rect /> //TODO viewport height highlight this.props.feature.loc
+				<rect /> //TODO viewport height highlight this.props.feature.start - end
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
 					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
 						scale={this.props.scale} shape={this.props.shape} feature={feature}/>
 				}) }
-			</g>;
-		default:
-			return <g>
-				{this.props.feature.loc?
-					this.props.feature.loc.map((loc: Location, idx: number)=>{
-						const rectX = this.props.scale.get(loc.start);
-						const rectWidth = Math.max(this.props.scale.get(loc.end) - this.props.scale.get(loc.start),
-							this.props.shape.minWidth);
-						switch(loc.strand) {
-						case 1:
-							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-								x={rectX} y={this.props.shape.plusStrandY}
-								width={rectWidth} height={this.props.shape.strandHeight}
-								style={{fill:color}} />
-						case -1:
-							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-								x={rectX} y={this.props.shape.minusStrandY}
-								width={rectWidth} height={this.props.shape.strandHeight}
-								style={{fill:color}} />
-						default:
-							return <rect key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-								x={rectX} y={this.props.shape.dnaY}
-								width={rectWidth} height={this.props.shape.dnaHeight}
-								style={{fill:color}} />
-						}
-					})
-				:null}
-				{this.props.feature.loc?
-					this.props.feature.loc.map((loc: Location, idx: number, array: Location[])=>{
+				{renderConnectors?
+					this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
 						let r: JSX.Element;
 						if(idx > 0) {
-							const lastLoc = array[idx-1];
-							if(loc.strand == 1 && lastLoc.strand == 1) {
-								const startX = this.props.scale.get(lastLoc.end);
-								const endX = this.props.scale.get(loc.start);
+							const lastChild = array[idx-1];
+							if(child.strand == 1 && lastChild.strand == 1) {
+								const startX = this.props.scale.get(lastChild.end);
+								const endX = this.props.scale.get(child.start);
 								const strandY = this.props.shape.plusStrandY
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
@@ -109,10 +110,10 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: color, strokeWidth: 0.5}} />
-							} else if(loc.strand == -1 && lastLoc.strand == -1) {
-								const startX = this.props.scale.get(lastLoc.start);
-								const endX = this.props.scale.get(loc.end);
+									} style={{fill: "none", stroke: this.featureColor(), strokeWidth: 0.5}} />
+							} else if(child.strand == -1 && lastChild.strand == -1) {
+								const startX = this.props.scale.get(lastChild.start);
+								const endX = this.props.scale.get(child.end);
 								const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
 								const midX = (startX + endX)/2;
 								const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
@@ -120,18 +121,16 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: color, strokeWidth: 0.5}} />
+									} style={{fill: "none", stroke: this.featureColor(), strokeWidth: 0.5}} />
 							}
 						}
 						return r;
 					})
 				:null}
-				{this.props.feature.child?
-					this.props.feature.child.map((feature: Feature, idx: number)=>{
-						return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
-							scale={this.props.scale} shape={this.props.shape} feature={feature}/>
-					})
-				:null}
+			</g>;
+		} else {
+			return <g>
+				{this.renderLeaf()}
 			</g>;
 		}
 	}

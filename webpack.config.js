@@ -4,10 +4,7 @@
 
 let project = 'gene-viewer';
 let library = 'GeneViewer';
-let externals = {
-	"react": "React",
-	"react-dom": "ReactDOM",
-};
+let externals = { };
 
 
 
