@@ -41,8 +41,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 		super(props);
 		this.state = { }
 	}
-	featureColor():string {
-		switch(this.props.feature.ftype) {
+	featureColor(ftype = this.props.feature.ftype):string {
+		switch(ftype) {
 		case 'exon':
 			return '#56876a';
 		case 'CDS':
@@ -80,12 +80,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 	render():JSX.Element {
 		if(this.props.feature.child) {
 			let renderConnectors = true;
-			let childFType: string = null;
 			this.props.feature.child.forEach((feature: Feature)=>{
-				if(childFType == null) {
-					childFType = feature.ftype;
-				}
-				if(feature.child || feature.ftype != childFType) {
+				if(feature.child) {
 					renderConnectors = false;
 				}
 			});
@@ -110,7 +106,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: this.featureColor(), strokeWidth: 0.5}} />
+									} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
 							} else if(child.strand == -1 && lastChild.strand == -1) {
 								const startX = this.props.scale.get(lastChild.start);
 								const endX = this.props.scale.get(child.end);
@@ -121,7 +117,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 									d={"M "+startX+" "+strandY
 										+" L "+midX+" "+midY
 										+" L "+endX+" "+strandY
-									} style={{fill: "none", stroke: this.featureColor(), strokeWidth: 0.5}} />
+									} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
 							}
 						}
 						return r;
