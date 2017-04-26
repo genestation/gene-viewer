@@ -7,7 +7,7 @@ import {Scale} from './scale.tsx';
 
 export interface Feature {
 	name?: string,
-	ftype: string,
+	ftype?: string,
 	loc?: Location[],
 	child?: Feature[],
 	data?: Datum[],
@@ -250,4 +250,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			:null}
 		</div>
 	}
+}
+
+export function init(element: Element, dataurl: string) {
+	fetch(dataurl).then(response=>response.json()).then((json)=>{
+		ReactDOM.render(<GeneViewer
+			features={[json]}/>, element);
+	})
 }

@@ -16,7 +16,7 @@ import * as d3 from 'd3-scale';
 
 interface Feature {
 	name?: string,
-	ftype: string,
+	ftype?: string,
 	loc?: Location[],
 	child?: Feature[],
 	data?: Datum[],
