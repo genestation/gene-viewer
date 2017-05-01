@@ -101,7 +101,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
+								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						} else if(child.strand == -1 && lastChild.strand == -1) {
 							const startX = this.props.scale.get(lastChild.start);
 							const endX = this.props.scale.get(child.end);
@@ -112,7 +112,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 0.5}} />
+								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						}
 					} else {
 						return null
@@ -134,7 +134,7 @@ export interface GeneViewerState{
 	viewStart?: number,
 	viewEnd?: number,
 	focus?: number,
-	zoom?: number,
+	width?: number,
 	currFeature?: Feature,
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
@@ -148,11 +148,12 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	scale: Scale = null;
 	constructor(props: GeneViewerProps) {
 		super(props);
-		this.scale = new Scale(props.features);
+		const width = 1000;
+		this.scale = new Scale(props.features, width);
 		this.state = {
 			viewStart: this.scale.range[0],
 			viewEnd: this.scale.range[1],
-			zoom: 2000,
+			width: width,
 			focus: this.scale.range[0],
 		}
 	}
@@ -178,8 +179,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}, ()=>{this.handlingMouseOver=false});
 	}
 	renderGenome = (height: number, dnaHeight: number, strandHeight: number,
-	start: number, end: number, highlightStart?: number, highlightEnd?: number)=>{
-		const width = end - start;
+	start: number, end: number)=>{
 		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
 		const shape = {
@@ -189,38 +189,24 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			intronHeight: strandHeight/2,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
-			minWidth: width/1000,
+			minWidth: this.state.width/1000,
 		};
 		return <svg width="100%" height="100%"
-		 viewBox={"0 "+minY+" "+width+" "+height}
-		 preserveAspectRatio="none">
+		 viewBox={"0 "+minY+" "+this.state.width+" "+height}>
 			<rect x="0" y={dnaY}
-			 width={width} height={dnaHeight}
+			 width={this.state.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ this.props.features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} scale={this.scale} shape={shape} feature={feature} />
 			}) }
-			{highlightStart !== undefined && highlightEnd !== undefined?
-				<rect x={highlightStart-this.state.viewStart} y={dnaY}
-				 width={highlightEnd-highlightStart} height={dnaHeight}
-				 style={{fill:"black", opacity: 0.2}} />
-			:null}
 		</svg>;
 	}
 	render() {
-		const trackStart = Math.min(this.state.viewEnd - this.state.zoom,
-			Math.max(this.state.focus - this.state.zoom/2, this.state.viewStart));
-		const trackEnd = Math.max(this.state.viewStart + this.state.zoom,
-			Math.min(this.state.focus + this.state.zoom/2, this.state.viewEnd));
-		// Render
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onClick={this.onClickNavigation} >
-				{this.renderGenome(20,10,4,this.state.viewStart,this.state.viewEnd, trackStart, trackEnd)}
-			</div>
-			<div className="geneviewer-track">
-				{this.renderGenome(40,20,8,trackStart,trackEnd)}
+				{this.renderGenome(60,30,12,this.state.viewStart,this.state.viewEnd)}
 			</div>
 			{this.state.currFeature?
 				<div>

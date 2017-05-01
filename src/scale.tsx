@@ -41,7 +41,8 @@ export class Scale {
 	domainKey: number[];
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
-	constructor(features: Feature[]) {
+	master: d3.Linear<number>;
+	constructor(features: Feature[], size: number) {
 		this.ranges = [];
 		this.scale = {};
 		this.domainKey = [];
@@ -106,6 +107,9 @@ export class Scale {
 			this.inverse[sum] = fStart;
 			sum += fLength;
 		});
+		this.master = d3.scaleLinear()
+			.domain([0,sum])
+			.range([0,size]) as d3.Linear<number>;
 	}
 	get(dValue: number) {
 		let dKey: number;
@@ -114,9 +118,10 @@ export class Scale {
 				dKey = key;
 			}
 		});
-		return this.scale[dKey](dValue);
+		return this.master(this.scale[dKey](dValue));
 	}
-	invert(rValue: number) {
+	invert(rawRValue: number) {
+		let rValue = this.master.invert(rawRValue);
 		let rKey: number;
 		this.rangeKey.forEach((key: number)=>{
 			if(key <= rValue) {
