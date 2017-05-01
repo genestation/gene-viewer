@@ -123,14 +123,7 @@ export class Scale {
 				rKey = key;
 			}
 		});
-		console.log("value", rValue);
-		console.log("key", rKey);
-		console.log(this.inverse[rKey]);
-		console.log(this.domainKey);
-		console.log("domain", this.scale[this.inverse[rKey]].domain());
-		console.log("range", this.scale[this.inverse[rKey]].range());
-		console.log("inverse", this.scale[this.inverse[rKey]](rValue));
-		return this.scale[this.inverse[rKey]](rValue);
+		return this.scale[this.inverse[rKey]].invert(rValue);
 	}
 	get domain() {
 		return [this.scale[this.domainKey[0]].domain()[0],
