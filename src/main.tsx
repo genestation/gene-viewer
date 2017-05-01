@@ -229,12 +229,14 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					<span className="geneviewer-subtitle">{this.state.currFeature.ftype}</span>
 					{this.state.currFeature.data?
 						<table>
-						{this.state.currFeature.data.map((datum: Datum)=>{
-							return <tr>
-								<td>{datum.key}</td>
-								<td>{datum.value}</td>
-							</tr>
-						})}
+							<tbody>
+							{this.state.currFeature.data.map((datum: Datum, idx: number)=>{
+								return <tr key={idx}>
+									<td>{datum.key}</td>
+									<td>{datum.value}</td>
+								</tr>
+							})}
+							</tbody>
 						</table>
 					:null}
 				</div>
