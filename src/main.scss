@@ -12,11 +12,17 @@ $text-color: #333;
 $light-text-color: #888;
 
 .geneviewer {
-}
-.geneviewer-navigation {
-	height: 5em;
-}
-.geneviewer-track {
-	height: 10em;
-	display: none;
+	&-title {
+		font-size: 1.6em;
+	}
+	&-subtitle {
+		color: #999;
+	}
+	&-navigation {
+		height: 5em;
+	}
+	&-track {
+		height: 10em;
+		display: none;
+	}
 }

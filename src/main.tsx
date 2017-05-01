@@ -224,8 +224,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			</div>
 			{this.state.currFeature?
 				<div>
-					<h1>{this.state.currFeature.name}</h1>
-					<h2>{this.state.currFeature.ftype}</h2>
+					<span className="geneviewer-title">{this.state.currFeature.name}</span>
+					&nbsp;
+					<span className="geneviewer-subtitle">{this.state.currFeature.ftype}</span>
 					{this.state.currFeature.data?
 						<table>
 						{this.state.currFeature.data.map((datum: Datum)=>{
