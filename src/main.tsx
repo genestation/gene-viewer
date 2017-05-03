@@ -127,10 +127,7 @@ export interface GeneViewerProps{
 	features: Feature[],
 }
 export interface GeneViewerState{
-	viewStart?: number,
-	viewEnd?: number,
 	focus?: number,
-	width?: number,
 	currFeature?: Feature,
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
@@ -142,26 +139,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	} = {};
 	handlingMouseMove: boolean = false;
 	scale: Scale = null;
+	width = 1000;
 	constructor(props: GeneViewerProps) {
 		super(props);
-		const width = 1000;
-		this.scale = new Scale(props.features, width);
+		this.scale = new Scale(props.features, this.width);
 		this.state = {
-			viewStart: this.scale.range[0],
-			viewEnd: this.scale.range[1],
-			width: width,
-			focus: this.scale.range[0],
+			focus: 0,
 		}
-	}
-	onClickNavigation = (e: React.MouseEvent)=>{
-		const width = this.child.navigation.getBoundingClientRect().width;
-		const offsetLeft = this.child.navigation.offsetLeft;
-		const clickX = e.pageX;
-		const percentX = (clickX - offsetLeft)/width;
-		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
-		this.setState({
-			focus: this.scale.invert(coordX),
-		});
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
 		if(!this.handlingMouseMove) {
@@ -171,20 +155,14 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.handlingMouseMove = true;
 	}
 	handleMouseMove = (pageX: number)=>{
-		const width = this.child.navigation.getBoundingClientRect().width;
 		const offsetLeft = this.child.navigation.offsetLeft;
-		const percentX = (pageX - offsetLeft)/width;
-		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
-		console.log(coordX);
-		const loc = this.scale.invert(coordX)
-		console.log(loc);
-		console.log(this.scale.overlap(loc-5, loc+5));
+		const offsetWidth = this.child.navigation.offsetWidth;
+		const coordX = (pageX - offsetLeft)/offsetWidth * this.width;
 		this.setState({
 			focus: this.scale.invert(coordX),
 		}, ()=>{this.handlingMouseMove=false});
 	}
-	renderGenome = (height: number, dnaHeight: number, strandHeight: number,
-	start: number, end: number)=>{
+	renderGenome = (height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
 		const shape = {
@@ -194,12 +172,12 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			intronHeight: strandHeight/2,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
-			minWidth: this.state.width/1000,
+			minWidth: this.width/1000,
 		};
 		return <svg width="100%" height="100%"
-		 viewBox={"0 "+minY+" "+this.state.width+" "+height}>
+		 viewBox={"0 "+minY+" "+this.width+" "+height}>
 			<rect x="0" y={dnaY}
-			 width={this.state.width} height={dnaHeight}
+			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ this.props.features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.scale} shape={shape} feature={feature} />
@@ -207,22 +185,22 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		</svg>;
 	}
 	render() {
+		const tolerance = 5;
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
-				onMouseMove={this.onMouseMove}
-				onClick={this.onClickNavigation} >
-				{this.renderGenome(60,30,12,this.state.viewStart,this.state.viewEnd)}
+				onMouseMove={this.onMouseMove} >
+				{this.renderGenome(60,30,12)}
 			</div>
-			{this.state.currFeature?
-				<div>
-					<span className="geneviewer-title">{this.state.currFeature.name}</span>
+			{this.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature)=>{
+				return <div>
+					<span className="geneviewer-title">{feature.name}</span>
 					&nbsp;
-					<span className="geneviewer-subtitle">{this.state.currFeature.ftype}</span>
-					{this.state.currFeature.data?
+					<span className="geneviewer-subtitle">{feature.ftype}</span>
+					{feature.data?
 						<table>
 							<tbody>
-							{this.state.currFeature.data.map((datum: Datum, idx: number)=>{
+							{feature.data.map((datum: Datum, idx: number)=>{
 								return <tr key={idx}>
 									<td>{datum.key}</td>
 									<td>{datum.value}</td>
@@ -231,8 +209,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 							</tbody>
 						</table>
 					:null}
-				</div>
-			:null}
+				</div>;
+			})}
 		</div>
 	}
 }
