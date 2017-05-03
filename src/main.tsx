@@ -63,17 +63,17 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
 					x={rectX} y={this.props.shape.plusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor()}} />
+					style={{fill:this.featureColor(), opacity: 0.6}} />
 			case -1:
 				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
 					x={rectX} y={this.props.shape.minusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor()}} />
+					style={{fill:this.featureColor(), opacity: 0.6}} />
 			default:
 				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
 					x={rectX} y={this.props.shape.dnaY}
 					width={rectWidth} height={this.props.shape.dnaHeight}
-					style={{fill:this.featureColor()}} />
+					style={{fill:this.featureColor(), opacity: 0.6}} />
 			}
 		}
 	}
@@ -101,7 +101,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
+								} style={{fill: "none", opacity: 0.6, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						} else if(child.strand == -1 && lastChild.strand == -1) {
 							const startX = this.props.scale.get(lastChild.start);
 							const endX = this.props.scale.get(child.end);
@@ -112,7 +112,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
+								} style={{fill: "none", opacity: 0.6, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						}
 					} else {
 						return null
