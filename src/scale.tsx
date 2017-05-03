@@ -36,14 +36,15 @@ interface Datum {
 
 // Compressed representation of locs
 export class Scale {
-	ranges: Range[];
+	features: Feature[];
 	scale: {[domainKey: number]: d3.Linear<number> | d3.Log<number>};
 	domainKey: number[];
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
 	master: d3.Linear<number>;
 	constructor(features: Feature[], size: number) {
-		this.ranges = [];
+		let ranges: Range[] = [];
+		this.features = [];
 		this.scale = {};
 		this.domainKey = [];
 		this.inverse = {};
@@ -53,35 +54,38 @@ export class Scale {
 			let stack = [feature]
 			while(stack.length) {
 				ptr = stack.pop()
+				if(ptr.name) {
+					this.features.push(ptr)
+				}
 				if(ptr.child) {
 					stack = stack.concat(ptr.child);
 				} else {
-					let spliceStart = this.ranges.length;
+					let spliceStart = ranges.length;
 					let spliceDelete = 0;
-					if(spliceStart && this.ranges[0].start >= ptr.start) {
+					if(spliceStart && ranges[0].start >= ptr.start) {
 						spliceStart = 0;
 					}
-					this.ranges.forEach((range: Range, idx: number)=>{
+					ranges.forEach((range: Range, idx: number)=>{
 						if(range.start <= ptr.end && range.end >= ptr.start) { // Intersects
 							spliceDelete++;
 							if(spliceDelete == 1) {
 								spliceStart = idx;
 							}
-						} else if (spliceStart == this.ranges.length && range.start > ptr.start) { // TODO better test?
+						} else if (spliceStart == ranges.length && range.start > ptr.start) { // TODO better test?
 							spliceStart = idx;
 						}
 					});
-					this.ranges.splice(spliceStart, spliceDelete, {
+					ranges.splice(spliceStart, spliceDelete, {
 						start: Math.min(ptr.start,
-							spliceDelete?this.ranges[spliceStart].start:Number.POSITIVE_INFINITY),
+							spliceDelete?ranges[spliceStart].start:Number.POSITIVE_INFINITY),
 						end: Math.max(ptr.end,
-							spliceDelete?this.ranges[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
+							spliceDelete?ranges[spliceStart+spliceDelete-1].end:Number.NEGATIVE_INFINITY),
 					});
 				}
 			}
 		}
 		let sum = 0;
-		this.ranges.forEach((range: Range, idx: number, array: Range[])=>{
+		ranges.forEach((range: Range, idx: number, array: Range[])=>{
 			if(idx > 0) {
 				// Interval
 				const iStart = array[idx-1].end;
@@ -107,7 +111,7 @@ export class Scale {
 			this.inverse[sum] = fStart;
 			sum += fLength;
 		});
-		this.master = d3.scaleLinear()
+		this.master = d3.scaleLinear().clamp(true)
 			.domain([0,sum])
 			.range([0,size]) as d3.Linear<number>;
 	}
@@ -137,5 +141,14 @@ export class Scale {
 	get range() {
 		return [this.scale[this.domainKey[0]].range()[0],
 			this.scale[this.domainKey[this.domainKey.length-1]].range()[1]];
+	}
+	overlap(start: number, end: number) {
+		let overlap: Feature[] = [];
+		for(let feature of this.features) {
+			if(start <= feature.end && feature.start <= end) {
+				overlap.push(feature);
+			}
+		}
+		return overlap;
 	}
 }

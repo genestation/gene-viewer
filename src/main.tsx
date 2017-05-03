@@ -31,7 +31,6 @@ interface GenomeShape {
 }
 
 interface GenomeFeatureProps {
-	onMouseOver: (feature: Feature)=>any,
 	scale: Scale,
 	shape: GenomeShape,
 	feature: Feature,
@@ -60,18 +59,15 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 				this.props.shape.minWidth);
 			switch(this.props.feature.strand) {
 			case 1:
-				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-					x={rectX} y={this.props.shape.plusStrandY}
+				return <rect x={rectX} y={this.props.shape.plusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
 					style={{fill:this.featureColor(), opacity: 0.6}} />
 			case -1:
-				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-					x={rectX} y={this.props.shape.minusStrandY}
+				return <rect x={rectX} y={this.props.shape.minusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
 					style={{fill:this.featureColor(), opacity: 0.6}} />
 			default:
-				return <rect onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
-					x={rectX} y={this.props.shape.dnaY}
+				return <rect x={rectX} y={this.props.shape.dnaY}
 					width={rectWidth} height={this.props.shape.dnaHeight}
 					style={{fill:this.featureColor(), opacity: 0.6}} />
 			}
@@ -82,7 +78,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return <g>
 				<rect /> //TODO viewport height highlight this.props.feature.start - end
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
-					return <GenomeFeature key={idx} onMouseOver={this.props.onMouseOver}
+					return <GenomeFeature key={idx}
 						scale={this.props.scale} shape={this.props.shape} feature={feature}/>
 				}) }
 				{this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
@@ -97,7 +93,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 							const strandY = this.props.shape.plusStrandY
 							const midX = (startX + endX)/2;
 							const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
-							return <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+							return <path key={idx}
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
@@ -108,7 +104,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 							const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
 							const midX = (startX + endX)/2;
 							const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
-							return <path key={idx} onMouseOver={()=>{this.props.onMouseOver(this.props.feature)}}
+							return <path key={idx}
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
@@ -144,7 +140,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	handlingMouseOver: boolean = false;
+	handlingMouseMove: boolean = false;
 	scale: Scale = null;
 	constructor(props: GeneViewerProps) {
 		super(props);
@@ -167,16 +163,25 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			focus: this.scale.invert(coordX),
 		});
 	}
-	onMouseOver = (feature: Feature)=>{
-		if(!this.handlingMouseOver) {
-			requestAnimationFrame(()=>{this.handleMouseOver(feature)});
+	onMouseMove = (e: React.MouseEvent)=>{
+		if(!this.handlingMouseMove) {
+			let pageX = e.pageX;
+			requestAnimationFrame(()=>{this.handleMouseMove(pageX)});
 		}
-		this.handlingMouseOver = true;
+		this.handlingMouseMove = true;
 	}
-	handleMouseOver = (feature: Feature)=>{
+	handleMouseMove = (pageX: number)=>{
+		const width = this.child.navigation.getBoundingClientRect().width;
+		const offsetLeft = this.child.navigation.offsetLeft;
+		const percentX = (pageX - offsetLeft)/width;
+		const coordX = percentX * (this.state.viewEnd - this.state.viewStart);
+		console.log(coordX);
+		const loc = this.scale.invert(coordX)
+		console.log(loc);
+		console.log(this.scale.overlap(loc-5, loc+5));
 		this.setState({
-			currFeature: feature,
-		}, ()=>{this.handlingMouseOver=false});
+			focus: this.scale.invert(coordX),
+		}, ()=>{this.handlingMouseMove=false});
 	}
 	renderGenome = (height: number, dnaHeight: number, strandHeight: number,
 	start: number, end: number)=>{
@@ -197,7 +202,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={this.state.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ this.props.features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} onMouseOver={this.onMouseOver} scale={this.scale} shape={shape} feature={feature} />
+				return <GenomeFeature key={idx} scale={this.scale} shape={shape} feature={feature} />
 			}) }
 		</svg>;
 	}
@@ -205,6 +210,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
+				onMouseMove={this.onMouseMove}
 				onClick={this.onClickNavigation} >
 				{this.renderGenome(60,30,12,this.state.viewStart,this.state.viewEnd)}
 			</div>
