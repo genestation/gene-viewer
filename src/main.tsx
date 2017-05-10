@@ -162,7 +162,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			focus: this.scale.invert(coordX),
 		}, ()=>{this.handlingMouseMove=false});
 	}
-	renderGenome = (height: number, dnaHeight: number, strandHeight: number)=>{
+	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
 		const dnaY = -dnaHeight/2;
 		const shape = {
@@ -179,24 +179,25 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<rect x="0" y={dnaY}
 			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
-			{ this.props.features.map((feature: Feature, idx: number)=>{
+			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.scale} shape={shape} feature={feature} />
 			}) }
 		</svg>;
 	}
 	render() {
-		const tolerance = 5;
+		const tolerance = 50;
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onMouseMove={this.onMouseMove} >
-				{this.renderGenome(60,30,12)}
+				{this.renderGenome(this.props.features,60,30,12)}
 			</div>
-			{this.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature)=>{
-				return <div>
+			{this.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
+				return <div key={idx}>
 					<span className="geneviewer-title">{feature.name}</span>
 					&nbsp;
 					<span className="geneviewer-subtitle">{feature.ftype}</span>
+					{this.renderGenome([feature],60,30,12)}
 					{feature.data?
 						<table>
 							<tbody>
