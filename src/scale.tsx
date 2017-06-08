@@ -21,17 +21,11 @@ interface Feature {
 	end?: number,
 	strand?: number,
 	child?: Feature[],
-	data?: Datum[],
 }
 
 interface Range {
 	start: number,
 	end: number,
-}
-
-interface Datum {
-	key: string,
-	value: any,
 }
 
 // Compressed representation of locs

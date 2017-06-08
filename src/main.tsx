@@ -4,6 +4,7 @@ import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Scale} from './scale.tsx';
+import {Numberline} from './Numberline.tsx';
 
 export interface Feature {
 	name?: string,
@@ -12,12 +13,7 @@ export interface Feature {
 	end?: number,
 	strand?: number,
 	child?: Feature[],
-	data?: Datum[],
-}
-
-interface Datum {
-	key: string,
-	value: any,
+	data?: {[key: string]: {[key: string]: number}},
 }
 
 interface GenomeShape {
@@ -140,6 +136,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	handlingMouseMove: boolean = false;
 	scale: Scale = null;
 	width = 1000;
+	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
 	constructor(props: GeneViewerProps) {
 		super(props);
 		this.scale = new Scale(props.features, this.width);
@@ -199,16 +196,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					<span className="geneviewer-subtitle">{feature.ftype}</span>
 					{this.renderGenome([feature],60,30,12)}
 					{feature.data?
-						<table>
-							<tbody>
-							{feature.data.map((datum: Datum, idx: number)=>{
-								return <tr key={idx}>
-									<td>{datum.key}</td>
-									<td>{datum.value}</td>
-								</tr>
-							})}
-							</tbody>
-						</table>
+						this.data_keys.map((key: string, idx: number)=>{
+							if(key in feature.data) {
+								return <Numberline key={idx} data={feature.data[key]} min={0} max={1}/>
+							} else {
+								return null
+							}
+						})
 					:null}
 				</div>;
 			})}
