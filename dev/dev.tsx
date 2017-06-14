@@ -79,43 +79,101 @@ let snps: Feature[] = [{
 	ftype: 'sequence_alteration',
 	start: 48974188,
 	end: 48974189,
-	data: {fst: {
-		afr: 0.113779,
-		amr: 0.026431,
-		eas: 0.00134515,
-		eur: 0.0279357,
-		sas: 0.0290877,
-		"afr-amr": 0.203539,
-		"afr-eas": 0.128487,
-		"afr-eur": 0.214874,
-		"afr-sas": 0.216831,
-		"amr-eas": 0.0161782,
-		"amr-eur": 0.0,
-		"amr-sas": 0.0,
-		"eas-eur": 0.0176604,
-		"eas-sas": 0.0187636,
-		"eur-sas": 0.0,
-	}},
+	data: {"fst": [{
+		key: "afr",
+		value: "0.113779",
+	},{
+		key: "amr",
+		value: "0.026431",
+	},{
+		key: "eas",
+		value: "0.00134515",
+	},{
+		key: "eur",
+		value: "0.0279357",
+	},{
+		key: "sas",
+		value: "0.0290877",
+	},{
+		key: "afr-amr",
+		value: "0.203539",
+	},{
+		key: "afr-eas",
+		value: "0.128487",
+	},{
+		key: "afr-eur",
+		value: "0.214874",
+	},{
+		key: "afr-sas",
+		value: "0.216831",
+	},{
+		key: "amr-eas",
+		value: "0.0161782",
+	},{
+		key: "amr-eur",
+		value: "0.0",
+	},{
+		key: "amr-sas",
+		value: "0.0",
+	},{
+		key: "eas-eur",
+		value: "0.0176604",
+	},{
+		key: "eas-sas",
+		value: "0.0187636",
+	},{
+		key: "eur-sas",
+		value: "0.0",
+	}]}
 },{
 	name: 'rs2268361',
 	ftype: 'sequence_alteration',
 	start: 48974472,
 	end: 48974473,
-	data: {fst: {
-		afr: 0.109442,
-		amr: 0.0376274,
-		eas: 0.0,
-		eur: 0.0457116,
-		sas: 0.00440635,
-		"afr-amr": 0.265012,
-		"afr-eas": 0.134323,
-		"afr-eur": 0.276761,
-		"afr-sas": 0.166512,
-		"amr-eas": 0.0295718,
-		"amr-eur": 0.0,
-		"amr-sas": 0.015344,
-		"eas-eur": 0.0373124,
-		"eas-sas": 0.00126936,
-		"eur-sas": 0.0212528,
-	}},
+	data: {"fst": [{
+		key: "afr",
+		value: "0.109442",
+	},{
+		key: "amr",
+		value: "0.0376274",
+	},{
+		key: "eas",
+		value: "0.0",
+	},{
+		key: "eur",
+		value: "0.0457116",
+	},{
+		key: "sas",
+		value: "0.00440635",
+	},{
+		key: "afr-amr",
+		value: "0.265012",
+	},{
+		key: "afr-eas",
+		value: "0.134323",
+	},{
+		key: "afr-eur",
+		value: "0.276761",
+	},{
+		key: "afr-sas",
+		value: "0.166512",
+	},{
+		key: "amr-eas",
+		value: "0.0295718",
+	},{
+		key: "amr-eur",
+		value: "0.0",
+	},{
+		key: "amr-sas",
+		value: "0.015344",
+	},{
+		key: "eas-eur",
+		value: "0.0373124",
+	},{
+		key: "eas-sas",
+		value: "0.00126936",
+	},{
+		key: "eur-sas",
+		value: "0.0212528",
+	}]}
 }]

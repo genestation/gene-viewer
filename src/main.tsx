@@ -13,7 +13,7 @@ export interface Feature {
 	end?: number,
 	strand?: number,
 	child?: Feature[],
-	data?: {[key: string]: {[key: string]: number}},
+	data?: {[key: string]: any[]},
 }
 
 interface GenomeShape {

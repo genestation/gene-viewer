@@ -3,13 +3,21 @@ import * as d3 from 'd3-scale';
 
 
 export interface NumberlineProps{
-	data: {[key: string]: number};
-	min: number;
-	max: number;
+	data?: any[];
+	min?: number;
+	max?: number;
+	label?: (datum: any)=>JSX.Element;
+	value?: (datum: any)=>number;
 }
 export interface NumberlineState{
 }
 export class Numberline extends React.Component<NumberlineProps,NumberlineState> {
+	static defaultProps: NumberlineProps = {
+		min: 0,
+		max: 1,
+		label: (datum: any)=>{return <h2>datum['key']</h2>},
+		value: (datum: any)=>{return datum['value']},
+	}
 	scale: d3.Linear<number>;
 	width = 1000;
 	height = 60;
@@ -33,14 +41,15 @@ export class Numberline extends React.Component<NumberlineProps,NumberlineState>
 			<rect x="0" y={lineY}
 			 width={this.width} height={this.lineHeight}
 			 style={{fill:"black"}} />
-			{ Object.keys(this.props.data).map((key: string, idx: number)=>{
-				const x = this.props.data[key]
+			{ this.props.data.map((datum: any, idx: number)=>{
+				const value = this.props.value(datum);
+				const x = this.scale(value);
 				return <g key={idx}>
 					<rect
 						x={x - this.tickWidth/2} y={tickY}
 						width={this.tickWidth} height={this.tickHeight}/>
 					<text textAnchor="middle" fontFamily="sans-serif" x={x} y={textY}>
-						{key}
+						{this.props.label(datum)}
 					</text>
 				</g>
 			}) }
