@@ -15,7 +15,7 @@ export class Numberline extends React.Component<NumberlineProps,NumberlineState>
 	static defaultProps: NumberlineProps = {
 		min: 0,
 		max: 1,
-		label: (datum: any)=>{return <h2>datum['key']</h2>},
+		label: (datum: any)=>{return <tspan>{datum['key']}</tspan>},
 		value: (datum: any)=>{return datum['value']},
 	}
 	scale: d3.Linear<number>;

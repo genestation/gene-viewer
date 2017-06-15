@@ -198,7 +198,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					{feature.data?
 						this.data_keys.map((key: string, idx: number)=>{
 							if(key in feature.data) {
-								return <Numberline key={idx} data={feature.data[key]} min={0} max={1}/>
+								return <div key={idx}>
+									<h2>{key}</h2>
+									<Numberline data={feature.data[key]} min={0} max={1}/>
+								</div>
 							} else {
 								return null
 							}
