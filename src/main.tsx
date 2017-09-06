@@ -147,6 +147,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
+		// TEMP remove
+		return
+		// END TEMP
 		if(!this.handlingMouseMove) {
 			let pageX = e.pageX;
 			requestAnimationFrame(()=>{this.handleMouseMove(pageX)});
