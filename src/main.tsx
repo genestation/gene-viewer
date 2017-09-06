@@ -44,6 +44,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return '#3e53bc';
 		case 'sequence_alteration':
 			return '#e00f24';
+		case 'enhancer':
+			return '#62138c';
 		default:
 			return null;
 		}
