@@ -46,6 +46,8 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return '#e00f24';
 		case 'enhancer':
 			return '#62138c';
+		case 'repetitive_element':
+			return 'none';
 		default:
 			return null;
 		}
