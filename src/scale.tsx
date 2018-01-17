@@ -14,6 +14,13 @@ import * as d3 from 'd3-scale';
 /// Else
 //// Insert loc, maintain sorting
 
+interface ScaleArgs {
+	features: Feature[],
+	size: number,
+	margin?: number,
+	filter?: string[],
+}
+
 interface Feature {
 	name?: string,
 	ftype?: string,
@@ -35,7 +42,7 @@ export class Scale {
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
 	master: d3.Linear<number>;
-	constructor(features: Feature[], size: number, filter: string[]) {
+	constructor(args: ScaleArgs) {
 		let ranges: Range[] = [];
 		this.features = [];
 		this.scale = {};
@@ -44,7 +51,7 @@ export class Scale {
 		this.rangeKey = [];
 		let min = Number.POSITIVE_INFINITY;
 		let max = Number.NEGATIVE_INFINITY;
-		for(let feature of features) {
+		for(let feature of args.features) {
 			let ptr: Feature;
 			let stack = [feature]
 			while(stack.length) {
@@ -61,7 +68,7 @@ export class Scale {
 				if (ptr.end > max) {
 					max = ptr.end;
 				}
-				if (filter && filter.indexOf(ptr.ftype) > -1) {
+				if (args.filter && args.filter.indexOf(ptr.ftype) > -1) {
 					let spliceStart = ranges.length;
 					let spliceDelete = 0;
 					if(spliceStart && ranges[0].start >= ptr.start) {
@@ -85,6 +92,10 @@ export class Scale {
 					});
 				}
 			}
+		}
+		if (args.margin) {
+			min -= args.margin;
+			max += args.margin;
 		}
 		let sum = 0;
 		ranges.forEach((range: Range, idx: number, array: Range[])=>{
@@ -140,7 +151,7 @@ export class Scale {
 		});
 		this.master = d3.scaleLinear().clamp(true)
 			.domain([0,sum])
-			.range([0,size]) as d3.Linear<number>;
+			.range([0,args.size]) as d3.Linear<number>;
 	}
 	get(dValue: number) {
 		let dKey: number;
