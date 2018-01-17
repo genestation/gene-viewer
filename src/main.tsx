@@ -10,6 +10,7 @@ import {Numberline} from './Numberline.tsx';
 export interface Feature {
 	name?: string,
 	ftype?: string,
+	srcfeature?: string,
 	start?: number,
 	end?: number,
 	strand?: number,
@@ -150,7 +151,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.scale = new Scale({
 			features: props.features,
 			size: this.width,
-			margin: 10000,
+			margin: 0,
 			filter: ['exon','enhancer']
 		});
 		this.state = {
@@ -160,6 +161,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			host: props.elastic,
 			apiVersion: '5.6',
 		});
+		console.log(this.scale.domain, props.features[0].srcfeature);
 		// Fetch SNPs
 		this.elastic.searchTemplate({
 			"index": "variant_v1.3",
@@ -167,7 +169,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				"id": "locrange",
 				"params": {
 					"start": this.scale.domain[0],
-					"end": this.scale.domain[1]
+					"end": this.scale.domain[1],
+					"srcfeature": props.features[0].srcfeature,
 				}
 			},
 		}).then((json:any)=>{console.log(json)})
