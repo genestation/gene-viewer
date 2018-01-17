@@ -19,9 +19,7 @@ interface Feature {
 	ftype?: string,
 	start?: number,
 	end?: number,
-	strand?: number,
 	child?: Feature[],
-	data?: object,
 }
 
 interface Range {
