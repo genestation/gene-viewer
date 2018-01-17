@@ -161,6 +161,7 @@ export interface GeneViewerState{
 	focus?: number,
 	currFeature?: Feature,
 	features?: Feature[],
+	scale?: Scale;
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
@@ -171,21 +172,20 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		navigation?: HTMLElement;
 	} = {};
 	handlingMouseMove: boolean = false;
-	scale: Scale = null;
 	width = 1000;
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
 	elastic: ElasticSearch.Client;
 	constructor(props: GeneViewerProps) {
 		super(props);
-		this.scale = new Scale({
-			features: props.features,
-			size: this.width,
-			margin: 0,
-			filter: ['exon','enhancer']
-		});
 		this.state = {
 			focus: 0,
 			features: props.features,
+			scale: new Scale({
+				features: props.features,
+				size: this.width,
+				margin: 100,
+				filter: ['exon','enhancer']
+			}),
 		}
 		this.elastic = new ElasticSearch.Client({
 			host: props.elastic,
@@ -205,8 +205,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}).then((response:ElasticSearch.SearchResponse<any>)=>{
 			return scrollToEnd(this.elastic, response)
 		}).then((hits:HitsArray<any>)=>{
+			let features = props.features.concat(hits.map((hit)=>hit._source));
 			this.setState({
-				features: props.features.concat(hits.map((hit)=>hit._source))
+				features: features,
+				scale: new Scale({
+					features: features,
+					size: this.width,
+					margin: 100,
+					filter: ['exon','enhancer']
+				}),
 			})
 		})
 		/*
@@ -215,8 +222,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			"body": {
 				"id": "locrange",
 				"params": {
-					"start": this.scale.domain[0],
-					"end": this.scale.domain[1],
+					"start": this.state.scale.domain[0],
+					"end": this.state.scale.domain[1],
 					"srcfeature": props.features[0].srcfeature,
 				}
 			},
@@ -238,7 +245,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = (pageX - offsetLeft)/offsetWidth * this.width;
 		this.setState({
-			focus: this.scale.invert(coordX),
+			focus: this.state.scale.invert(coordX),
 		}, ()=>{this.handlingMouseMove=false});
 	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
@@ -259,7 +266,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} scale={this.scale} shape={shape} feature={feature} />
+				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
 			}) }
 		</svg>;
 	}
@@ -271,7 +278,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseMove={this.onMouseMove} >
 				{this.renderGenome(this.state.features,60,30,12)}
 			</div>
-			{this.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
+			{this.state.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
 				return <div key={idx}>
 					<span className="geneviewer-title">{feature.name}</span>
 					&nbsp;
