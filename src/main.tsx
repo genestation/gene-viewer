@@ -125,6 +125,34 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 	}
 }
 
+type HitsArray<T> = Array<{
+	_index: string;
+	_type: string;
+	_id: string;
+	_score: number;
+	_source: T;
+	_version?: number;
+	_explanation?: ElasticSearch.Explanation;
+	fields?: any;
+	highlight?: any;
+	inner_hits?: any;
+	sort?: string[];
+}>;
+function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.SearchResponse<any>): Promise<HitsArray<any>> {
+	function recursiveScroll(response: ElasticSearch.SearchResponse<any>, hits: HitsArray<any>): Promise<HitsArray<any>> {
+		return client.scroll({
+			scrollId: response._scroll_id,
+			scroll: "10s",
+		}).then((response: ElasticSearch.SearchResponse<any>)=>{
+			if (response.hits.hits.length > 0) {
+				return recursiveScroll(response, hits.concat(response.hits.hits))
+			} else {
+				return hits
+			}
+		})
+	}
+	return recursiveScroll(response, response.hits.hits);
+}
 export interface GeneViewerProps{
 	elastic: string,
 	features: Feature[],
@@ -132,6 +160,7 @@ export interface GeneViewerProps{
 export interface GeneViewerState{
 	focus?: number,
 	currFeature?: Feature,
+	features?: Feature[],
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
@@ -145,7 +174,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	scale: Scale = null;
 	width = 1000;
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
-	elastic: any; // HOPE typings
+	elastic: ElasticSearch.Client;
 	constructor(props: GeneViewerProps) {
 		super(props);
 		this.scale = new Scale({
@@ -156,15 +185,33 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 		this.state = {
 			focus: 0,
+			features: props.features,
 		}
 		this.elastic = new ElasticSearch.Client({
 			host: props.elastic,
 			apiVersion: '5.6',
 		});
-		console.log(this.scale.domain, props.features[0].srcfeature);
 		// Fetch SNPs
 		this.elastic.searchTemplate({
-			"index": "variant_v1.3",
+			"index": "variant_v1.4",
+			"type": "Homo_sapiens",
+			"body": {
+				"id": "gene_association",
+				"params": {
+					"gene": props.features[0].name,
+				}
+			},
+			"scroll": "10s",
+		}).then((response:ElasticSearch.SearchResponse<any>)=>{
+			return scrollToEnd(this.elastic, response)
+		}).then((hits:HitsArray<any>)=>{
+			this.setState({
+				features: props.features.concat(hits.map((hit)=>hit._source))
+			})
+		})
+		/*
+		this.elastic.searchTemplate({
+			"index": "variant_v1.4",
 			"body": {
 				"id": "locrange",
 				"params": {
@@ -174,6 +221,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				}
 			},
 		}).then((json:any)=>{console.log(json)})
+		*/
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
 		// TEMP remove
@@ -221,7 +269,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onMouseMove={this.onMouseMove} >
-				{this.renderGenome(this.props.features,60,30,12)}
+				{this.renderGenome(this.state.features,60,30,12)}
 			</div>
 			{this.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
 				return <div key={idx}>
