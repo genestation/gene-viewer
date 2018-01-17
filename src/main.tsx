@@ -143,7 +143,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
 	constructor(props: GeneViewerProps) {
 		super(props);
-		this.scale = new Scale(props.features, this.width);
+		this.scale = new Scale(props.features, this.width, ['exon','enhancer']);
 		this.state = {
 			focus: 0,
 		}
@@ -223,6 +223,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 export function init(element: Element, dataurl: string) {
 	fetch(dataurl).then(response=>response.json()).then((json)=>{
 		ReactDOM.render(<GeneViewer
-			features={[json.gene].concat(json.neighbors)}/>, element);
+			features={[json]}/>, element);
 	})
 }
