@@ -3,6 +3,7 @@
 import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {ElasticSearch} from './ElasticSearch.tsx';
 import {Scale} from './scale.tsx';
 import {Numberline} from './Numberline.tsx';
 
@@ -124,6 +125,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 }
 
 export interface GeneViewerProps{
+	elastic: string,
 	features: Feature[],
 }
 export interface GeneViewerState{
@@ -132,6 +134,7 @@ export interface GeneViewerState{
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
+		elastic: "",
 		features: [],
 	}
 	child: {
@@ -141,6 +144,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	scale: Scale = null;
 	width = 1000;
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
+	elastic: (path?: string, body?: any) => Promise<Response>;
 	constructor(props: GeneViewerProps) {
 		super(props);
 		this.scale = new Scale({
@@ -152,6 +156,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.state = {
 			focus: 0,
 		}
+		this.elastic = ElasticSearch(props.elastic);
+		// Fetch SNPs
+		this.elastic("variant_v1.3/Homo_sapiens/_search/templates", {
+			"id": "locrange",
+			"params": {
+				"start": this.scale.domain[0],
+				"end": this.scale.domain[1]
+			}
+		}).then((json)=>{console.log(json)})
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
 		// TEMP remove
@@ -225,9 +238,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 }
 
-export function init(element: Element, dataurl: string) {
+export function init(element: Element, elastic: string, dataurl: string) {
 	fetch(dataurl).then(response=>response.json()).then((json)=>{
 		ReactDOM.render(<GeneViewer
+			elastic={elastic}
 			features={[json].concat(json.association)}/>, element);
 	})
 }
