@@ -21,6 +21,7 @@ interface Feature {
 	end?: number,
 	strand?: number,
 	child?: Feature[],
+	data?: object,
 }
 
 interface Range {
@@ -36,24 +37,33 @@ export class Scale {
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
 	master: d3.Linear<number>;
-	constructor(features: Feature[], size: number) {
+	constructor(features: Feature[], size: number, filter: string[]) {
 		let ranges: Range[] = [];
 		this.features = [];
 		this.scale = {};
 		this.domainKey = [];
 		this.inverse = {};
 		this.rangeKey = [];
+		let min = Number.POSITIVE_INFINITY;
+		let max = Number.NEGATIVE_INFINITY;
 		for(let feature of features) {
 			let ptr: Feature;
 			let stack = [feature]
 			while(stack.length) {
-				ptr = stack.pop()
+				ptr = stack.pop();
 				if(ptr.name) {
 					this.features.push(ptr)
 				}
 				if(ptr.child) {
 					stack = stack.concat(ptr.child);
-				} else {
+				}
+				if (ptr.start < min) {
+					min = ptr.start;
+				}
+				if (ptr.end > max) {
+					max = ptr.end;
+				}
+				if (filter && filter.indexOf(ptr.ftype) > -1) {
 					let spliceStart = ranges.length;
 					let spliceDelete = 0;
 					if(spliceStart && ranges[0].start >= ptr.start) {
@@ -92,6 +102,18 @@ export class Scale {
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
+			} else if (min < range.start) {
+				// First Interval
+				const iStart = min;
+				const iEnd = range.start;
+				const iLength = Math.log(iEnd - iStart)*10;
+				this.domainKey.push(iStart);
+				this.scale[iStart] = d3.scaleLog().base(Math.E)
+					.domain([iStart, iEnd])
+					.range([sum, sum+iLength]) as d3.Log<number>;
+				this.rangeKey.push(sum);
+				this.inverse[sum] = iStart;
+				sum += iLength;
 			}
 			// Feature
 			const fStart = range.start;
@@ -104,6 +126,19 @@ export class Scale {
 			this.rangeKey.push(sum);
 			this.inverse[sum] = fStart;
 			sum += fLength;
+			if(idx == array.length - 1 && max > range.end) {
+				// Last Interval
+				const iStart = range.end;
+				const iEnd = max;
+				const iLength = Math.log(iEnd - iStart)*10;
+				this.domainKey.push(iStart);
+				this.scale[iStart] = d3.scaleLog().base(Math.E)
+					.domain([iStart, iEnd])
+					.range([sum, sum+iLength]) as d3.Log<number>;
+				this.rangeKey.push(sum);
+				this.inverse[sum] = iStart;
+				sum += iLength;
+			}
 		});
 		this.master = d3.scaleLinear().clamp(true)
 			.domain([0,sum])
