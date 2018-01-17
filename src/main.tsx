@@ -223,6 +223,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 export function init(element: Element, dataurl: string) {
 	fetch(dataurl).then(response=>response.json()).then((json)=>{
 		ReactDOM.render(<GeneViewer
-			features={[json]}/>, element);
+			features={[json].concat(json.association)}/>, element);
 	})
 }
