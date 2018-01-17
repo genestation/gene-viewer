@@ -14,7 +14,7 @@
   "style": "main.css",
   "typings": "main.d.ts",
   "scripts": {
-    "prepublish": "typings install && webpack",
+    "prepublish": "typings install && ln --force --symbolic elasticsearch node_modules/@types/elasticsearch-browser && webpack",
     "build": "webpack",
     "clean": "rm -rf dist lib dev/dist test/dist coverage",
     "clean:deep": "rm -rf dist lib dev/dist test/dist coverage node_modules typings",
@@ -23,10 +23,12 @@
     "postversion": "git push && git push --tags && ./release.js"
   },
   "devDependencies": {
+    "@types/elasticsearch": "^5.0.19",
     "chai": "^3.5.0",
     "changelog-parser": "^2.0.2",
     "css-loader": "^0.23.1",
     "d3-scale": "^1.0.4",
+    "elasticsearch-browser": "^14.0.0",
     "enzyme": "^2.4.1",
     "es6-promise": "^4.0.5",
     "exports-loader": "^0.6.3",

@@ -3,7 +3,7 @@
 import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {ElasticSearch} from './ElasticSearch.tsx';
+import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {Numberline} from './Numberline.tsx';
 
@@ -144,7 +144,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	scale: Scale = null;
 	width = 1000;
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
-	elastic: (path?: string, body?: any) => Promise<Response>;
+	elastic: any; // HOPE typings
 	constructor(props: GeneViewerProps) {
 		super(props);
 		this.scale = new Scale({
@@ -156,15 +156,21 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.state = {
 			focus: 0,
 		}
-		this.elastic = ElasticSearch(props.elastic);
+		this.elastic = new ElasticSearch.Client({
+			host: props.elastic,
+			apiVersion: '5.6',
+		});
 		// Fetch SNPs
-		this.elastic("variant_v1.3/Homo_sapiens/_search/templates", {
-			"id": "locrange",
-			"params": {
-				"start": this.scale.domain[0],
-				"end": this.scale.domain[1]
-			}
-		}).then((json)=>{console.log(json)})
+		this.elastic.searchTemplate({
+			"index": "variant_v1.3",
+			"body": {
+				"id": "locrange",
+				"params": {
+					"start": this.scale.domain[0],
+					"end": this.scale.domain[1]
+				}
+			},
+		}).then((json:any)=>{console.log(json)})
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
 		// TEMP remove
