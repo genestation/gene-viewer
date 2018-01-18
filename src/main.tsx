@@ -178,7 +178,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	constructor(props: GeneViewerProps) {
 		super(props);
 		this.state = {
-			focus: 0,
+			focus: -1,
 			features: props.features,
 			scale: new Scale({
 				features: props.features,
@@ -231,9 +231,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		*/
 	}
 	onMouseMove = (e: React.MouseEvent)=>{
-		// TEMP remove
-		return
-		// END TEMP
 		if(!this.handlingMouseMove) {
 			let pageX = e.pageX;
 			requestAnimationFrame(()=>{this.handleMouseMove(pageX)});
@@ -260,6 +257,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			minusStrandY: dnaY+dnaHeight-strandHeight,
 			minWidth: this.width/1000,
 		};
+		const region = this.state.scale.region(this.state.focus);
+		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
+		console.log(region);
 		return <svg width="100%" height="100%"
 		 viewBox={"0 "+minY+" "+this.width+" "+height}>
 			<rect x="0" y={dnaY}
@@ -268,6 +268,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
 			}) }
+			<rect x={draw_region[0]} y={dnaY}
+			 width={draw_region[1]-draw_region[0]} height={dnaHeight}
+			 style={{fill:"#FFFFFF", fillOpacity:0.2}} />
 		</svg>;
 	}
 	render() {
@@ -278,6 +281,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseMove={this.onMouseMove} >
 				{this.renderGenome(this.state.features,60,30,12)}
 			</div>
+			/*
 			{this.state.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
 				return <div key={idx}>
 					<span className="geneviewer-title">{feature.name}</span>
@@ -298,6 +302,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					:null}
 				</div>;
 			})}
+			*/
 		</div>
 	}
 }

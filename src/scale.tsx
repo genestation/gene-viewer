@@ -160,7 +160,7 @@ export class Scale {
 				dKey = key;
 			}
 		});
-		return this.master(this.scale[dKey](dValue));
+		return dKey ? this.master(this.scale[dKey](dValue)) : 0;
 	}
 	invert(rawRValue: number) {
 		let rValue = this.master.invert(rawRValue);
