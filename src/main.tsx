@@ -289,11 +289,21 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			this.setState({selectedFeature: feature})
 		}
 	}
-	hoverFeature = (feature?: string)=>{
-		if (!feature || this.state.hoverFeature && feature == this.state.hoverFeature) {
-			this.setState({hoverFeature: null})
+	onHoverFeature = (feature?: string)=>{
+		if(!this.handlingMouseMove) {
+			requestAnimationFrame(()=>{this.handleHoverFeature(feature)});
+		}
+		this.handlingMouseMove = true;
+	}
+	handleHoverFeature = (feature?: string)=>{
+		if (!feature) {
+			this.setState({
+				hoverFeature: null,
+			}, ()=>{this.handlingMouseMove=false});
 		} else {
-			this.setState({hoverFeature: feature})
+			this.setState({
+				hoverFeature: feature,
+			}, ()=>{this.handlingMouseMove=false});
 		}
 	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
@@ -324,7 +334,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} selected={this.state.selectedFeature}/>
+				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature}
+					selected={this.state.hoverFeature?this.state.hoverFeature:this.state.selectedFeature}
+				/>
 			}) }
 			{this.state.selectedRegion && !this.state.selectedFeature ?
 				<rect x={draw_selectedRegion[0]} y={dnaY}
@@ -344,18 +356,19 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		</svg>;
 	}
 	renderData = (feature: Feature, idx: number)=>{
-		return <div key={idx}
-				onMouseMove={()=>this.hoverFeature(feature.name)}
-				onMouseOut={()=>this.hoverFeature()}
+		return <div key={idx}>
+			<div onMouseMove={()=>{console.log("move", feature.name); this.onHoverFeature(feature.name)}}
+				onMouseLeave={()=>{console.log("leave", feature.name); this.onHoverFeature()}}
 				onClick={()=>this.selectFeature(feature.name)}>
-			<span className="geneviewer-title">{feature.name}</span>
-			&nbsp;
-			<span className="geneviewer-subtitle">{feature.ftype}</span>
+				<span className="geneviewer-title">{feature.name}</span>
+				&nbsp;
+				<span className="geneviewer-subtitle">{feature.ftype}</span>
+			</div>
 			{feature.data && feature.data.gwas?
 				feature.data.gwas.map((gwas, idx: number)=>{
 					return <div key={idx}>
 						<span className="geneviewer-header1">{gwas.description}</span><br/>
-						<a href={"http://"+gwas["pub.url"]}>{gwas["pub.author"]}. {gwas["pub.study"]}. {gwas["pub.journal"]}. {gwas["pub.date"]}</a><br/>
+						<a target="_blank" href={"http://"+gwas["pub.url"]}>{gwas["pub.author"]}. {gwas["pub.study"]} {gwas["pub.journal"]}. {gwas["pub.date"]}</a><br/>
 						<b>pvalue:</b>&nbsp;{gwas.pval} {gwas.pval_text}<br/>
 						<b>-log(pvalue):</b>&nbsp;{gwas.pval_mlog}<br/>
 						<b>effect size:</b>&nbsp;{gwas.effect_size}<br/>
@@ -375,9 +388,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			{region?this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>{
-				return !this.state.selectedFeature || this.state.selectedFeature == feature.name
-			}).map(this.renderData):null}
+			{region?
+				<div style={{maxHeight: "20em", overflow: "auto"}}> {
+					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
+						!this.state.selectedFeature || this.state.selectedFeature == feature.name
+					).map(this.renderData)
+				} </div>
+			:null}
 		</div>
 	}
 }
