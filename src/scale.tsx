@@ -44,7 +44,7 @@ export class Scale {
 	master: d3.Linear<number>;
 	constructor(args: ScaleArgs) {
 		let ranges: Range[] = [];
-		this.features = [];
+		this.features = args.features,
 		this.scale = {};
 		this.domainKey = [];
 		this.inverse = {};
@@ -56,9 +56,6 @@ export class Scale {
 			let stack = [feature]
 			while(stack.length) {
 				ptr = stack.pop();
-				if(ptr.name) {
-					this.features.push(ptr)
-				}
 				if(ptr.child) {
 					stack = stack.concat(ptr.child);
 				}

@@ -284,19 +284,18 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	render() {
 		const tolerance = 50;
+		const region = this.state.scale.region(this.state.focus);
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onMouseMove={this.onMouseMove} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			/*
-			{this.state.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
+			{this.state.scale.overlap(region[0], region[1]).map((feature: Feature, idx: number)=>{
 				return <div key={idx}>
 					<span className="geneviewer-title">{feature.name}</span>
 					&nbsp;
 					<span className="geneviewer-subtitle">{feature.ftype}</span>
-					{this.renderGenome([feature],60,30,12)}
 					{feature.data?
 						this.data_keys.map((key: string, idx: number)=>{
 							if(key in feature.data) {
@@ -311,7 +310,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					:null}
 				</div>;
 			})}
-			*/
 		</div>
 	}
 }
