@@ -180,6 +180,15 @@ export class Scale {
 		return [this.scale[this.domainKey[0]].range()[0],
 			this.scale[this.domainKey[this.domainKey.length-1]].range()[1]];
 	}
+	region(dValue: number) {
+		let dKey: number;
+		this.domainKey.forEach((key: number)=>{
+			if(key <= dValue) {
+				dKey = key;
+			}
+		});
+		return dKey ? this.scale[dKey].domain() : [0,0];
+	}
 	overlap(start: number, end: number) {
 		let overlap: Feature[] = [];
 		for(let feature of this.features) {
