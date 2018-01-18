@@ -241,6 +241,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}
 		this.handlingMouseMove = true;
 	}
+	onMouseLeave = (e: React.MouseEvent)=>{
+		this.setState({
+			focus: -1,
+		});
+	}
 	handleMouseMove = (pageX: number)=>{
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
@@ -289,7 +294,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{this.state.selectedRegion ?
 				<rect x={draw_selectedRegion[0]} y={dnaY}
 					width={draw_selectedRegion_width} height={dnaHeight}
-					style={{stroke:"#DDDDDD", fill:"#6666FF", fillOpacity:0.2}} />
+					style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.2}} />
 			: null}
 			{draw_region_width? <g>
 				<rect onClick={()=>this.selectRegion(region)}
@@ -304,15 +309,17 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		</svg>;
 	}
 	render() {
-		const tolerance = 50;
-		const region = this.state.scale.region(this.state.focus);
+		const region = this.state.focus > -1 ?
+			this.state.scale.region(this.state.focus) :
+			this.state.selectedRegion;
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
-				onMouseMove={this.onMouseMove} >
+				onMouseMove={this.onMouseMove}
+				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			{this.state.scale.overlap(region[0], region[1]).map((feature: Feature, idx: number)=>{
+			{region?this.state.scale.overlap(region[0], region[1]).map((feature: Feature, idx: number)=>{
 				return <div key={idx}>
 					<span className="geneviewer-title">{feature.name}</span>
 					&nbsp;
@@ -330,7 +337,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 						})
 					:null}
 				</div>;
-			})}
+			}):null}
 		</div>
 	}
 }
