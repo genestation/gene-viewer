@@ -357,8 +357,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	renderData = (feature: Feature, idx: number)=>{
 		return <div key={idx}>
-			<div onMouseMove={()=>{console.log("move", feature.name); this.onHoverFeature(feature.name)}}
-				onMouseLeave={()=>{console.log("leave", feature.name); this.onHoverFeature()}}
+			<div onMouseMove={()=>{this.onHoverFeature(feature.name)}}
+				onMouseLeave={()=>{this.onHoverFeature()}}
 				onClick={()=>this.selectFeature(feature.name)}>
 				<span className="geneviewer-title">{feature.name}</span>
 				&nbsp;
