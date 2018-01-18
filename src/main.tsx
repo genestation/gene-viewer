@@ -273,11 +273,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
 			}) }
+			{draw_region_width? <g>
 			<rect x={draw_region[0]} y={dnaY}
 			 width={draw_region_width} height={dnaHeight}
 			 style={{fill:"#FFFFFF", fillOpacity:0.2}} />
 			<text textAnchor="middle" fontSize={fontSize}
 			 x={draw_region[0]+draw_region_width/2} y={shape.dnaY-marginY}>{region[1]-region[0]} bp</text>
+			</g>: null}
 		</svg>;
 	}
 	render() {
