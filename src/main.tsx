@@ -159,6 +159,7 @@ export interface GeneViewerProps{
 }
 export interface GeneViewerState{
 	focus?: number,
+	selectedRegion?: number[],
 	currFeature?: Feature,
 	features?: Feature[],
 	scale?: Scale;
@@ -181,6 +182,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		super(props);
 		this.state = {
 			focus: -1,
+			selectedRegion: null,
 			features: props.features,
 			scale: new Scale({
 				features: props.features,
@@ -247,6 +249,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			focus: this.state.scale.invert(coordX),
 		}, ()=>{this.handlingMouseMove=false});
 	}
+	selectRegion = (region: number[])=>{
+		if (this.state.selectedRegion && region[0] == this.state.selectedRegion[0]) {
+			this.setState({selectedRegion: null})
+		} else {
+			this.setState({selectedRegion: region})
+		}
+	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
 		const marginY = dnaHeight/4;
@@ -265,6 +274,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const region = this.state.scale.region(this.state.focus);
 		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
 		const draw_region_width = draw_region[1]-draw_region[0]
+		const draw_selectedRegion = this.state.selectedRegion?
+			[this.state.scale.get(this.state.selectedRegion[0]),this.state.scale.get(this.state.selectedRegion[1])] : null
+		const draw_selectedRegion_width = this.state.selectedRegion?
+			draw_selectedRegion[1]-draw_selectedRegion[0] : null
 		return <svg width="100%" height={height}
 		 viewBox={minX+" "+minY+" "+this.viewWidth+" "+height}>
 			<rect x="0" y={dnaY}
@@ -273,12 +286,20 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
 			}) }
+			{this.state.selectedRegion ?
+				<rect x={draw_selectedRegion[0]} y={dnaY}
+					width={draw_selectedRegion_width} height={dnaHeight}
+					style={{stroke:"#DDDDDD", fill:"#6666FF", fillOpacity:0.2}} />
+			: null}
 			{draw_region_width? <g>
-			<rect x={draw_region[0]} y={dnaY}
-			 width={draw_region_width} height={dnaHeight}
-			 style={{fill:"#FFFFFF", fillOpacity:0.2}} />
-			<text textAnchor="middle" fontSize={fontSize}
-			 x={draw_region[0]+draw_region_width/2} y={shape.dnaY-marginY}>{region[1]-region[0]} bp</text>
+				<rect onClick={()=>this.selectRegion(region)}
+					x={draw_region[0]} y={dnaY}
+					width={draw_region_width} height={dnaHeight}
+					style={{fill:"#FFFFFF", fillOpacity:0.2}} />
+				<text textAnchor="middle" fontSize={fontSize}
+					 x={draw_region[0]+draw_region_width/2} y={shape.dnaY-marginY}>
+						{region[1]-region[0]} bp
+				</text>
 			</g>: null}
 		</svg>;
 	}
