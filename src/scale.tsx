@@ -105,9 +105,9 @@ export class Scale {
 				const iEnd = range.start;
 				const iLength = Math.log(iEnd - iStart)*10;
 				this.domainKey.push(iStart);
-				this.scale[iStart] = d3.scaleLog().base(Math.E)
+				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Log<number>;
+					.range([sum, sum+iLength]) as d3.Linear<number>;
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -117,9 +117,9 @@ export class Scale {
 				const iEnd = range.start;
 				const iLength = Math.log(iEnd - iStart)*10;
 				this.domainKey.push(iStart);
-				this.scale[iStart] = d3.scaleLog().base(Math.E)
+				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Log<number>;
+					.range([sum, sum+iLength]) as d3.Linear<number>;
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -141,9 +141,9 @@ export class Scale {
 				const iEnd = max;
 				const iLength = Math.log(iEnd - iStart)*10;
 				this.domainKey.push(iStart);
-				this.scale[iStart] = d3.scaleLog().base(Math.E)
+				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Log<number>;
+					.range([sum, sum+iLength]) as d3.Linear<number>;
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;

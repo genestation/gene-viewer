@@ -173,6 +173,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	} = {};
 	handlingMouseMove: boolean = false;
 	width = 1000;
+	marginX = 20;
+	viewWidth = this.width + 2*this.marginX;
 	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
 	elastic: ElasticSearch.Client;
 	constructor(props: GeneViewerProps) {
@@ -240,14 +242,17 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	handleMouseMove = (pageX: number)=>{
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
-		const coordX = (pageX - offsetLeft)/offsetWidth * this.width;
+		const coordX = (pageX - offsetLeft)/offsetWidth * (this.viewWidth) - this.marginX;
 		this.setState({
 			focus: this.state.scale.invert(coordX),
 		}, ()=>{this.handlingMouseMove=false});
 	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
+		const marginY = dnaHeight/4;
+		const minX = 0 - this.marginX;
 		const dnaY = -dnaHeight/2;
+		const fontSize = dnaHeight/2.5;
 		const shape = {
 			dnaY: dnaY,
 			dnaHeight: dnaHeight,
@@ -259,9 +264,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		};
 		const region = this.state.scale.region(this.state.focus);
 		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
-		console.log(region);
-		return <svg width="100%" height="100%"
-		 viewBox={"0 "+minY+" "+this.width+" "+height}>
+		const draw_region_width = draw_region[1]-draw_region[0]
+		return <svg width="100%" height={height}
+		 viewBox={minX+" "+minY+" "+this.viewWidth+" "+height}>
 			<rect x="0" y={dnaY}
 			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
@@ -269,8 +274,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
 			}) }
 			<rect x={draw_region[0]} y={dnaY}
-			 width={draw_region[1]-draw_region[0]} height={dnaHeight}
+			 width={draw_region_width} height={dnaHeight}
 			 style={{fill:"#FFFFFF", fillOpacity:0.2}} />
+			<text textAnchor="middle" fontSize={fontSize}
+			 x={draw_region[0]+draw_region_width/2} y={shape.dnaY-marginY}>{region[1]-region[0]} bp</text>
 		</svg>;
 	}
 	render() {
@@ -279,7 +286,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
 				onMouseMove={this.onMouseMove} >
-				{this.renderGenome(this.state.features,60,30,12)}
+				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			/*
 			{this.state.scale.overlap(this.state.focus-tolerance, this.state.focus+tolerance).map((feature: Feature, idx: number)=>{
