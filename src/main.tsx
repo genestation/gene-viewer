@@ -271,9 +271,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	selectRegion = (region: number[])=>{
 		if (this.state.selectedRegion && region[0] == this.state.selectedRegion[0]) {
-			this.setState({selectedRegion: null})
+			this.setState({
+				selectedRegion: null,
+				selectedFeature: null,
+			})
 		} else {
-			this.setState({selectedRegion: region})
+			this.setState({
+				selectedRegion: region,
+				selectedFeature: null,
+			})
 		}
 	}
 	selectFeature = (feature: string)=>{
