@@ -391,7 +391,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			{region?
 				<div style={{maxHeight: "20em", overflow: "auto"}}> {
 					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
-						!this.state.selectedFeature || this.state.selectedFeature == feature.name
+						this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
 					).map(this.renderData)
 				} </div>
 			:null}
