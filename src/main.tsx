@@ -32,6 +32,7 @@ interface GenomeFeatureProps {
 	scale: Scale,
 	shape: GenomeShape,
 	feature: Feature,
+	selected?: string | boolean,
 }
 class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 	constructor(props: GenomeFeatureProps) {
@@ -54,7 +55,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			return null;
 		}
 	}
-	renderLeaf():JSX.Element {
+	renderLeaf(opacity: number):JSX.Element {
 		if(typeof this.props.feature.start == "number" && typeof this.props.feature.end == "number") {
 			const rectX = this.props.scale.get(this.props.feature.start);
 			const rectWidth = Math.max(this.props.scale.get(this.props.feature.end) - this.props.scale.get(this.props.feature.start),
@@ -63,25 +64,35 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			case 1:
 				return <rect x={rectX} y={this.props.shape.plusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor(), opacity: 0.6}} />
+					style={{fill:this.featureColor(), opacity: opacity}} />
 			case -1:
 				return <rect x={rectX} y={this.props.shape.minusStrandY}
 					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor(), opacity: 0.6}} />
+					style={{fill:this.featureColor(), opacity: opacity}} />
 			default:
 				return <rect x={rectX} y={this.props.shape.dnaY}
 					width={rectWidth} height={this.props.shape.dnaHeight}
-					style={{fill:this.featureColor(), opacity: 0.6}} />
+					style={{fill:this.featureColor(), opacity: opacity}} />
 			}
 		}
 	}
 	render():JSX.Element {
+		let selected = true;
+		let childSelected = false;
+		if(typeof this.props.selected == 'boolean') {
+			selected = this.props.selected;
+			childSelected = this.props.selected;
+		} else if(typeof this.props.selected == 'string') {
+			selected = (this.props.feature.name == this.props.selected);
+			childSelected = (this.props.feature.name == this.props.selected);
+		}
+		const opacity = selected ? (this.props.selected ? 0.8 : 0.6) : 0.1;
 		if(this.props.feature.child) {
 			return <g>
-				<rect /> //TODO viewport height highlight this.props.feature.start - end
+				<rect />
 				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
 					return <GenomeFeature key={idx}
-						scale={this.props.scale} shape={this.props.shape} feature={feature}/>
+						scale={this.props.scale} shape={this.props.shape} feature={feature} selected={childSelected?childSelected:this.props.selected}/>
 				}) }
 				{this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
 					if(idx > 0) {
@@ -99,7 +110,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", opacity: 0.6, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
+								} style={{fill: "none", opacity: opacity, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						} else if(child.strand == -1 && lastChild.strand == -1) {
 							const startX = this.props.scale.get(lastChild.start);
 							const endX = this.props.scale.get(child.end);
@@ -110,7 +121,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 								d={"M "+startX+" "+strandY
 									+" L "+midX+" "+midY
 									+" L "+endX+" "+strandY
-								} style={{fill: "none", opacity: 0.6, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
+								} style={{fill: "none", opacity: opacity, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
 						}
 					} else {
 						return null
@@ -119,7 +130,7 @@ class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
 			</g>;
 		} else {
 			return <g>
-				{this.renderLeaf()}
+				{this.renderLeaf(opacity)}
 			</g>;
 		}
 	}
@@ -292,7 +303,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			intronHeight: strandHeight/2,
 			plusStrandY: dnaY,
 			minusStrandY: dnaY+dnaHeight-strandHeight,
-			minWidth: this.width/1000,
+			minWidth: this.width/800,
 		};
 		const region = this.state.scale.region(this.state.focus);
 		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
@@ -307,9 +318,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 width={this.width} height={dnaHeight}
 			 style={{fill:"#8b96a8"}} />
 			{ features.map((feature: Feature, idx: number)=>{
-				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} />
+				return <GenomeFeature key={idx} scale={this.state.scale} shape={shape} feature={feature} selected={this.state.selectedFeature}/>
 			}) }
-			{this.state.selectedRegion ?
+			{this.state.selectedRegion && !this.state.selectedFeature ?
 				<rect x={draw_selectedRegion[0]} y={dnaY}
 					width={draw_selectedRegion_width} height={dnaHeight}
 					style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.2}} />
