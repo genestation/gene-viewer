@@ -160,6 +160,8 @@ export interface GeneViewerProps{
 export interface GeneViewerState{
 	focus?: number,
 	selectedRegion?: number[],
+	selectedFeature?: string,
+	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
 	scale?: Scale;
@@ -183,6 +185,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.state = {
 			focus: -1,
 			selectedRegion: null,
+			selectedFeature: null,
+			hoverFeature: null,
 			features: props.features,
 			scale: new Scale({
 				features: props.features,
@@ -261,6 +265,20 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			this.setState({selectedRegion: region})
 		}
 	}
+	selectFeature = (feature: string)=>{
+		if (this.state.selectedFeature && feature == this.state.selectedFeature) {
+			this.setState({selectedFeature: null})
+		} else {
+			this.setState({selectedFeature: feature})
+		}
+	}
+	hoverFeature = (feature?: string)=>{
+		if (!feature || this.state.hoverFeature && feature == this.state.hoverFeature) {
+			this.setState({hoverFeature: null})
+		} else {
+			this.setState({hoverFeature: feature})
+		}
+	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
 		const marginY = dnaHeight/4;
@@ -308,6 +326,27 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			</g>: null}
 		</svg>;
 	}
+	renderData = (feature: Feature, idx: number)=>{
+		return <div key={idx}
+				onMouseMove={()=>this.hoverFeature(feature.name)}
+				onMouseOut={()=>this.hoverFeature()}
+				onClick={()=>this.selectFeature(feature.name)}>
+			<span className="geneviewer-title">{feature.name}</span>
+			&nbsp;
+			<span className="geneviewer-subtitle">{feature.ftype}</span>
+			{feature.data && feature.data.gwas?
+				feature.data.gwas.map((gwas, idx: number)=>{
+					return <div key={idx}>
+						<span className="geneviewer-header1">{gwas.description}</span><br/>
+						<a href={"http://"+gwas["pub.url"]}>{gwas["pub.author"]}. {gwas["pub.study"]}. {gwas["pub.journal"]}. {gwas["pub.date"]}</a><br/>
+						<b>pvalue:</b>&nbsp;{gwas.pval} {gwas.pval_text}<br/>
+						<b>-log(pvalue):</b>&nbsp;{gwas.pval_mlog}<br/>
+						<b>effect size:</b>&nbsp;{gwas.effect_size}<br/>
+					</div>
+				})
+			:null}
+		</div>;
+	}
 	render() {
 		const region = this.state.focus > -1 ?
 			this.state.scale.region(this.state.focus) :
@@ -319,25 +358,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			{region?this.state.scale.overlap(region[0], region[1]).map((feature: Feature, idx: number)=>{
-				return <div key={idx}>
-					<span className="geneviewer-title">{feature.name}</span>
-					&nbsp;
-					<span className="geneviewer-subtitle">{feature.ftype}</span>
-					{feature.data?
-						this.data_keys.map((key: string, idx: number)=>{
-							if(key in feature.data) {
-								return <div key={idx}>
-									<h2>{key}</h2>
-									<Numberline data={feature.data[key]} min={0} max={1}/>
-								</div>
-							} else {
-								return null
-							}
-						})
-					:null}
-				</div>;
-			}):null}
+			{region?this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>{
+				return !this.state.selectedFeature || this.state.selectedFeature == feature.name
+			}).map(this.renderData):null}
 		</div>
 	}
 }
