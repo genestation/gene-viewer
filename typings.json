@@ -4,9 +4,7 @@
   "globalDevDependencies": {
     "chai": "registry:dt/chai#3.4.0+20160601211834",
     "enzyme": "registry:dt/enzyme#2.4.1+20160709041153",
-    "mocha": "registry:dt/mocha#2.2.5+20160720003353",
-    "react": "registry:dt/react#0.14.0+20161124131900",
-    "react-dom": "registry:dt/react-dom#0.14.0+20160412154040"
+    "mocha": "registry:dt/mocha#2.2.5+20160720003353"
   },
   "devDependencies": {
     "d3-scale": "registry:npm/d3-scale#1.0.0+20160707082208"

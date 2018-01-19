@@ -12,7 +12,10 @@ let externals = { };
 
 let webpack = require('webpack');
 let FailPlugin = require('webpack-fail-plugin');
-let ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const extractSass = new ExtractTextPlugin({
+	filename: "[name].[contenthash].css",
+});
 let ArchivePlugin = require('webpack-archive-plugin');
 let nodeExternals = require('webpack-node-externals');
 
@@ -29,38 +32,37 @@ let base = {
 	context: __dirname + "/src",
 	entry: './main.tsx',
 	module: {
-		loaders: [
-			{
-				test: /\.tsx?$/,
-				loader: "ts-loader",
-			},
-			{
-				test: /\.s?css$/,
-				loader: ExtractTextPlugin.extract("css-loader?sourceMap!sass-loader?sourceMap"),
-			},
-			{
-				test: /\.(eot|woff|woff2|ttf|jpg|svg)(\?.*$|$)/,
-				loader: "file-loader?name=[name]-[hash].[ext]",
-			},
-		],
-		preLoaders: [
-			{
-				test: /\.(css|js)$/,
-				loader: "source-map-loader",
-			}
-		],
+		rules: [ {
+			test: /\.tsx?$/,
+			use: "ts-loader",
+		}, {
+			test: /\.scss$/,
+			use: extractSass.extract({
+				use: [{
+					loader: "css-loader"
+				}, {
+					loader: "sass-loader"
+				}]
+			})
+		}, {
+			test: /\.(eot|woff|woff2|ttf|jpg|svg)(\?.*$|$)/,
+			use: "file-loader?name=[name]-[hash].[ext]",
+		}, {
+			test: /\.(css|js)$/,
+			enforce: "pre",
+			loader: "source-map-loader",
+		}],
 	},
 	devtool: 'source-map',
 };
 
 let production_plugins = [
 	FailPlugin,
+	extractSass,
 	new webpack.DefinePlugin({
 		'process.env.NODE_ENV': '"production"'
 	}),
-	new webpack.optimize.UglifyJsPlugin(),
-	new webpack.optimize.OccurenceOrderPlugin(),
-	new webpack.optimize.DedupePlugin(),
+	new webpack.optimize.UglifyJsPlugin({sourceMap:true}),
 ]
 
 let dist = Object.assign({},base, {
