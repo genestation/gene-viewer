@@ -11,11 +11,7 @@ let externals = { };
 // Build system
 
 let webpack = require('webpack');
-let FailPlugin = require('webpack-fail-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const extractSass = new ExtractTextPlugin({
-	filename: "[name].[contenthash].css",
-});
 let ArchivePlugin = require('webpack-archive-plugin');
 let nodeExternals = require('webpack-node-externals');
 
@@ -36,8 +32,8 @@ let base = {
 			test: /\.tsx?$/,
 			use: "ts-loader",
 		}, {
-			test: /\.scss$/,
-			use: extractSass.extract({
+			test: /\.s?css$/,
+			use: ExtractTextPlugin.extract({
 				use: [{
 					loader: "css-loader"
 				}, {
@@ -57,8 +53,6 @@ let base = {
 };
 
 let production_plugins = [
-	FailPlugin,
-	extractSass,
 	new webpack.DefinePlugin({
 		'process.env.NODE_ENV': '"production"'
 	}),
@@ -74,7 +68,6 @@ let dist = Object.assign({},base, {
 	},
 	externals: externals,
 	plugins: [
-		FailPlugin,
 		new ArchivePlugin(),
 		new ExtractTextPlugin(project + '.css'),
 	],
@@ -88,7 +81,6 @@ let dist_min = Object.assign({},dist, {
 		libraryTarget: "var",
 	},
 	plugins: [
-		FailPlugin,
 		new ExtractTextPlugin(project + '.min.css'),
 		new ArchivePlugin(),
 		...production_plugins,
@@ -110,7 +102,6 @@ let lib = Object.assign({},dist, {
 	},
 	externals: libexternals,
 	plugins: [
-		FailPlugin,
 		new ExtractTextPlugin(project + '.css'),
 	],
 });
@@ -124,7 +115,6 @@ let development = Object.assign({},base, {
 		libraryTarget: "var",
 	},
 	plugins: [
-		FailPlugin,
 		new ExtractTextPlugin('dev.css'),
 	],
 });
