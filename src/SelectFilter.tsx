@@ -22,7 +22,7 @@ export class SelectFilter extends React.Component<SelectFilterProps,{}> {
 	}
 	handleChangeField = (value: string)=>{
 		this.props.onChange({
-			field: value,
+			field: value.value,
 			order: this.props.value.order,
 			limit: this.props.value.limit,
 		});
