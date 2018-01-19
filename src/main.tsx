@@ -241,7 +241,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			searchBody = {
 				"id": "sorted_locrange",
 				"params": {
-					"field": this.state.filter.field,
+					"field": 'data.'+this.state.filter.field,
 					"order": this.state.filter.order,
 					"mode": "avg",
 					"start": this.state.start,

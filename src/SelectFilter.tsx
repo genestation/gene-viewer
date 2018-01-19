@@ -20,7 +20,7 @@ export class SelectFilter extends React.Component<SelectFilterProps,{}> {
 		super(props);
 		this.state = {};
 	}
-	handleChangeField = (value: string)=>{
+	handleChangeField = (value: {value: string, label: string})=>{
 		this.props.onChange({
 			field: value.value,
 			order: this.props.value.order,
@@ -53,9 +53,11 @@ export class SelectFilter extends React.Component<SelectFilterProps,{}> {
 			value: null,
 			label: "[none]",
 		});
+		console.log(this.props.value.field);
 		return <div>
 			{this.props.value.field?
-				this.props.value.field.split('.').map((part: string, idx: number, array: string[])=>{
+				(this.props.value.field+".").split('.').map((part: string, idx: number, array: string[])=>{
+					console.log(part, idx);
 					if(idx == 0) {
 						return <Select name={"field-part"+idx} key={idx}
 							value={{value: this.props.value.field, label: part}}
