@@ -6,6 +6,7 @@ import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {Numberline} from './Numberline.tsx';
+import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
 
 export interface Feature {
 	name?: string,
@@ -149,38 +150,49 @@ type HitsArray<T> = Array<{
 	inner_hits?: any;
 	sort?: string[];
 }>;
-function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.SearchResponse<any>): Promise<HitsArray<any>> {
+function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.SearchResponse<any>, limit = Number.POSITIVE_INFINITY): Promise<HitsArray<any>> {
 	function recursiveScroll(response: ElasticSearch.SearchResponse<any>, hits: HitsArray<any>): Promise<HitsArray<any>> {
 		return client.scroll({
 			scrollId: response._scroll_id,
 			scroll: "10s",
 		}).then((response: ElasticSearch.SearchResponse<any>)=>{
-			if (response.hits.hits.length > 0) {
-				return recursiveScroll(response, hits.concat(response.hits.hits))
+			let length = response.hits.hits.length + hits.length;
+			if (length < limit && response.hits.hits.length > 0) {
+				return recursiveScroll(response, hits.concat(response.hits.hits));
 			} else {
-				return hits
+				return hits.concat(response.hits.hits.slice(0,response.hits.hits.length - (length - limit)));
 			}
 		})
 	}
 	return recursiveScroll(response, response.hits.hits);
 }
+
 export interface GeneViewerProps{
-	elastic: string,
 	features: Feature[],
+	elastic: string,
+	index: Object,
+	numericFields: string[],
 }
 export interface GeneViewerState{
+	start?: number,
+	end?: number,
+	srcfeature?: string,
+	name?: string,
 	focus?: number,
 	selectedRegion?: number[],
 	selectedFeature?: string,
 	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
-	scale?: Scale;
+	scale?: Scale,
+	filter?: FieldFilter,
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
 		elastic: "",
 		features: [],
+		index: {},
+		numericFields: [],
 	}
 	child: {
 		navigation?: HTMLElement;
@@ -193,38 +205,69 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	elastic: ElasticSearch.Client;
 	constructor(props: GeneViewerProps) {
 		super(props);
+		let scale = new Scale({
+			features: props.features,
+			size: this.width,
+			margin: 100,
+			filter: ['exon','enhancer']
+		});
 		this.state = {
+			start: scale.domain[0],
+			end: scale.domain[1],
+			srcfeature: props.features[0].srcfeature,
+			name: props.features[0].name,
 			focus: -1,
 			selectedRegion: null,
 			selectedFeature: null,
 			hoverFeature: null,
 			features: props.features,
-			scale: new Scale({
-				features: props.features,
-				size: this.width,
-				margin: 100,
-				filter: ['exon','enhancer']
-			}),
+			scale: scale,
+			filter: {
+				field: null,
+				order: "desc",
+				limit: 10,
+			},
 		}
 		this.elastic = new ElasticSearch.Client({
 			host: props.elastic,
 			apiVersion: '5.6',
 		});
+		this.fetchSnps();
+	}
+	fetchSnps = ()=>{
+		let searchBody = {};
+		let limit: undefined | number = undefined;
+		if(this.props.numericFields.indexOf(this.state.filter.field) != -1) {
+			searchBody = {
+				"id": "sorted_locrange",
+				"params": {
+					"field": this.state.filter.field,
+					"order": this.state.filter.order,
+					"mode": "avg",
+					"start": this.state.start,
+					"end": this.state.end,
+					"srcfeature": this.state.srcfeature,
+				}
+			};
+			limit = this.state.filter.limit;
+		} else {
+			searchBody = {
+				"id": "gene_association",
+				"params": {
+					"gene": this.state.name,
+				}
+			}
+		}
 		// Fetch SNPs
 		this.elastic.searchTemplate({
 			"index": "variant_v1.4",
 			"type": "Homo_sapiens",
-			"body": {
-				"id": "gene_association",
-				"params": {
-					"gene": props.features[0].name,
-				}
-			},
+			"body": searchBody,
 			"scroll": "10s",
 		}).then((response:ElasticSearch.SearchResponse<any>)=>{
-			return scrollToEnd(this.elastic, response)
+			return scrollToEnd(this.elastic, response, limit)
 		}).then((hits:HitsArray<any>)=>{
-			let features = props.features.concat(hits.map((hit)=>hit._source));
+			let features = this.props.features.concat(hits.map((hit)=>hit._source));
 			this.setState({
 				features: features,
 				scale: new Scale({
@@ -305,6 +348,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				hoverFeature: feature,
 			}, ()=>{this.handlingMouseMove=false});
 		}
+	}
+	handleChangeFilter = (filter?: FieldFilter)=>{
+		this.setState({
+			filter: filter
+		}, this.fetchSnps);
 	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
@@ -388,6 +436,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
+			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
 			{region?
 				<div style={{maxHeight: "20em", overflow: "auto"}}> {
 					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
@@ -402,7 +451,56 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 export function init(element: Element, elastic: string, dataurl: string) {
 	fetch(dataurl).then(response=>response.json()).then((json)=>{
 		ReactDOM.render(<GeneViewer
+			features={[json].concat(json.association)}
 			elastic={elastic}
-			features={[json].concat(json.association)}/>, element);
+			index={{gene: "geneviewer", variant: "variant_v1.4"}}
+			numericFields={[
+				"fst.afr",
+				"fst.amr",
+				"fst.eas",
+				"fst.eur",
+				"fst.sas",
+				"fst.afr_amr",
+				"fst.afr_eas",
+				"fst.afr_eur",
+				"fst.afr_sas",
+				"fst.amr_eas",
+				"fst.amr_eur",
+				"fst.amr_sas",
+				"fst.eas_eur",
+				"fst.eas_sas",
+				"fst.eur_sas",
+				"pi.all",
+				"pi.afr",
+				"pi.amr",
+				"pi.eas",
+				"pi.eur",
+				"pi.sas",
+				"hwe.pval.all",
+				"hwe.pval.afr",
+				"hwe.pval.amr",
+				"hwe.pval.eas",
+				"hwe.pval.eur",
+				"hwe.pval.sas",
+				"hwe.chisq.all",
+				"hwe.chisq.afr",
+				"hwe.chisq.amr",
+				"hwe.chisq.eas",
+				"hwe.chisq.eur",
+				"hwe.chisq.sas",
+				"hwe.p_het_deficit.all",
+				"hwe.p_het_deficit.afr",
+				"hwe.p_het_deficit.amr",
+				"hwe.p_het_deficit.eas",
+				"hwe.p_het_deficit.eur",
+				"hwe.p_het_deficit.sas",
+				"hwe.p_het_excess.all",
+				"hwe.p_het_excess.afr",
+				"hwe.p_het_excess.amr",
+				"hwe.p_het_excess.eur",
+				"hwe.p_het_excess.eas",
+				"hwe.p_het_excess.sas",
+			]}
+		/>, element);
 	})
 }

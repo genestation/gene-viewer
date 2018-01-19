@@ -7,6 +7,8 @@ import {GeneViewer, Feature} from '../src/main.tsx';
 export function init(element: Element) {
 	ReactDOM.render(<GeneViewer
 		elastic="localhost:9200"
+		index={{}}
+		numericFields={[]}
 		features={[gene].concat(snps)}/>, element);
 }
 
