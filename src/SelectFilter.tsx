@@ -22,25 +22,25 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 		super(props);
 		this.state = {};
 	}
-	handleChangeField = (value: TreeNode)=>{
+	handleChangeField = (node: TreeNode)=>{
 		this.props.onChange({
-			field: value.path,
+			field: node.path,
 			order: this.props.value.order,
 			limit: this.props.value.limit,
 		});
 	}
-	handleChangeOrder = (value: string)=>{
+	handleChangeOrder = (option: {value: string})=>{
 		this.props.onChange({
 			field: this.props.value.field,
-			order: value.value,
+			order: option.value,
 			limit: this.props.value.limit,
 		});
 	}
-	handleChangeLimit = (value: number)=>{
+	handleChangeLimit = (option: {value: number})=>{
 		this.props.onChange({
 			field: this.props.value.field,
 			order: this.props.value.order,
-			limit: value.value,
+			limit: option.value,
 		});
 	}
 	render() {
