@@ -16,9 +16,7 @@ interface SelectFilterProps {
 	fields: string[],
 	onChange: (filter: FieldFilter)=>any,
 }
-interface SelectFilterState {
-	expandTree?: boolean,
-}
+interface SelectFilterState {}
 export class SelectFilter extends React.Component<SelectFilterProps,SelectFilterState> {
 	constructor(props: SelectFilterProps) {
 		super(props);
@@ -50,14 +48,11 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 			limit: value,
 		});
 	}
-	handleToggleTree = ()=>{
-		this.setState({
-			expandTree: !this.state.expandTree,
-		});
-	}
 	render() {
 		return <div className="selectfilter-container">
-			<span className="selectfilter-element" onClick={this.handleToggleTree}><b>Filter: </b>{this.props.value.field?this.props.value.field:"<none>"}</span>
+			<Dropdown className="selectfilter-element" autoclose={false} label="Filter" value={this.props.value.field?this.props.value.field:"<none>"}>
+				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
+			</Dropdown>
 			<Dropdown className="selectfilter-element" label="Order" value={this.props.value.order == "asc"?"Ascending":"Descending"}>
 				<ul className="dropdown-list">
 					<li className="dropdown-item"
@@ -78,9 +73,6 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 					onClick={()=>this.handleChangeLimit(100)}>100</li>
 				</ul>
 			</Dropdown>
-			{this.state.expandTree?
-				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
-			:null}
 		</div>
 	}
 }

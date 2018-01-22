@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 
 export interface DropdownProps{
 	className?: string;
+	autoclose?: boolean;
 	label?: string;
 	value?: any;
 	tabindex?: number;
@@ -15,6 +16,9 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 	child: {
 		container?: HTMLElement;
 	} = {};
+	static defaultProps: DropdownProps = {
+		autoclose: true,
+	}
 	constructor(props: DropdownProps) {
 		super(props);
 	}
@@ -37,7 +41,7 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 					{this.props.value}
 				</div>
 				<div className="dropdown-items"
-					onClick={()=>{this.child.container.blur()}}
+					onClick={()=>{this.props.autoclose?this.child.container.blur():null}}
 				>
 					{this.props.children}
 				</div>
