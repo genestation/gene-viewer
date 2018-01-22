@@ -6,6 +6,9 @@ $opaque-background-color: #c5c5c5;
 	cursor: pointer;
 	display: flex;
 	outline: none;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	background: $background-color;
 	&:hover, &:focus {
 		background: lighten($background-color,10%);
 	}
