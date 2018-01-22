@@ -1,10 +1,10 @@
 "use strict";
 
+import './SelectFilter.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {TreeSelect, TreeNode} from './TreeSelect.tsx';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import {Dropdown} from './Dropdown.tsx';
 
 export interface FieldFilter {
 	field: string,
@@ -36,18 +36,18 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 			limit: this.props.value.limit,
 		});
 	}
-	handleChangeOrder = (option: {value: string})=>{
+	handleChangeOrder = (value: string)=>{
 		this.props.onChange({
 			field: this.props.value.field,
-			order: option.value,
+			order: value,
 			limit: this.props.value.limit,
 		});
 	}
-	handleChangeLimit = (option: {value: number})=>{
+	handleChangeLimit = (value: number)=>{
 		this.props.onChange({
 			field: this.props.value.field,
 			order: this.props.value.order,
-			limit: option.value,
+			limit: value,
 		});
 	}
 	handleToggleTree = ()=>{
@@ -56,29 +56,31 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 		});
 	}
 	render() {
-		return <div>
-			<span onClick={this.handleToggleTree}><b>Filter: </b>{this.props.value.field}</span>
+		return <div className="selectfilter-container">
+			<span className="selectfilter-element" onClick={this.handleToggleTree}><b>Filter: </b>{this.props.value.field?this.props.value.field:"<none>"}</span>
+			<Dropdown className="selectfilter-element" label="Order" value={this.props.value.order == "asc"?"Ascending":"Descending"}>
+				<ul className="dropdown-list">
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeOrder("asc")}>Ascending</li>
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeOrder("desc")}>Descending</li>
+				</ul>
+			</Dropdown>
+			<Dropdown label="Limit" value={this.props.value.limit}>
+				<ul className="dropdown-list">
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeLimit(10)}>10</li>
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeLimit(20)}>20</li>
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeLimit(50)}>50</li>
+					<li className="dropdown-item"
+					onClick={()=>this.handleChangeLimit(100)}>100</li>
+				</ul>
+			</Dropdown>
 			{this.state.expandTree?
 				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
 			:null}
-			<Select name="order"
-				value={this.props.value.order}
-				onChange={this.handleChangeOrder}
-				options={[
-					{value: 'asc', label: 'Ascending'},
-					{value: 'desc', label: 'Descending'},
-				]}
-			/>
-			<Select name="limit"
-				value={this.props.value.limit}
-				onChange={this.handleChangeLimit}
-				options={[
-					{value: 10, label: '10'},
-					{value: 20, label: '20'},
-					{value: 50, label: '50'},
-					{value: 100, label: '100'},
-				]}
-			/>
 		</div>
 	}
 }

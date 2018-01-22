@@ -1,10 +1,11 @@
-import './dropdown.scss';
+import './Dropdown.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 export interface DropdownProps{
+	className?: string;
 	label?: string;
-	value?: string;
+	value?: any;
 	tabindex?: number;
 }
 export interface DropdownState{
@@ -21,7 +22,7 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 		this.child.container.blur();
 	}
 	render() {
-		return <div className="dropdown-container"
+		return <div className={"dropdown-container " + this.props.className}
 			tabIndex={this.props.tabindex?this.props.tabindex:0}
 			ref={(ref)=>this.child.container = ref}
 			>
@@ -29,7 +30,7 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 				onClick={()=>{this.child.container.blur()}}
 			/>
 			<div className="dropdown-label">
-				{this.props.label}
+				{this.props.label}:
 			</div>
 			<div className="dropdown-button-container">
 				<div className="dropdown-button">
