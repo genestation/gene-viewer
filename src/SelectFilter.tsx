@@ -16,13 +16,20 @@ interface SelectFilterProps {
 	fields: string[],
 	onChange: (filter: FieldFilter)=>any,
 }
-interface SelectFilterState { }
+interface SelectFilterState {
+	expandTree?: boolean,
+}
 export class SelectFilter extends React.Component<SelectFilterProps,SelectFilterState> {
 	constructor(props: SelectFilterProps) {
 		super(props);
-		this.state = {};
+		this.state = {
+			expandTree: false,
+		};
 	}
 	handleChangeField = (node: TreeNode)=>{
+		this.setState({
+			expandTree: !node.valid,
+		});
 		this.props.onChange({
 			field: node.path,
 			order: this.props.value.order,
@@ -43,9 +50,17 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 			limit: option.value,
 		});
 	}
+	handleToggleTree = ()=>{
+		this.setState({
+			expandTree: !this.state.expandTree,
+		});
+	}
 	render() {
 		return <div>
-			<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
+			<span onClick={this.handleToggleTree}><b>Filter: </b>{this.props.value.field}</span>
+			{this.state.expandTree?
+				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
+			:null}
 			<Select name="order"
 				value={this.props.value.order}
 				onChange={this.handleChangeOrder}

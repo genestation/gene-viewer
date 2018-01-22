@@ -6,6 +6,7 @@ import {Treebeard} from 'react-treebeard';
 export interface TreeNode {
 	name: string,
 	path: string,
+	valid: boolean,
 	children?: TreeNode[],
 	toggled?: boolean,
 	active?: boolean,
@@ -37,6 +38,7 @@ export class TreeSelect extends React.Component<TreeSelectProps,TreeSelectState>
 						path: array.slice(0,idx+1).join('.'),
 						toggled: this.props.value && this.props.value.startsWith(array.slice(0,idx+1).join('.')),
 						active: this.props.value && this.props.value == array.slice(0,idx+1).join('.'),
+						valid: idx == array.length - 1,
 					}) - 1;
 				}
 				if(idx != array.length - 1) {
