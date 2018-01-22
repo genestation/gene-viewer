@@ -26,7 +26,7 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 		this.child.container.blur();
 	}
 	render() {
-		return <div className={"dropdown-container " + this.props.className}
+		return <div className={"dropdown-container " + (this.props.className?this.props.className:"")}
 			tabIndex={this.props.tabindex?this.props.tabindex:0}
 			ref={(ref)=>this.child.container = ref}
 			>

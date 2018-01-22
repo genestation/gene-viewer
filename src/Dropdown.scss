@@ -6,11 +6,9 @@ $opaque-background-color: #c5c5c5;
 	cursor: pointer;
 	display: flex;
 	outline: none;
-	padding-left: 0.5em;
-	padding-right: 0.5em;
-	background: $background-color;
+	margin-left: 0.25em;
 	&:hover, &:focus {
-		background: lighten($background-color,10%);
+		background: $background-color;
 	}
 }
 .dropdown-close {
@@ -28,7 +26,13 @@ $opaque-background-color: #c5c5c5;
 	font-weight: bold;
 }
 .dropdown-button {
-	padding-left: 0.5em;
+	margin-left: 0.25em;
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+	background: lighten($background-color,10%);
+	&:hover, .dropdown-container:focus & {
+		background: inherit;
+	}
 }
 .dropdown-button-container {
 	position: relative;
@@ -42,6 +46,7 @@ $opaque-background-color: #c5c5c5;
 	margin: 0;
 }
 .dropdown-items {
+	margin-left: 0.25em;
 	display: none;
 	position: absolute;
 	z-index: 1001;
@@ -51,8 +56,8 @@ $opaque-background-color: #c5c5c5;
 	}
 }
 .dropdown-item {
-	padding-left: 0.5em;
-	padding-right: 0.5em;
+	padding-left: 0.25em;
+	padding-right: 0.25em;
 	&:hover, &:focus {
 		background: $opaque-background-color;
 	}
