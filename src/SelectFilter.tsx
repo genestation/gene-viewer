@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {TreeSelect, TreeNode} from './TreeSelect.tsx';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -15,7 +16,8 @@ interface SelectFilterProps {
 	fields: string[],
 	onChange: (filter: FieldFilter)=>any,
 }
-export class SelectFilter extends React.Component<SelectFilterProps,{}> {
+interface SelectFilterState { }
+export class SelectFilter extends React.Component<SelectFilterProps,SelectFilterState> {
 	constructor(props: SelectFilterProps) {
 		super(props);
 		this.state = {};
@@ -41,6 +43,9 @@ export class SelectFilter extends React.Component<SelectFilterProps,{}> {
 			limit: value,
 		});
 	}
+	handleChangeFieldNew = (value: TreeNode)=>{
+		console.log(value);
+	}
 	render() {
 		let options_field_part0 = Array.from(new Set(
 			this.props.fields.map((field: string)=>field.split('.')[0])
@@ -53,11 +58,10 @@ export class SelectFilter extends React.Component<SelectFilterProps,{}> {
 			value: null,
 			label: "[none]",
 		});
-		console.log(this.props.value.field);
 		return <div>
+			<TreeSelect fields={this.props.fields} onSelect={this.handleChangeFieldNew} />
 			{this.props.value.field?
 				(this.props.value.field+".").split('.').map((part: string, idx: number, array: string[])=>{
-					console.log(part, idx);
 					if(idx == 0) {
 						return <Select name={"field-part"+idx} key={idx}
 							value={{value: this.props.value.field, label: part}}
