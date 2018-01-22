@@ -22,9 +22,9 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 		super(props);
 		this.state = {};
 	}
-	handleChangeField = (value: {value: string, label: string})=>{
+	handleChangeField = (value: TreeNode)=>{
 		this.props.onChange({
-			field: value.value,
+			field: value.path,
 			order: this.props.value.order,
 			limit: this.props.value.limit,
 		});
@@ -32,7 +32,7 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 	handleChangeOrder = (value: string)=>{
 		this.props.onChange({
 			field: this.props.value.field,
-			order: value,
+			order: value.value,
 			limit: this.props.value.limit,
 		});
 	}
@@ -40,57 +40,12 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 		this.props.onChange({
 			field: this.props.value.field,
 			order: this.props.value.order,
-			limit: value,
+			limit: value.value,
 		});
-	}
-	handleChangeFieldNew = (value: TreeNode)=>{
-		console.log(value);
 	}
 	render() {
-		let options_field_part0 = Array.from(new Set(
-			this.props.fields.map((field: string)=>field.split('.')[0])
-		)).map((field: string)=>{
-			return {
-				value: field, label: field.split('.').pop()
-			}
-		});
-		options_field_part0.unshift({
-			value: null,
-			label: "[none]",
-		});
 		return <div>
-			<TreeSelect fields={this.props.fields} onSelect={this.handleChangeFieldNew} />
-			{this.props.value.field?
-				(this.props.value.field+".").split('.').map((part: string, idx: number, array: string[])=>{
-					if(idx == 0) {
-						return <Select name={"field-part"+idx} key={idx}
-							value={{value: this.props.value.field, label: part}}
-							onChange={this.handleChangeField}
-							options={options_field_part0}
-						/>
-					} else {
-						let options = Array.from(new Set(
-							this.props.fields.filter((field: string)=>
-								field.startsWith(array.slice(0,idx).join('.'))
-							)
-						)).map((field: string)=>{
-							return {
-								value: field, label: field.split('.').pop()
-							}
-						});
-						return <Select name={"field-part"+idx} key={idx}
-							value={{value: this.props.value.field, label: part}}
-							onChange={this.handleChangeField}
-							options={options}
-						/>
-					}
-				}):
-				<Select name="field-part0"
-					value={this.props.value}
-					onChange={this.handleChangeField}
-					options={options_field_part0}
-				/>
-			}
+			<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
 			<Select name="order"
 				value={this.props.value.order}
 				onChange={this.handleChangeOrder}
