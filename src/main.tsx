@@ -5,7 +5,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
-import {Numberline} from './Numberline.tsx';
 import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
 import {GraphSlider, GraphSliderStats} from './GraphSlider.tsx';
 
@@ -493,6 +492,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
+			<GraphSlider stats={this.state.stats} />
 			{region? // Region features
 				<div style={{height: "20em", paddingRight: "1em", overflow: "auto"}}> {
 					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
@@ -506,7 +506,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					).map(this.renderData)
 				} </div>
 			}
-			<GraphSlider stats={this.state.stats} />
 		</div>
 	}
 }
