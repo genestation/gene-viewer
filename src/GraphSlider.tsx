@@ -49,12 +49,12 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 		});
 		points.push({x: this.props.stats.histogram[this.props.stats.histogram.length-1].to, y: 0});
 		console.log(this.props.stats.histogram, points);
-		let hist_area = area()
+		let hist_area = area<point>()
 			.x((d: point)=>xScale(d.x))
 			.y((d: point)=>height - yScale(d.y))
 			.y0((d: point)=>height)
 			.curve(curveStepAfter);
-		let hist_line = line()
+		let hist_line = line<point>()
 			.x((d: point)=>xScale(d.x))
 			.y((d: point)=>height - yScale(d.y))
 			.curve(curveStepAfter);

@@ -37,11 +37,11 @@ interface Range {
 // Compressed representation of locs
 export class Scale {
 	features: Feature[];
-	scale: {[domainKey: number]: d3.Linear<number> | d3.Log<number>};
+	scale: {[domainKey: number]: d3.ScaleLinear<number,number>};
 	domainKey: number[];
 	inverse: {[rangeKey: number]: number};
 	rangeKey: number[];
-	master: d3.Linear<number>;
+	master: d3.ScaleLinear<number,number>;
 	constructor(args: ScaleArgs) {
 		let ranges: Range[] = [];
 		this.features = args.features,
@@ -104,7 +104,7 @@ export class Scale {
 				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Linear<number>;
+					.range([sum, sum+iLength]);
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -116,7 +116,7 @@ export class Scale {
 				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Linear<number>;
+					.range([sum, sum+iLength]);
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -128,7 +128,7 @@ export class Scale {
 			this.domainKey.push(fStart);
 			this.scale[fStart] = d3.scaleLinear()
 				.domain([fStart, fEnd])
-				.range([sum, sum+fLength]) as d3.Linear<number>;
+				.range([sum, sum+fLength]);
 			this.rangeKey.push(sum);
 			this.inverse[sum] = fStart;
 			sum += fLength;
@@ -140,7 +140,7 @@ export class Scale {
 				this.domainKey.push(iStart);
 				this.scale[iStart] = d3.scaleLinear()
 					.domain([iStart, iEnd])
-					.range([sum, sum+iLength]) as d3.Linear<number>;
+					.range([sum, sum+iLength]);
 				this.rangeKey.push(sum);
 				this.inverse[sum] = iStart;
 				sum += iLength;
@@ -148,7 +148,7 @@ export class Scale {
 		});
 		this.master = d3.scaleLinear().clamp(true)
 			.domain([0,sum])
-			.range([0,args.size]) as d3.Linear<number>;
+			.range([0,args.size]);
 	}
 	get(dValue: number) {
 		let dKey: number;

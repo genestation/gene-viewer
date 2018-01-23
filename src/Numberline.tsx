@@ -18,7 +18,7 @@ export class Numberline extends React.Component<NumberlineProps,NumberlineState>
 		label: (datum: any)=>{return <tspan>{datum['key']}</tspan>},
 		value: (datum: any)=>{return datum['value']},
 	}
-	scale: d3.Linear<number>;
+	scale: d3.ScaleLinear<number,number>;
 	width = 1000;
 	height = 60;
 	lineHeight = 4;
@@ -27,7 +27,7 @@ export class Numberline extends React.Component<NumberlineProps,NumberlineState>
 	textMargin = 5;
 	constructor(props: NumberlineProps) {
 		super(props);
-		this.scale = d3.scaleLinear<number>()
+		this.scale = d3.scaleLinear()
 			.domain([props.min,props.max])
 			.range([0,this.width])
 	}
