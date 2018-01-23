@@ -37,11 +37,15 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 		const viewHeight = 80;
 		const width = viewWidth - margin.left - margin.right;
 		const height = viewHeight - margin.bottom - margin.top;
+		const fontSize = 10;
 		let xScale = scaleLinear()
 			.domain([this.props.stats.min, this.props.stats.max])
 			.range([0, width])
+			.nice(4)
 			.clamp(true);
 		let xTicks = xScale.ticks(4);
+		let xTickLabels = xTicks.map(xScale.tickFormat(4));
+		let xTickPadding = 2;
 		let yScale = scaleLog()
 			.domain([1,max(this.props.stats.histogram,(bucket: GraphSliderBucket)=>{
 				return bucket.doc_count;
@@ -56,7 +60,7 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 			.y0((d: point)=>height - yScale(d.y+1))
 			.y1((d: point)=>height)
 			.curve(curveStepAfter);
-		console.log(xTicks);
+		console.log(xTicks, xTickLabels);
 		return <div className="graphslider">
 			<svg width="100%" height={viewHeight}
 				viewBox={-margin.left+" "+-margin.right+" "+viewWidth+" "+viewHeight}>
@@ -70,6 +74,12 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 						x1={xScale.range()[0]} y1={height}
 						x2={xScale.range()[1]} y2={height}
 					/>
+					{xTicks.map((tick: number, idx: number)=>{
+						return <text key={idx} textAnchor="middle" fontSize={fontSize}
+							 x={xScale(tick)} y={height + xTickPadding + fontSize}>
+								{xTickLabels[idx]}
+						</text>
+					})}
 				</g>
 			</svg>
 		</div>
