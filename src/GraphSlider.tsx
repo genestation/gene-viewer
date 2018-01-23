@@ -1,6 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {max} from 'd3-array';
+import {scaleLinear} from 'd3-scale';
+import {line,area,curveStepAfter} from 'd3-shape';
 
+interface point {
+	x: number,
+	y: number,
+}
 interface GraphSliderBucket {
 	from: number,
 	to: number,
@@ -16,13 +23,42 @@ export interface GraphSliderStats {
 interface GraphSliderProps {
 	stats?: GraphSliderStats,
 }
-interface GraphSliderState {}
+interface GraphSliderState { }
 export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderState> {
 	constructor(props: GraphSliderProps) {
 		super(props);
-		this.state={};
 	}
 	render() {
+		if(!this.props.stats) {
+			return null
+		}
+		const margin = {top: 20, right: 10, bottom: 20, left: 10};
+		const width = 350 - margin.left - margin.right;
+		const height = 80 - margin.bottom - margin.top;
+		let xScale = scaleLinear()
+			.domain([this.props.stats.min, this.props.stats.max])
+			.range([0, width])
+			.clamp(true);
+		let yScale = scaleLinear()
+			.domain([0,max(this.props.stats.histogram,(bucket: GraphSliderBucket)=>{
+				return bucket.doc_count;
+			})])
+			.range([0,height]);
+		let points: point[] = this.props.stats.histogram.map((bucket: GraphSliderBucket)=>{
+			return {x: bucket.from, y: bucket.doc_count}
+		});
+		points.push({x: this.props.stats.histogram[this.props.stats.histogram.length-1].to, y: 0});
+		console.log(this.props.stats.histogram, points);
+		let hist_area = area()
+			.x((d: point)=>xScale(d.x))
+			.y((d: point)=>height - yScale(d.y))
+			.y0((d: point)=>height)
+			.curve(curveStepAfter);
+		let hist_line = line()
+			.x((d: point)=>xScale(d.x))
+			.y((d: point)=>height - yScale(d.y))
+			.curve(curveStepAfter);
+		console.log(hist_area(points), hist_line(points));
 		return <div/>
 	}
 }
