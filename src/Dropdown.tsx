@@ -6,7 +6,7 @@ export interface DropdownProps{
 	className?: string;
 	autoclose?: boolean;
 	label?: string;
-	value?: any;
+	value?: string;
 	tabindex?: number;
 }
 export interface DropdownState{
@@ -48,4 +48,27 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 			</div>
 		</div>
 	}
+}
+
+export interface DropdownListOption {
+	label: string,
+	value: any,
+}
+export interface DropdownListProps {
+	options: DropdownListOption[],
+	onChange: (option: DropdownListOption)=>any,
+}
+export function DropdownList(props: DropdownListProps) {
+	return <ul className="dropdown-list">
+		{props.options.map((option: DropdownListOption, idx: number)=>{
+			return <li key={idx} className="dropdown-item"
+			onClick={()=>props.onChange(option)}>
+				{option.label}
+				</li>
+		})}
+	</ul>
+}
+
+export function DropdownListFind(value: any, options: DropdownListOption[]) {
+	return options.find((option: DropdownListOption)=>option.value == value);
 }
