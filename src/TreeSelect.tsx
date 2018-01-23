@@ -93,8 +93,8 @@ let TreebeardTheme = {
                     margin: '-7px 0 0 -7px',
                     height: '14px'
                 },
-                height: 14,
-                width: 14,
+                height: 10,
+                width: 10,
                 arrow: {
                     fill: 'black',
                     strokeWidth: 0
