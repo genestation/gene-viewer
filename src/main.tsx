@@ -7,7 +7,7 @@ import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {Numberline} from './Numberline.tsx';
 import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
-import {GraphSlider, GraphSliderStats} from './SelectFilter.tsx';
+import {GraphSlider, GraphSliderStats} from './GraphSlider.tsx';
 
 export interface Feature {
 	name?: string,
@@ -167,18 +167,13 @@ function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.Searc
 	}
 	return recursiveScroll(response, response.hits.hits);
 }
-function getStats(client: ElasticSearch.Client, index: string, field: string, srcfeature: string, start: number, end: number): Promise<HitsArray<any>> {
+function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<ElasticSearch.SearchResponse<any>> {
 	let searchBody = {
 		"id": "range_stats",
-		"params": {
-			"field": 'data.'+field,
-			"start": this.state.start,
-			"end": this.state.end,
-			"srcfeature": this.state.srcfeature,
-		}
+		"params": params,
 	};
-	this.elastic.searchTemplate({
-		"index": "variant_v1.4",
+	return client.searchTemplate({
+		"index": index,
 		"type": "Homo_sapiens",
 		"body": searchBody,
 	});
@@ -195,6 +190,8 @@ export interface GeneViewerState{
 	end?: number,
 	srcfeature?: string,
 	name?: string,
+	stats?: GraphSliderStats,
+
 	focus?: number,
 	selectedRegion?: number[],
 	selectedFeature?: string,
@@ -285,16 +282,27 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			return scrollToEnd(this.elastic, response, limit)
 		}).then((hits:HitsArray<any>)=>{
 			let features = this.props.features.concat(hits.map((hit)=>hit._source));
+			let scale = new Scale({
+				features: features,
+				size: this.width,
+				margin: 100,
+				filter: ['exon','enhancer']
+			});
 			this.setState({
 				features: features,
-				scale: new Scale({
-					features: features,
-					size: this.width,
-					margin: 100,
-					filter: ['exon','enhancer']
-				}),
+				scale: scale,
+			});
+			return scale
+		}).then((scale: Scale)=>{
+			return getRangeStats(this.elastic, "variant_v1.4", {
+				field: 'data.'+this.state.filter.field,
+				start: this.state.start,
+				end: this.state.end,
+				srcfeature: this.state.srcfeature,
 			})
-		})
+		}).then((response: ElasticSearch.SearchResponse<any>)=>{
+			console.log(response);
+		});
 		/*
 		this.elastic.searchTemplate({
 			"index": "variant_v1.4",
