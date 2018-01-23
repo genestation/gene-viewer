@@ -167,15 +167,46 @@ function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.Searc
 	}
 	return recursiveScroll(response, response.hits.hits);
 }
-function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<ElasticSearch.SearchResponse<any>> {
-	let searchBody = {
-		"id": "range_stats",
-		"params": params,
-	};
+function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<GraphSliderStats> {
+	let stats: GraphSliderStats;
 	return client.searchTemplate({
-		"index": index,
-		"type": "Homo_sapiens",
-		"body": searchBody,
+		index: index,
+		type: "Homo_sapiens",
+		body: {
+			id: "range_stats",
+			params: params,
+		},
+	}).then((response: ElasticSearch.SearchResponse<any>)=>{
+		stats = response.aggregations.field_stats;
+		let numBuckets = 100;
+		let interval = (stats.max - stats.min) / numBuckets;
+
+		let x = stats.min + interval
+		let last = x
+		let i = 0
+		let ranges: {from?: number, to?: number}[] = [{to: x}];
+		for(i++; i < numBuckets-1; i++) {
+			x += interval;
+			ranges.push({from: last, to: x});
+			last = x
+		}
+		ranges.push({from: x});
+		return client.searchTemplate({
+			index: index,
+			type: "Homo_sapiens",
+			body: {
+				id: "range_buckets",
+				params: Object.assign(params, {
+					ranges: ranges,
+				}),
+			}
+		})
+	}).then((response: ElasticSearch.SearchResponse<any>)=>{
+		let buckets = response.aggregations.field_buckets.buckets;
+		buckets[0].from = stats.min;
+		buckets[buckets.length-1].to = stats.max;
+		stats.histogram = buckets;
+		return stats;
 	});
 }
 
@@ -292,16 +323,16 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				features: features,
 				scale: scale,
 			});
-			return scale
-		}).then((scale: Scale)=>{
-			return getRangeStats(this.elastic, "variant_v1.4", {
-				field: 'data.'+this.state.filter.field,
-				start: this.state.start,
-				end: this.state.end,
-				srcfeature: this.state.srcfeature,
-			})
-		}).then((response: ElasticSearch.SearchResponse<any>)=>{
-			console.log(response);
+			if(this.state.filter.field) {
+				return getRangeStats(this.elastic, "variant_v1.4", {
+					field: 'data.'+this.state.filter.field,
+					start: scale.domain[0],
+					end: scale.domain[1],
+					srcfeature: this.state.srcfeature,
+				}).then((stats: GraphSliderStats)=>{
+					this.setState({stats: stats});
+				});
+			}
 		});
 		/*
 		this.elastic.searchTemplate({

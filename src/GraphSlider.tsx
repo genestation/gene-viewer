@@ -2,8 +2,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 interface GraphSliderBucket {
-	bucket: number,
-	count: number,
+	from: number,
+	to: number,
+	doc_count: number,
 }
 export interface GraphSliderStats {
 	min: number,
