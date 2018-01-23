@@ -7,6 +7,5 @@
     "mocha": "registry:dt/mocha#2.2.5+20160720003353"
   },
   "devDependencies": {
-    "d3-scale": "registry:npm/d3-scale#1.0.0+20160707082208"
   }
 }
