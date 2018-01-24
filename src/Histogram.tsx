@@ -70,8 +70,8 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	margin = {top: 15, right: 40, bottom: 20, left: 10};
-	padding = {top: 1, right: 0, bottom: 2, left: 0};
+	margin = {top: 15, right: 40, bottom: 20, left: 20};
+	padding = {top: 1, right: 20, bottom: 2, left: 0};
 	width = 350;
 	height = 40;
 	viewWidth = this.width + this.margin.left + this.margin.right;
@@ -148,12 +148,14 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		if(!this.props.stats
 		|| typeof this.props.stats.min != "number"
 		|| typeof this.props.stats.max != "number") {
-			return <div className="histogram">
+			return <div className="histogram"
+				style={{marginRight: this.padding.right - this.margin.right + "px"}}>
 				<svg width={this.viewWidth} height={this.viewHeight}/>
 			</div>
 		} else {
 			this.updateD3();
 			return <div className="histogram"
+					style={{marginRight: this.padding.right - this.margin.right + "px"}}
 					ref={ref => this.child.navigation = ref}
 					onMouseMove={this.onMouseMove}
 					onMouseLeave={this.onMouseLeave}

@@ -246,7 +246,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	} = {};
 	handlingMouseMove: boolean = false;
 	elastic: ElasticSearch.Client;
-	margin = {top: 25, right: 20, bottom: 5, left: 20};
+	margin = {top: 20, right: 20, bottom: 10, left: 20};
 	padding = {top: 8, right: 0, bottom: 0, left: 0};
 	width = 1000;
 	dnaHeight = 35;
@@ -523,6 +523,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
+				style={{height: this.viewHeight+"px"}}
 				ref={ref => this.child.navigation = ref}
 				onMouseMove={this.onMouseMove}
 				onMouseLeave={this.onMouseLeave} >
