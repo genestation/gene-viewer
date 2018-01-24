@@ -32,9 +32,6 @@ export class Dropdown extends React.Component<DropdownProps,DropdownState> {
 			tabIndex={this.props.tabindex?this.props.tabindex:0}
 			ref={(ref)=>this.child.container = ref}
 			>
-			<div className="dropdown-close"
-				onClick={()=>{this.child.container.blur()}}
-			/>
 			<div className="dropdown-label">
 				{this.props.label}:
 			</div>
