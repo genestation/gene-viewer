@@ -58,7 +58,8 @@ export function findHistogramItems(buckets: HistogramBucket[], items: HistogramI
 
 
 interface HistogramProps {
-	onChange?: (bucket: HistogramBucket)=>any,
+	onClick?: (bucket: HistogramBucket)=>any,
+	onHover?: (bucket: HistogramBucket)=>any,
 	items?: HistogramItem[],
 	stats?: HistogramStats,
 }
@@ -98,7 +99,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		this.setState({
 			hoverBucket: null,
 		});
-		this.props.onChange(null);
+		if(this.props.onHover) {
+			this.props.onHover(null);
+		}
 	}
 	handleMouseMove = (pageX: number)=>{
 		const offsetLeft = this.child.navigation.offsetLeft;
@@ -110,7 +113,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		this.setState({
 			hoverBucket: bucket,
 		},()=>{this.handlingMouseMove=false});
-		this.props.onChange(bucket);
+		if(this.props.onHover) {
+			this.props.onHover(bucket);
+		}
 	}
 	updateD3 = ()=>{
 		this.xScale = scaleLinear()

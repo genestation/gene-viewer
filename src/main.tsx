@@ -227,7 +227,7 @@ export interface GeneViewerState{
 	focus?: number,
 	selectedRegion?: number[],
 	selectedFeature?: string,
-	selectedBucket?: HistogramBucket,
+	hoverBucket?: HistogramBucket,
 	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
@@ -411,9 +411,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			filter: filter
 		}, this.fetchSnps);
 	}
-	handleChangeBucket = (bucket?: HistogramBucket)=>{
+	handleHoverBucket = (bucket?: HistogramBucket)=>{
 		this.setState({
-			selectedBucket: bucket
+			hoverBucket: bucket
 		});
 	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
@@ -509,10 +509,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				&& (!this.state.selectedFeature || this.state.selectedFeature == item.data.name)
 				&& (!this.state.hoverFeature || this.state.hoverFeature == item.data.name)
 		});
-		if(this.state.selectedBucket) {
+		if(this.state.hoverBucket) {
 			features = features.filter((feature: Feature)=>{
 				const x = getFeatureData(feature,this.state.filter.field)
-				return x >= this.state.selectedBucket.from && x <= this.state.selectedBucket.to
+				return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
 			})
 		}
 		return <div className="geneviewer">
@@ -523,7 +523,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
-			<Histogram onChange={this.handleChangeBucket} items={histItems} stats={this.state.stats} />
+			<Histogram onHover={this.handleHoverBucket} items={histItems} stats={this.state.stats} />
 			<div className="geneviewer-data"> {
 				features.map(this.renderData)
 			} </div>
