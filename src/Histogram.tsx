@@ -107,8 +107,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = this.xScale.invert(pageX - offsetLeft - this.margin.left);
-		const bucket = this.props.stats.histogram.find((bucket: HistogramBucket)=>
+		const bucket = this.props.stats.histogram.find((bucket: HistogramBucket, idx: number)=>
 			coordX >= bucket.from && coordX < bucket.to
+			|| idx == this.props.stats.histogram.length-1 && coordX == bucket.to
 		);
 		this.setState({
 			hoverBucket: bucket,
