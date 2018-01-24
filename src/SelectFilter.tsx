@@ -7,9 +7,10 @@ import {TreeSelect, TreeNode} from './TreeSelect.tsx';
 import {Dropdown, DropdownList, DropdownListFind, DropdownListOption} from './Dropdown.tsx';
 
 export interface FieldFilter {
-	field: string,
-	order: string,
-	limit: number,
+	view?: string,
+	field?: string,
+	order?: string,
+	limit?: number,
 }
 interface SelectFilterProps {
 	value: FieldFilter,
@@ -40,45 +41,34 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 	}];
 	constructor(props: SelectFilterProps) {
 		super(props);
-		this.state = {
-			expandTree: false,
-		};
 	}
-	handleChangeField = (node: TreeNode)=>{
-		this.setState({
-			expandTree: !node.valid,
-		});
-		this.props.onChange({
-			field: node.path,
-			order: this.props.value.order,
-			limit: this.props.value.limit,
-		});
-	}
-	handleChangeOrder = (option: DropdownListOption)=>{
-		this.props.onChange({
-			field: this.props.value.field,
-			order: option.value,
-			limit: this.props.value.limit,
-		});
-	}
-	handleChangeLimit = (option: DropdownListOption)=>{
-		this.props.onChange({
-			field: this.props.value.field,
-			order: this.props.value.order,
-			limit: option.value,
-		});
+	handleChange = (settings: FieldFilter)=>{
+		this.props.onChange(Object.assign(this.props.value,settings));
 	}
 	render() {
 		return <div className="selectfilter-container">
-			<Dropdown className="selectfilter-element" autoclose={false} label="Filter" value={this.props.value.field?this.props.value.field:"<associations>"}>
-				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
-			</Dropdown>
-			<Dropdown className="selectfilter-element" label="Order" value={DropdownListFind(this.props.value.order,SelectFilter.orderOptions).label}>
-				<DropdownList onChange={this.handleChangeOrder} options={SelectFilter.orderOptions}/>
-			</Dropdown>
-			<Dropdown className="selectfilter-element" label="Limit" value={DropdownListFind(this.props.value.limit,SelectFilter.limitOptions).label}>
-				<DropdownList onChange={this.handleChangeLimit} options={SelectFilter.limitOptions}/>
-			</Dropdown>
+				<Dropdown className="selectfilter-element" autoclose={false} label="View"
+					value={this.props.value.field?this.props.value.field:"<auto>"}>
+					<TreeSelect fields={this.props.fields} value={this.props.value.view}
+						onSelect={(node: TreeNode)=>{this.handleChange({view: node.path})}} />
+				</Dropdown>
+			<div className="selectfilter-container-group">
+				<Dropdown className="selectfilter-element" autoclose={false} label="Filter"
+					value={this.props.value.field?this.props.value.field:"<associations>"}>
+					<TreeSelect fields={this.props.fields} value={this.props.value.field}
+						onSelect={(node: TreeNode)=>{this.handleChange({field: node.path})}} />
+				</Dropdown>
+				<Dropdown className="selectfilter-element" label="Order"
+					value={DropdownListFind(this.props.value.order,SelectFilter.orderOptions).label}>
+					<DropdownList options={SelectFilter.orderOptions}
+						onChange={(option: DropdownListOption)=>{this.handleChange({order: option.value})}} />
+				</Dropdown>
+				<Dropdown className="selectfilter-element" label="Limit"
+					value={DropdownListFind(this.props.value.limit,SelectFilter.limitOptions).label}>
+					<DropdownList options={SelectFilter.limitOptions}
+						onChange={(option: DropdownListOption)=>{this.handleChange({limit: option.value})}} />
+				</Dropdown>
+			</div>
 		</div>
 	}
 }

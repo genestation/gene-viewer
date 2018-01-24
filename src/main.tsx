@@ -269,6 +269,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			features: props.features,
 			scale: scale,
 			filter: {
+				view: null,
 				field: null,
 				order: "desc",
 				limit: 10,
