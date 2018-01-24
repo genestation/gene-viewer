@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
-import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
+import {SelectControl, Controls} from './SelectControl.tsx';
 import {Histogram, HistogramStats, HistogramBucket, makeHistogramBuckets, readHistogramBuckets} from './Histogram.tsx';
 
 export interface Feature {
@@ -232,7 +232,7 @@ export interface GeneViewerState{
 	currFeature?: Feature,
 	features?: Feature[],
 	scale?: Scale,
-	filter?: FieldFilter,
+	control?: Controls,
 }
 export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState> {
 	static defaultProps: GeneViewerProps = {
@@ -268,7 +268,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			hoverFeature: null,
 			features: props.features,
 			scale: scale,
-			filter: {
+			control: {
 				view: null,
 				field: null,
 				order: "desc",
@@ -284,19 +284,19 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	fetchSnps = ()=>{
 		let searchBody = {};
 		let limit: undefined | number = undefined;
-		if(this.props.numericFields.indexOf(this.state.filter.field) != -1) {
+		if(this.props.numericFields.indexOf(this.state.control.field) != -1) {
 			searchBody = {
 				"id": "sorted_locrange",
 				"params": {
-					"field": 'data.'+this.state.filter.field,
-					"order": this.state.filter.order,
+					"field": 'data.'+this.state.control.field,
+					"order": this.state.control.order,
 					"mode": "avg",
 					"start": this.state.start,
 					"end": this.state.end,
 					"srcfeature": this.state.srcfeature,
 				}
 			};
-			limit = this.state.filter.limit;
+			limit = this.state.control.limit;
 		} else {
 			searchBody = {
 				"id": "gene_association",
@@ -325,9 +325,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				features: features,
 				scale: scale,
 			});
-			if(this.state.filter.field) {
+			if(this.state.control.field) {
 				return getRangeStats(this.elastic, "variant_v1.4", {
-					field: 'data.'+this.state.filter.field,
+					field: 'data.'+this.state.control.field,
 					start: scale.domain[0],
 					end: scale.domain[1],
 					srcfeature: this.state.srcfeature,
@@ -407,9 +407,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			}, ()=>{this.handlingMouseMove=false});
 		}
 	}
-	handleChangeFilter = (filter?: FieldFilter)=>{
+	handleChangeControl = (control?: Controls)=>{
 		this.setState({
-			filter: filter
+			control: control
 		}, this.fetchSnps);
 	}
 	handleHoverBucket = (bucket?: HistogramBucket)=>{
@@ -502,7 +502,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}
 		let histItems = features.map((feature: Feature)=>{
 			return {
-				x: getFeatureData(feature,this.state.filter.field),
+				x: getFeatureData(feature,this.state.control.field),
 				data: feature,
 			};
 		}).filter((item: {x:any, data: Feature})=>{
@@ -512,7 +512,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 		if(this.state.hoverBucket) {
 			features = features.filter((feature: Feature)=>{
-				const x = getFeatureData(feature,this.state.filter.field)
+				const x = getFeatureData(feature,this.state.control.field)
 				return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
 			})
 		}
@@ -523,7 +523,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
+			<SelectControl value={this.state.control} onChange={this.handleChangeControl} fields={this.props.numericFields}/>
 			<Histogram onHover={this.handleHoverBucket} items={histItems} stats={this.state.stats} />
 			<div className="geneviewer-data"> {
 				features.map(this.renderData)

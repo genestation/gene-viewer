@@ -1,24 +1,24 @@
 "use strict";
 
-import './SelectFilter.scss';
+import './SelectControl.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {TreeSelect, TreeNode} from './TreeSelect.tsx';
 import {Dropdown, DropdownList, DropdownListFind, DropdownListOption} from './Dropdown.tsx';
 
-export interface FieldFilter {
+export interface Controls {
 	view?: string,
 	field?: string,
 	order?: string,
 	limit?: number,
 }
-interface SelectFilterProps {
-	value: FieldFilter,
+interface SelectControlProps {
+	value: Controls,
 	fields: string[],
-	onChange: (filter: FieldFilter)=>any,
+	onChange: (control: Controls)=>any,
 }
-interface SelectFilterState {}
-export class SelectFilter extends React.Component<SelectFilterProps,SelectFilterState> {
+interface SelectControlState {}
+export class SelectControl extends React.Component<SelectControlProps,SelectControlState> {
 	static orderOptions: DropdownListOption[] = [{
 		label: "Ascending",
 		value: "asc",
@@ -39,33 +39,33 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 		label: "100",
 		value: 100,
 	}];
-	constructor(props: SelectFilterProps) {
+	constructor(props: SelectControlProps) {
 		super(props);
 	}
-	handleChange = (settings: FieldFilter)=>{
+	handleChange = (settings: Controls)=>{
 		this.props.onChange(Object.assign(this.props.value,settings));
 	}
 	render() {
-		return <div className="selectfilter-container">
-				<Dropdown className="selectfilter-element" autoclose={false} label="View"
+		return <div className="selectcontrol-container">
+				<Dropdown className="selectcontrol-element" autoclose={false} label="View"
 					value={this.props.value.field?this.props.value.field:"<auto>"}>
 					<TreeSelect fields={this.props.fields} value={this.props.value.view}
 						onSelect={(node: TreeNode)=>{this.handleChange({view: node.path})}} />
 				</Dropdown>
-			<div className="selectfilter-container-group">
-				<Dropdown className="selectfilter-element" autoclose={false} label="Filter"
+			<div className="selectcontrol-container-group">
+				<Dropdown className="selectcontrol-element" autoclose={false} label="Control"
 					value={this.props.value.field?this.props.value.field:"<associations>"}>
 					<TreeSelect fields={this.props.fields} value={this.props.value.field}
 						onSelect={(node: TreeNode)=>{this.handleChange({field: node.path})}} />
 				</Dropdown>
-				<Dropdown className="selectfilter-element" label="Order"
-					value={DropdownListFind(this.props.value.order,SelectFilter.orderOptions).label}>
-					<DropdownList options={SelectFilter.orderOptions}
+				<Dropdown className="selectcontrol-element" label="Order"
+					value={DropdownListFind(this.props.value.order,SelectControl.orderOptions).label}>
+					<DropdownList options={SelectControl.orderOptions}
 						onChange={(option: DropdownListOption)=>{this.handleChange({order: option.value})}} />
 				</Dropdown>
-				<Dropdown className="selectfilter-element" label="Limit"
-					value={DropdownListFind(this.props.value.limit,SelectFilter.limitOptions).label}>
-					<DropdownList options={SelectFilter.limitOptions}
+				<Dropdown className="selectcontrol-element" label="Limit"
+					value={DropdownListFind(this.props.value.limit,SelectControl.limitOptions).label}>
+					<DropdownList options={SelectControl.limitOptions}
 						onChange={(option: DropdownListOption)=>{this.handleChange({limit: option.value})}} />
 				</Dropdown>
 			</div>
