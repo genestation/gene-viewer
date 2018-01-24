@@ -20,4 +20,9 @@ $light-text-color: #888;
 	}
 	&-navigation {
 	}
+	&-data {
+		height: 20em;
+		paddingRight: 1em;
+		overflow: auto;
+	}
 }

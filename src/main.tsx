@@ -500,6 +500,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			};
 		}).filter((item: {x:any, data: Feature})=>{
 			return typeof item.x == "number"
+				&& (!this.state.selectedFeature || this.state.selectedFeature == item.data.name)
+				&& (!this.state.hoverFeature || this.state.hoverFeature == item.data.name)
 		});
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
@@ -510,7 +512,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
 			<Histogram items={histItems} stats={this.state.stats} />
-			{features.map(this.renderData)}
+			<div className="geneviewer-data"> {
+				features.map(this.renderData)
+			} </div>
 		</div>
 	}
 }

@@ -157,7 +157,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						{this.props.items?<g>{
 							this.props.items.map((item: HistogramItem, idx: number)=>{
 								return <line key={idx} className="graphslider-item"
-									stroke="red"
+									stroke="#ff00007a"
 									x1={this.xScale(item.x)} y1={0}
 									x2={this.xScale(item.x)} y2={this.height}
 								/>
