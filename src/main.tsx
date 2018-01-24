@@ -270,7 +270,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			scale: scale,
 			control: {
 				view: null,
-				field: null,
+				filter: null,
 				order: "desc",
 				limit: 10,
 			},
@@ -284,11 +284,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	fetchSnps = ()=>{
 		let searchBody = {};
 		let limit: undefined | number = undefined;
-		if(this.props.numericFields.indexOf(this.state.control.field) != -1) {
+		if(this.props.numericFields.indexOf(this.state.control.filter) != -1) {
 			searchBody = {
 				"id": "sorted_locrange",
 				"params": {
-					"field": 'data.'+this.state.control.field,
+					"field": 'data.'+this.state.control.filter,
 					"order": this.state.control.order,
 					"mode": "avg",
 					"start": this.state.start,
@@ -325,9 +325,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				features: features,
 				scale: scale,
 			});
-			if(this.state.control.field) {
+			if(this.state.control.view || this.state.control.filter) {
 				return getRangeStats(this.elastic, "variant_v1.4", {
-					field: 'data.'+this.state.control.field,
+					field: 'data.'+(this.state.control.view?this.state.control.view:this.state.control.filter),
 					start: scale.domain[0],
 					end: scale.domain[1],
 					srcfeature: this.state.srcfeature,
@@ -502,7 +502,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}
 		let histItems = features.map((feature: Feature)=>{
 			return {
-				x: getFeatureData(feature,this.state.control.field),
+				x: getFeatureData(feature,
+					(this.state.control.view?this.state.control.view:this.state.control.filter)),
 				data: feature,
 			};
 		}).filter((item: {x:any, data: Feature})=>{
@@ -512,7 +513,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 		if(this.state.hoverBucket) {
 			features = features.filter((feature: Feature)=>{
-				const x = getFeatureData(feature,this.state.control.field)
+				const x = getFeatureData(feature,
+					(this.state.control.view?this.state.control.view:this.state.control.filter));
 				return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
 			})
 		}
