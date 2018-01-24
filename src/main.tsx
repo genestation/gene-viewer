@@ -6,7 +6,7 @@ import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
-import {Histogram, HistogramStats, makeHistogramBuckets, readHistogramBuckets} from './Histogram.tsx';
+import {Histogram, HistogramStats, HistogramBucket, makeHistogramBuckets, readHistogramBuckets} from './Histogram.tsx';
 
 export interface Feature {
 	name?: string,
@@ -227,6 +227,7 @@ export interface GeneViewerState{
 	focus?: number,
 	selectedRegion?: number[],
 	selectedFeature?: string,
+	selectedBucket?: HistogramBucket,
 	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
@@ -410,6 +411,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			filter: filter
 		}, this.fetchSnps);
 	}
+	handleChangeBucket = (bucket?: HistogramBucket)=>{
+		this.setState({
+			selectedBucket: bucket
+		});
+	}
 	renderGenome = (features: Feature[], height: number, dnaHeight: number, strandHeight: number)=>{
 		const minY = -height/2;
 		const marginY = dnaHeight/4;
@@ -503,6 +509,12 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				&& (!this.state.selectedFeature || this.state.selectedFeature == item.data.name)
 				&& (!this.state.hoverFeature || this.state.hoverFeature == item.data.name)
 		});
+		if(this.state.selectedBucket) {
+			features = features.filter((feature: Feature)=>{
+				const x = getFeatureData(feature,this.state.filter.field)
+				return x >= this.state.selectedBucket.from && x <= this.state.selectedBucket.to
+			})
+		}
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
@@ -511,7 +523,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
-			<Histogram items={histItems} stats={this.state.stats} />
+			<Histogram onChange={this.handleChangeBucket} items={histItems} stats={this.state.stats} />
 			<div className="geneviewer-data"> {
 				features.map(this.renderData)
 			} </div>
