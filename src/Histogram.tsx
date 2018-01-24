@@ -9,9 +9,9 @@ interface point {
 	y: number,
 }
 interface HistogramBucket {
-	from: number,
-	to: number,
-	doc_count: number,
+	from?: number,
+	to?: number,
+	doc_count?: number,
 }
 export interface HistogramStats {
 	min: number,
@@ -26,6 +26,34 @@ interface HistogramProps {
 interface HistogramState {
 	hoverBucket?: HistogramBucket,
 }
+
+// Generate range aggregation buckets
+export function makeHistogramBuckets(stats: HistogramStats, numBuckets: number) {
+	const domain = scaleLinear().domain([stats.min,stats.max]).nice(4).domain()
+	const interval = (domain[1] - domain[0]) / numBuckets;
+
+	let x = domain[0] + interval
+	let last = x
+	let i = 0
+	let ranges: HistogramBucket[] = [{to: x}];
+	for(i++; i < numBuckets-1; i++) {
+		x += interval;
+		ranges.push({from: last, to: x});
+		last = x
+	}
+	ranges.push({from: x});
+	stats.histogram = ranges;
+	return stats;
+}
+export function readHistogramBuckets(stats: HistogramStats, buckets: HistogramBucket[]) {
+	const domain = scaleLinear().domain([stats.min,stats.max]).nice(4).domain()
+	buckets[0].from = domain[0];
+	buckets[buckets.length-1].to = domain[1];
+	stats.histogram = buckets;
+	return stats;
+}
+
+
 export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;

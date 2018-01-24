@@ -6,7 +6,7 @@ import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
-import {Histogram, HistogramStats} from './Histogram.tsx';
+import {Histogram, HistogramStats, makeHistogramBuckets, readHistogramBuckets} from './Histogram.tsx';
 
 export interface Feature {
 	name?: string,
@@ -176,36 +176,19 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 			params: params,
 		},
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		stats = response.aggregations.field_stats;
-		let numBuckets = 100;
-		let interval = (stats.max - stats.min) / numBuckets;
-
-		let x = stats.min + interval
-		let last = x
-		let i = 0
-		let ranges: {from?: number, to?: number}[] = [{to: x}];
-		for(i++; i < numBuckets-1; i++) {
-			x += interval;
-			ranges.push({from: last, to: x});
-			last = x
-		}
-		ranges.push({from: x});
+		stats = makeHistogramBuckets(response.aggregations.field_stats, 100)
 		return client.searchTemplate({
 			index: index,
 			type: "Homo_sapiens",
 			body: {
 				id: "range_buckets",
 				params: Object.assign(params, {
-					ranges: ranges,
+					ranges: stats.histogram,
 				}),
 			}
 		})
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		let buckets = response.aggregations.field_buckets.buckets;
-		buckets[0].from = stats.min;
-		buckets[buckets.length-1].to = stats.max;
-		stats.histogram = buckets;
-		return stats;
+		return readHistogramBuckets(stats, response.aggregations.field_buckets.buckets);
 	});
 }
 
