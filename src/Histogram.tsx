@@ -8,6 +8,10 @@ interface point {
 	x: number,
 	y: number,
 }
+interface HistogramItem {
+	x: number,
+	data: any,
+}
 interface HistogramBucket {
 	from?: number,
 	to?: number,
@@ -51,6 +55,13 @@ export function readHistogramBuckets(stats: HistogramStats, buckets: HistogramBu
 	buckets[buckets.length-1].to = domain[1];
 	stats.histogram = buckets;
 	return stats;
+}
+export function findHistogramItems(buckets: HistogramBucket[], items: HistogramItem[]) {
+	return items.filter((item: HistogramItem)=>{
+		return buckets.findIndex((bucket: HistogramBucket)=>{
+			return item.x >= bucket.from && item.x < bucket.to
+		}) != -1;
+	});
 }
 
 
@@ -126,7 +137,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 			.curve(curveStepAfter);
 	}
 	render() {
-		if(!this.props.stats || !this.props.stats.avg) {
+		if(!this.props.stats
+		|| !this.props.stats.min
+		|| !this.props.stats.max) {
 			return null
 		} else {
 			this.updateD3();
