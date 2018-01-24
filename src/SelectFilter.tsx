@@ -70,7 +70,7 @@ export class SelectFilter extends React.Component<SelectFilterProps,SelectFilter
 	}
 	render() {
 		return <div className="selectfilter-container">
-			<Dropdown className="selectfilter-element" autoclose={false} label="Filter" value={this.props.value.field?this.props.value.field:"<none>"}>
+			<Dropdown className="selectfilter-element" autoclose={false} label="Filter" value={this.props.value.field?this.props.value.field:"<associations>"}>
 				<TreeSelect fields={this.props.fields} value={this.props.value.field} onSelect={this.handleChangeField} />
 			</Dropdown>
 			<Dropdown className="selectfilter-element" label="Order" value={DropdownListFind(this.props.value.order,SelectFilter.orderOptions).label}>
