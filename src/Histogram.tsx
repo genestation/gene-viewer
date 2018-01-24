@@ -20,9 +20,7 @@ interface HistogramBucket {
 export interface HistogramStats {
 	min: number,
 	max: number,
-	avg: number,
 	histogram: HistogramBucket[],
-	step: number,
 }
 interface HistogramProps {
 	stats?: HistogramStats,
@@ -138,8 +136,8 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	}
 	render() {
 		if(!this.props.stats
-		|| !this.props.stats.min
-		|| !this.props.stats.max) {
+		|| typeof this.props.stats.min != "number"
+		|| typeof this.props.stats.max != "number") {
 			return null
 		} else {
 			this.updateD3();
