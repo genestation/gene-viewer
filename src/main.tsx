@@ -241,11 +241,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	handlingMouseMove: boolean = false;
 	width = 1000;
 	marginX = 20;
 	viewWidth = this.width + 2*this.marginX;
-	data_keys = ['fst','nucleotide_diversity','heterozygote_deficiency','heterozygote_excess','hardy_weinburg'];
+	handlingMouseMove: boolean = false;
 	elastic: ElasticSearch.Client;
 	constructor(props: GeneViewerProps) {
 		super(props);

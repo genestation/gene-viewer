@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {max} from 'd3-array';
-import {scaleLinear, scaleLog} from 'd3-scale';
-import {line, area, curveStepAfter} from 'd3-shape';
+import {scaleLinear, scaleLog, ScaleLinear, ScaleLogarithmic} from 'd3-scale';
+import {area, curveStepAfter, Area} from 'd3-shape';
 
 interface point {
 	x: number,
@@ -23,66 +23,122 @@ export interface GraphSliderStats {
 interface GraphSliderProps {
 	stats?: GraphSliderStats,
 }
-interface GraphSliderState { }
+interface GraphSliderState {
+	hoverBucket?: GraphSliderBucket,
+}
 export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderState> {
+	child: {
+		navigation?: HTMLElement;
+	} = {};
+	margin = {top: 20, right: 10, bottom: 20, left: 10};
+	viewWidth = 350;
+	viewHeight = 80;
+	width = this.viewWidth - this.margin.left - this.margin.right;
+	height = this.viewHeight - this.margin.bottom - this.margin.top;
+	fontSize = 10;
+	xTickPadding = 2;
+	handlingMouseMove = false;
+	xScale: ScaleLinear<number,number>;
+	xTicks: number[];
+	xTickLabels: string[];
+	yScale: ScaleLogarithmic<number,number>;
+	hist_points: point[];
+	hist_area: Area<point>;
 	constructor(props: GraphSliderProps) {
 		super(props);
+		this.state={};
 	}
-	render() {
-		if(!this.props.stats) {
-			return null
+	onMouseMove = (e: React.MouseEvent)=>{
+		if(!this.handlingMouseMove) {
+			let pageX = e.pageX;
+			requestAnimationFrame(()=>{this.handleMouseMove(pageX)});
 		}
-		const margin = {top: 20, right: 10, bottom: 20, left: 10};
-		const viewWidth = 350;
-		const viewHeight = 80;
-		const width = viewWidth - margin.left - margin.right;
-		const height = viewHeight - margin.bottom - margin.top;
-		const fontSize = 10;
-		let xScale = scaleLinear()
+		this.handlingMouseMove = true;
+	}
+	onMouseLeave = (e: React.MouseEvent)=>{
+		this.setState({
+			hoverBucket: null,
+		});
+	}
+	handleMouseMove = (pageX: number)=>{
+		const offsetLeft = this.child.navigation.offsetLeft;
+		const offsetWidth = this.child.navigation.offsetWidth;
+		const coordX = this.xScale.invert(pageX - offsetLeft - this.margin.left);
+		const bucket = this.props.stats.histogram.find((bucket: GraphSliderBucket)=>
+			coordX >= bucket.from && coordX < bucket.to
+		);
+		this.setState({
+			hoverBucket: bucket,
+		},()=>{this.handlingMouseMove=false});
+	}
+	updateD3 = ()=>{
+		this.xScale = scaleLinear()
 			.domain([this.props.stats.min, this.props.stats.max])
-			.range([0, width])
+			.range([0, this.width])
 			.nice(4)
 			.clamp(true);
-		let xTicks = xScale.ticks(4);
-		let xTickLabels = xTicks.map(xScale.tickFormat(4));
-		let xTickPadding = 2;
-		let yScale = scaleLog()
+		this.xTicks = this.xScale.ticks(4);
+		this.xTickLabels = this.xTicks.map(this.xScale.tickFormat(4));
+		this.yScale = scaleLog()
 			.domain([1,max(this.props.stats.histogram,(bucket: GraphSliderBucket)=>{
 				return bucket.doc_count;
 			})+1])
-			.range([0,height]);
-		let points: point[] = this.props.stats.histogram.map((bucket: GraphSliderBucket)=>{
+			.range([0,this.height]);
+		this.hist_points = this.props.stats.histogram.map((bucket: GraphSliderBucket)=>{
 			return {x: bucket.from, y: bucket.doc_count}
 		});
-		points.push({x: this.props.stats.histogram[this.props.stats.histogram.length-1].to, y: 0});
-		let hist_area = area<point>()
-			.x((d: point)=>xScale(d.x))
-			.y0((d: point)=>height - yScale(d.y+1))
-			.y1((d: point)=>height)
+		this.hist_points.push({
+			x: this.props.stats.histogram[this.props.stats.histogram.length-1].to,
+			y: 0
+		});
+		this.hist_area = area<point>()
+			.x((d: point)=>this.xScale(d.x))
+			.y0((d: point)=>this.height - this.yScale(d.y+1))
+			.y1((d: point)=>this.height)
 			.curve(curveStepAfter);
-		console.log(xTicks, xTickLabels);
-		return <div className="graphslider">
-			<svg width="100%" height={viewHeight}
-				viewBox={-margin.left+" "+-margin.right+" "+viewWidth+" "+viewHeight}>
-				<path className="graphslider-histogram"
-					fill="#808080" stroke="black" strokeWidth={1}
-					d={hist_area(points)}
-				/>
-				<g ref="xaxis" className="graphslider-xaxis">
-					<line className="graphslider-xaxis-domain"
-						stroke="black" strokeWidth={2}
-						x1={xScale.range()[0]} y1={height}
-						x2={xScale.range()[1]} y2={height}
-					/>
-					{xTicks.map((tick: number, idx: number)=>{
-						return <text key={idx} textAnchor="middle" fontSize={fontSize}
-							 x={xScale(tick)} y={height + xTickPadding + fontSize}>
-								{xTickLabels[idx]}
-						</text>
-					})}
-				</g>
-			</svg>
-		</div>
+	}
+	render() {
+		if(!this.props.stats || !this.props.stats.avg) {
+			return null
+		} else {
+			this.updateD3();
+			return <div className="graphslider"
+					ref={ref => this.child.navigation = ref}
+					onMouseMove={this.onMouseMove}
+					onMouseLeave={this.onMouseLeave}
+				>
+				<svg width={this.viewWidth} height={this.viewHeight}
+					viewBox={-this.margin.left+" "+-this.margin.right+" "+this.viewWidth+" "+this.viewHeight}>
+					<g className="graphslider-histogram">
+						<path className="graphslider-histogram-area"
+							fill="#808080" stroke="black" strokeWidth={1}
+							d={this.hist_area(this.hist_points)}
+						/>
+						{this.state.hoverBucket?
+						<rect className="graphslider-histogram-hover"
+							fill="#1e26d28a"
+							x={this.xScale(this.state.hoverBucket.from)} y={0}
+							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
+							height={this.height}
+						/>
+						:null}
+					</g>
+					<g className="graphslider-xaxis">
+						<line className="graphslider-xaxis-domain"
+							stroke="black" strokeWidth={2}
+							x1={this.xScale.range()[0]} y1={this.height}
+							x2={this.xScale.range()[1]} y2={this.height}
+						/>
+						{this.xTicks.map((tick: number, idx: number)=>{
+							return <text key={idx} textAnchor="middle" fontSize={this.fontSize}
+								 x={this.xScale(tick)} y={this.height + this.xTickPadding + this.fontSize}>
+									{this.xTickLabels[idx]}
+							</text>
+						})}
+					</g>
+				</svg>
+			</div>
+		}
 	}
 }
 
