@@ -6,7 +6,7 @@ import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
 import {Scale} from './scale.tsx';
 import {SelectFilter, FieldFilter} from './SelectFilter.tsx';
-import {GraphSlider, GraphSliderStats} from './GraphSlider.tsx';
+import {Histogram, HistogramStats} from './Histogram.tsx';
 
 export interface Feature {
 	name?: string,
@@ -166,8 +166,8 @@ function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.Searc
 	}
 	return recursiveScroll(response, response.hits.hits);
 }
-function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<GraphSliderStats> {
-	let stats: GraphSliderStats;
+function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<HistogramStats> {
+	let stats: HistogramStats;
 	return client.searchTemplate({
 		index: index,
 		type: "Homo_sapiens",
@@ -220,7 +220,7 @@ export interface GeneViewerState{
 	end?: number,
 	srcfeature?: string,
 	name?: string,
-	stats?: GraphSliderStats,
+	stats?: HistogramStats,
 
 	focus?: number,
 	selectedRegion?: number[],
@@ -327,7 +327,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					start: scale.domain[0],
 					end: scale.domain[1],
 					srcfeature: this.state.srcfeature,
-				}).then((stats: GraphSliderStats)=>{
+				}).then((stats: HistogramStats)=>{
 					this.setState({stats: stats});
 				});
 			}
@@ -491,7 +491,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
-			<GraphSlider stats={this.state.stats} />
+			<Histogram stats={this.state.stats} />
 			{region? // Region features
 				<div style={{height: "20em", paddingRight: "1em", overflow: "auto"}}> {
 					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>

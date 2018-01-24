@@ -8,25 +8,25 @@ interface point {
 	x: number,
 	y: number,
 }
-interface GraphSliderBucket {
+interface HistogramBucket {
 	from: number,
 	to: number,
 	doc_count: number,
 }
-export interface GraphSliderStats {
+export interface HistogramStats {
 	min: number,
 	max: number,
 	avg: number,
-	histogram: GraphSliderBucket[],
+	histogram: HistogramBucket[],
 	step: number,
 }
-interface GraphSliderProps {
-	stats?: GraphSliderStats,
+interface HistogramProps {
+	stats?: HistogramStats,
 }
-interface GraphSliderState {
-	hoverBucket?: GraphSliderBucket,
+interface HistogramState {
+	hoverBucket?: HistogramBucket,
 }
-export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderState> {
+export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
 	} = {};
@@ -44,7 +44,7 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 	yScale: ScaleLogarithmic<number,number>;
 	hist_points: point[];
 	hist_area: Area<point>;
-	constructor(props: GraphSliderProps) {
+	constructor(props: HistogramProps) {
 		super(props);
 		this.state={};
 	}
@@ -64,7 +64,7 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = this.xScale.invert(pageX - offsetLeft - this.margin.left);
-		const bucket = this.props.stats.histogram.find((bucket: GraphSliderBucket)=>
+		const bucket = this.props.stats.histogram.find((bucket: HistogramBucket)=>
 			coordX >= bucket.from && coordX < bucket.to
 		);
 		this.setState({
@@ -80,11 +80,11 @@ export class GraphSlider extends React.Component<GraphSliderProps,GraphSliderSta
 		this.xTicks = this.xScale.ticks(4);
 		this.xTickLabels = this.xTicks.map(this.xScale.tickFormat(4));
 		this.yScale = scaleLog()
-			.domain([1,max(this.props.stats.histogram,(bucket: GraphSliderBucket)=>{
+			.domain([1,max(this.props.stats.histogram,(bucket: HistogramBucket)=>{
 				return bucket.doc_count;
 			})+1])
 			.range([0,this.height]);
-		this.hist_points = this.props.stats.histogram.map((bucket: GraphSliderBucket)=>{
+		this.hist_points = this.props.stats.histogram.map((bucket: HistogramBucket)=>{
 			return {x: bucket.from, y: bucket.doc_count}
 		});
 		this.hist_points.push({
