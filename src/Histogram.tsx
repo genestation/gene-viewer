@@ -58,11 +58,11 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	margin = {top: 20, right: 10, bottom: 20, left: 10};
-	viewWidth = 350;
-	viewHeight = 80;
-	width = this.viewWidth - this.margin.left - this.margin.right;
-	height = this.viewHeight - this.margin.bottom - this.margin.top;
+	margin = {top: 15, right: 40, bottom: 20, left: 10};
+	width = 350;
+	height = 40;
+	viewWidth = this.width + this.margin.left + this.margin.right;
+	viewHeight = this.height + this.margin.bottom + this.margin.top;
 	fontSize = 10;
 	xTickPadding = 2;
 	handlingMouseMove = false;
@@ -136,7 +136,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					onMouseLeave={this.onMouseLeave}
 				>
 				<svg width={this.viewWidth} height={this.viewHeight}
-					viewBox={-this.margin.left+" "+-this.margin.right+" "+this.viewWidth+" "+this.viewHeight}>
+					viewBox={-this.margin.left+" "+-this.margin.top+" "+this.viewWidth+" "+this.viewHeight}>
 					<g className="graphslider-histogram">
 						<path className="graphslider-histogram-area"
 							fill="#808080" stroke="black" strokeWidth={1}
@@ -152,7 +152,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						<text textAnchor="left" fontSize={this.fontSize}
 							x={this.xScale(this.state.hoverBucket.to)}
 							y={0}>
-							<b>Count:</b> {this.state.hoverBucket.doc_count}
+							{this.state.hoverBucket.doc_count}
 						</text>
 						</g>:null}
 					</g>
