@@ -142,14 +142,19 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							fill="#808080" stroke="black" strokeWidth={1}
 							d={this.hist_area(this.hist_points)}
 						/>
-						{this.state.hoverBucket?
+						{this.state.hoverBucket?<g>
 						<rect className="graphslider-histogram-hover"
 							fill="#1e26d28a"
 							x={this.xScale(this.state.hoverBucket.from)} y={0}
 							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
 							height={this.height}
 						/>
-						:null}
+						<text textAnchor="left" fontSize={this.fontSize}
+							x={this.xScale(this.state.hoverBucket.to)}
+							y={0}>
+							<b>Count:</b> {this.state.hoverBucket.doc_count}
+						</text>
+						</g>:null}
 					</g>
 					<g className="graphslider-xaxis">
 						<line className="graphslider-xaxis-domain"
