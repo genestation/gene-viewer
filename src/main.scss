@@ -20,6 +20,10 @@ $light-text-color: #888;
 	}
 	&-navigation {
 	}
+	&-controls {
+		display: flex;
+		align-items: center;
+	}
 	&-data {
 		height: 20em;
 		paddingRight: 1em;

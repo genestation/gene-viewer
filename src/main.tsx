@@ -525,8 +525,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				onMouseLeave={this.onMouseLeave} >
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
-			<SelectControl value={this.state.control} onChange={this.handleChangeControl} fields={this.props.numericFields}/>
-			<Histogram onHover={this.handleHoverBucket} items={histItems} stats={this.state.stats} />
+			<div className="geneviewer-controls">
+				<Histogram onHover={this.handleHoverBucket} items={histItems} stats={this.state.stats} />
+				<SelectControl value={this.state.control} onChange={this.handleChangeControl} fields={this.props.numericFields}/>
+			</div>
 			<div className="geneviewer-data"> {
 				features.map(this.renderData)
 			} </div>

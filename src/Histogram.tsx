@@ -148,24 +148,26 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		if(!this.props.stats
 		|| typeof this.props.stats.min != "number"
 		|| typeof this.props.stats.max != "number") {
-			return null
+			return <div className="histogram">
+				<svg width={this.viewWidth} height={this.viewHeight}/>
+			</div>
 		} else {
 			this.updateD3();
-			return <div className="graphslider"
+			return <div className="histogram"
 					ref={ref => this.child.navigation = ref}
 					onMouseMove={this.onMouseMove}
 					onMouseLeave={this.onMouseLeave}
 				>
 				<svg width={this.viewWidth} height={this.viewHeight}
 					viewBox={-this.margin.left+" "+-this.margin.top+" "+this.viewWidth+" "+this.viewHeight}>
-					<g className="graphslider-histogram">
-						<path className="graphslider-histogram-area"
+					<g className="histogram-plot">
+						<path className="histogram-plot-area"
 							fill="#808080" stroke="black" strokeWidth={1}
 							d={this.hist_area(this.hist_points)}
 						/>
 						{this.props.items?<g>{
 							this.props.items.map((item: HistogramItem, idx: number)=>{
-								return <line key={idx} className="graphslider-item"
+								return <line key={idx} className="histogram-item"
 									stroke="#ff00007a"
 									x1={this.xScale(item.x)} y1={0}
 									x2={this.xScale(item.x)} y2={this.height}
@@ -173,7 +175,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							})
 						}</g>:null}
 						{this.state.hoverBucket?<g>
-						<rect className="graphslider-histogram-hover"
+						<rect className="histogram-plot-hover"
 							fill="#1e26d28a"
 							x={this.xScale(this.state.hoverBucket.from)} y={0}
 							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
@@ -186,8 +188,8 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						</text>
 						</g>:null}
 					</g>
-					<g className="graphslider-xaxis">
-						<line className="graphslider-xaxis-domain"
+					<g className="histogram-xaxis">
+						<line className="histogram-xaxis-domain"
 							stroke="black" strokeWidth={2}
 							x1={this.xScale.range()[0]} y1={this.height}
 							x2={this.xScale.range()[1]} y2={this.height}
