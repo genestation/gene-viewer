@@ -1,3 +1,4 @@
+import './Histogram.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {max} from 'd3-array';

@@ -1,5 +1,5 @@
 
-$background-color: rgba(168, 168, 168, 0.3);
+$background-color: rgba(180, 180, 180, 0.3);
 $opaque-background-color: #c5c5c5;
 
 .dropdown-container {
@@ -11,16 +11,6 @@ $opaque-background-color: #c5c5c5;
 		background: $background-color;
 	}
 }
-.dropdown-close {
-	display: none;
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	z-index: 1000;
-	.dropdown-container:focus & {
-		display: inherit;
-	}
-}
 .dropdown-label {
 	display: inline-block;
 	font-weight: bold;
@@ -30,7 +20,7 @@ $opaque-background-color: #c5c5c5;
 	padding-left: 0.25em;
 	padding-right: 0.25em;
 	background: lighten($background-color,10%);
-	&:hover, .dropdown-container:focus & {
+	.dropdown-container:hover &, .dropdown-container:focus & {
 		background: inherit;
 	}
 }
