@@ -19,6 +19,25 @@ export interface Feature {
 	data?: {[key: string]: any[]},
 }
 
+function getFeatureData(feature: Feature, key: string): any {
+	if(typeof key != "string") {
+		return undefined;
+	}
+	let path = key.split('.');
+	let ptr: any = feature.data;
+	while(path.length && ptr !== undefined) {
+		if(ptr.hasOwnProperty(path[0])) {
+			ptr = ptr[path.shift()];
+		} else if (path.length > 1) {
+			path.splice(0,2,path[0]+'.'+path[1]);
+		} else {
+			ptr = undefined;
+			break;
+		}
+	}
+	return ptr;
+};
+
 interface GenomeShape {
 	dnaY: number,
 	dnaHeight: number,
@@ -466,6 +485,22 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const region = this.state.focus > -1 ?
 			this.state.scale.region(this.state.focus) :
 			this.state.selectedRegion;
+		let features = this.state.features.filter((feature: Feature)=>
+			this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+		)
+		if(region) {
+			features = this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
+				this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+			)
+		}
+		let histItems = features.map((feature: Feature)=>{
+			return {
+				x: getFeatureData(feature,this.state.filter.field),
+				data: feature,
+			};
+		}).filter((item: {x:any, data: Feature})=>{
+			return typeof item.x == "number"
+		});
 		return <div className="geneviewer">
 			<div className="geneviewer-navigation"
 				ref={ref => this.child.navigation = ref}
@@ -474,20 +509,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features,80,35,15)}
 			</div>
 			<SelectFilter value={this.state.filter} onChange={this.handleChangeFilter} fields={this.props.numericFields}/>
-			<Histogram stats={this.state.stats} />
-			{region? // Region features
-				<div style={{height: "20em", paddingRight: "1em", overflow: "auto"}}> {
-					this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
-						this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
-					).map(this.renderData)
-				} </div>
-				: // All features
-				<div style={{height: "20em", paddingRight: "1em", overflow: "auto"}}> {
-					this.state.features.filter((feature: Feature)=>
-						this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
-					).map(this.renderData)
-				} </div>
-			}
+			<Histogram items={histItems} stats={this.state.stats} />
+			{features.map(this.renderData)}
 		</div>
 	}
 }

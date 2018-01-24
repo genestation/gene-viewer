@@ -22,12 +22,6 @@ export interface HistogramStats {
 	max: number,
 	histogram: HistogramBucket[],
 }
-interface HistogramProps {
-	stats?: HistogramStats,
-}
-interface HistogramState {
-	hoverBucket?: HistogramBucket,
-}
 
 // Generate range aggregation buckets
 export function makeHistogramBuckets(stats: HistogramStats, numBuckets: number) {
@@ -63,6 +57,13 @@ export function findHistogramItems(buckets: HistogramBucket[], items: HistogramI
 }
 
 
+interface HistogramProps {
+	stats?: HistogramStats,
+	items?: HistogramItem[],
+}
+interface HistogramState {
+	hoverBucket?: HistogramBucket,
+}
 export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
@@ -153,6 +154,15 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							fill="#808080" stroke="black" strokeWidth={1}
 							d={this.hist_area(this.hist_points)}
 						/>
+						{this.props.items?<g>{
+							this.props.items.map((item: HistogramItem, idx: number)=>{
+								return <line key={idx} className="graphslider-item"
+									stroke="red"
+									x1={this.xScale(item.x)} y1={0}
+									x2={this.xScale(item.x)} y2={this.height}
+								/>
+							})
+						}</g>:null}
 						{this.state.hoverBucket?<g>
 						<rect className="graphslider-histogram-hover"
 							fill="#1e26d28a"
