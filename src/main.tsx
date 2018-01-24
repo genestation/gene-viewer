@@ -228,6 +228,7 @@ export interface GeneViewerState{
 	selectedRegion?: number[],
 	selectedFeature?: string,
 	hoverBucket?: HistogramBucket,
+	clickBucket?: HistogramBucket,
 	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
@@ -434,6 +435,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			hoverBucket: bucket
 		});
 	}
+	handleClickBucket = (bucket?: HistogramBucket)=>{
+		this.setState({
+			clickBucket: bucket
+		});
+	}
 	renderGenome = (features: Feature[])=>{
 		const region = this.state.scale.region(this.state.focus);
 		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
@@ -514,11 +520,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				&& (!this.state.selectedFeature || this.state.selectedFeature == item.data.name)
 				&& (!this.state.hoverFeature || this.state.hoverFeature == item.data.name)
 		});
-		if(this.state.hoverBucket) {
+		if(this.state.hoverBucket || this.state.clickBucket) {
 			features = features.filter((feature: Feature)=>{
 				const x = getFeatureData(feature,
 					(this.state.control.view?this.state.control.view:this.state.control.filter));
-				return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
+				if(this.state.hoverBucket) {
+					return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
+				} else {
+					return x >= this.state.clickBucket.from && x <= this.state.clickBucket.to
+				}
 			})
 		}
 		return <div className="geneviewer">
@@ -530,7 +540,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features)}
 			</div>
 			<div className="geneviewer-controls">
-				<Histogram onHover={this.handleHoverBucket} items={histItems} stats={this.state.stats} />
+				<Histogram value={this.state.clickBucket} items={histItems} stats={this.state.stats}
+					onHover={this.handleHoverBucket} onClick={this.handleClickBucket} />
 				<SelectControl value={this.state.control} onChange={this.handleChangeControl} fields={this.props.numericFields}/>
 			</div>
 			<div className="geneviewer-data"> {

@@ -59,10 +59,11 @@ export function findHistogramItems(buckets: HistogramBucket[], items: HistogramI
 
 
 interface HistogramProps {
-	onClick?: (bucket: HistogramBucket)=>any,
-	onHover?: (bucket: HistogramBucket)=>any,
+	value?: HistogramBucket,
 	items?: HistogramItem[],
 	stats?: HistogramStats,
+	onHover?: (bucket: HistogramBucket)=>any,
+	onClick?: (bucket: HistogramBucket)=>any,
 }
 interface HistogramState {
 	hoverBucket?: HistogramBucket,
@@ -102,6 +103,11 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		});
 		if(this.props.onHover) {
 			this.props.onHover(null);
+		}
+	}
+	onClick = (bucket: HistogramBucket)=>{
+		if(this.props.onClick) {
+			this.props.onClick(bucket);
 		}
 	}
 	handleMouseMove = (pageX: number)=>{
@@ -177,18 +183,20 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 								/>
 							})
 						}</g>:null}
-						{this.state.hoverBucket?<g>
-						<rect className="histogram-plot-hover"
-							fill="#1e26d28a"
-							x={this.xScale(this.state.hoverBucket.from)} y={0}
-							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
-							height={this.height}
-						/>
-						<text textAnchor="left" fontSize={this.fontSize}
-							x={this.xScale(this.state.hoverBucket.to)}
-							y={0 - this.padding.top}>
-							{this.state.hoverBucket.doc_count}
-						</text>
+						{this.props.value?<g>
+							<rect className="histogram-plot-value"
+								style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.4}}
+								x={this.xScale(this.props.value.from)} y={0}
+								width={this.xScale(this.props.value.to) - this.xScale(this.props.value.from)}
+								height={this.height}
+							/>
+							{!this.state.hoverBucket?
+								<text textAnchor="left" fontSize={this.fontSize}
+									x={this.xScale(this.props.value.to)}
+									y={0 - this.padding.top}>
+									{this.props.value.doc_count}
+								</text>
+							:null}
 						</g>:null}
 					</g>
 					<g className="histogram-xaxis">
@@ -204,6 +212,26 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							</text>
 						})}
 					</g>
+					{this.state.hoverBucket?<g>
+						<rect className="histogram-plot-hover"
+							fill="#1e26d28a"
+							x={this.xScale(this.state.hoverBucket.from)} y={0}
+							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
+							height={this.height}
+						/>
+						<text textAnchor="left" fontSize={this.fontSize}
+							x={this.xScale(this.state.hoverBucket.to)}
+							y={0 - this.padding.top}>
+							{this.state.hoverBucket.doc_count}
+						</text>
+						<rect className="histogram-plot-button"
+							onClick={()=>{this.onClick(this.state.hoverBucket)}}
+							fill-opacity="0"
+							x={this.xScale(this.state.hoverBucket.from)} y={-this.margin.top}
+							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
+							height={this.viewHeight}
+						/>
+					</g>:null}
 				</svg>
 			</div>
 		}
