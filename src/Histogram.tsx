@@ -68,12 +68,12 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		navigation?: HTMLElement;
 	} = {};
 	margin = {top: 15, right: 40, bottom: 20, left: 10};
+	padding = {top: 1, right: 0, bottom: 2, left: 0};
 	width = 350;
 	height = 40;
 	viewWidth = this.width + this.margin.left + this.margin.right;
 	viewHeight = this.height + this.margin.bottom + this.margin.top;
 	fontSize = 10;
-	xTickPadding = 2;
 	handlingMouseMove = false;
 	xScale: ScaleLinear<number,number>;
 	xTicks: number[];
@@ -162,7 +162,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						/>
 						<text textAnchor="left" fontSize={this.fontSize}
 							x={this.xScale(this.state.hoverBucket.to)}
-							y={0}>
+							y={0 - this.padding.top}>
 							{this.state.hoverBucket.doc_count}
 						</text>
 						</g>:null}
@@ -175,7 +175,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						/>
 						{this.xTicks.map((tick: number, idx: number)=>{
 							return <text key={idx} textAnchor="middle" fontSize={this.fontSize}
-								 x={this.xScale(tick)} y={this.height + this.xTickPadding + this.fontSize}>
+								 x={this.xScale(tick)} y={this.height + this.padding.bottom + this.fontSize}>
 									{this.xTickLabels[idx]}
 							</text>
 						})}
