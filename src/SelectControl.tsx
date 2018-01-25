@@ -47,7 +47,7 @@ export class SelectControl extends React.Component<SelectControlProps,SelectCont
 	}
 	render() {
 		return <div className="selectcontrol-container">
-			<Dropdown className="selectcontrol-element" autoclose={false} label="View"
+			<Dropdown className="selectcontrol-view selectcontrol-element" autoclose={false} label="View"
 				value={this.props.value.view?this.props.value.view:"<auto>"}>
 				<TreeSelect fields={this.props.fields} value={this.props.value.view}
 					onSelect={(node: TreeNode)=>{this.handleChange({view: node.path})}} />
