@@ -11,6 +11,18 @@ $opaque-background-color: #c5c5c5;
 		background: $background-color;
 	}
 }
+.dropdown-close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: none;
+	z-index: 1000;
+	.dropdown-container:focus & {
+		display: inherit;
+	}
+}
 .dropdown-label {
 	display: inline-block;
 	font-weight: bold;
