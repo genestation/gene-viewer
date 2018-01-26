@@ -195,7 +195,8 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 			params: params,
 		},
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		stats = makeHistogramBuckets(response.aggregations.field_stats, 100)
+		stats = makeHistogramBuckets(response.aggregations.field_stats, 100);
+		stats.percentiles = response.aggregations.field_percentiles.values;
 		return client.searchTemplate({
 			index: index,
 			type: "Homo_sapiens",

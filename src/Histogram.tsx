@@ -18,9 +18,19 @@ export interface HistogramBucket {
 	to?: number,
 	doc_count?: number,
 }
+export interface HistogramPercentiles {
+	"1.0": number,
+	"5.0": number,
+	"25.0": number,
+	"50.0": number,
+	"75.0": number,
+	"95.0": number,
+	"99.0": number,
+}
 export interface HistogramStats {
 	min: number,
 	max: number,
+	percentiles: HistogramPercentiles,
 	histogram: HistogramBucket[],
 }
 
@@ -73,7 +83,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		navigation?: HTMLElement;
 	} = {};
 	margin = {top: 15, right: 40, bottom: 20, left: 20};
-	padding = {top: 1, right: 20, bottom: 2, left: 0};
+	padding = {top: 1, right: 20, bottom: 4, left: 0};
 	width = 350;
 	height = 40;
 	viewWidth = this.width + this.margin.left + this.margin.right;
@@ -171,7 +181,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					viewBox={-this.margin.left+" "+-this.margin.top+" "+this.viewWidth+" "+this.viewHeight}>
 					<g className="histogram-plot">
 						<path className="histogram-plot-area"
-							fill="#808080" stroke="black" strokeWidth={1}
+							fill="#808080" //stroke="black" strokeWidth={1}
 							d={this.hist_area(this.hist_points)}
 						/>
 						{this.props.items?<g>{
@@ -200,11 +210,42 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						</g>:null}
 					</g>
 					<g className="histogram-xaxis">
+						<line className="histogram-xaxis-1to5"
+							stroke="#969696" strokeWidth={3}
+							x1={this.xScale(this.props.stats.percentiles["1.0"])} y1={this.height+1}
+							x2={this.xScale(this.props.stats.percentiles["5.0"])} y2={this.height+1}
+						/>
+						<line className="histogram-xaxis-5to25"
+							stroke="#525252" strokeWidth={4}
+							x1={this.xScale(this.props.stats.percentiles["5.0"])} y1={this.height+2}
+							x2={this.xScale(this.props.stats.percentiles["25.0"])} y2={this.height+2}
+						/>
+						<line className="histogram-xaxis-75to95"
+							stroke="#525252" strokeWidth={4}
+							x1={this.xScale(this.props.stats.percentiles["75.0"])} y1={this.height+2}
+							x2={this.xScale(this.props.stats.percentiles["95.0"])} y2={this.height+2}
+						/>
+						<line className="histogram-xaxis-95to99"
+							stroke="#969696" strokeWidth={3}
+							x1={this.xScale(this.props.stats.percentiles["95.0"])} y1={this.height+1}
+							x2={this.xScale(this.props.stats.percentiles["99.0"])} y2={this.height+1}
+						/>
+						<line className="histogram-xaxis-25to75"
+							stroke="black" strokeWidth={6}
+							x1={this.xScale(this.props.stats.percentiles["25.0"])} y1={this.height+3}
+							x2={this.xScale(this.props.stats.percentiles["75.0"])} y2={this.height+3}
+						/>
+						<line className="histogram-xaxis-50"
+							stroke="#33a02c" strokeWidth={4}
+							x1={this.xScale(this.props.stats.percentiles["50.0"])} y1={this.height}
+							x2={this.xScale(this.props.stats.percentiles["50.0"])} y2={this.height+4}
+						/>
 						<line className="histogram-xaxis-domain"
-							stroke="black" strokeWidth={2}
+							stroke="black" strokeWidth={1}
 							x1={this.xScale.range()[0]} y1={this.height}
 							x2={this.xScale.range()[1]} y2={this.height}
 						/>
+
 						{this.xTicks.map((tick: number, idx: number)=>{
 							return <text key={idx} textAnchor="middle" fontSize={this.fontSize}
 								 x={this.xScale(tick)} y={this.height + this.padding.bottom + this.fontSize}>
@@ -226,7 +267,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						</text>
 						<rect className="histogram-plot-button"
 							onClick={()=>{this.onClick(this.state.hoverBucket)}}
-							fill-opacity="0"
+							fillOpacity="0"
 							x={this.xScale(this.state.hoverBucket.from)} y={-this.margin.top}
 							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
 							height={this.viewHeight}
