@@ -211,24 +211,24 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					</g>
 					<g className="histogram-xaxis">
 						<line className="histogram-xaxis-1to5"
-							stroke="#969696" strokeWidth={3}
+							stroke="#67a9cf" strokeWidth={3}
 							x1={this.xScale(this.props.stats.percentiles["1.0"])} y1={this.height+1}
 							x2={this.xScale(this.props.stats.percentiles["5.0"])} y2={this.height+1}
 						/>
+						<line className="histogram-xaxis-95to99"
+							stroke="#67a9cf" strokeWidth={3}
+							x1={this.xScale(this.props.stats.percentiles["95.0"])} y1={this.height+1}
+							x2={this.xScale(this.props.stats.percentiles["99.0"])} y2={this.height+1}
+						/>
 						<line className="histogram-xaxis-5to25"
-							stroke="#525252" strokeWidth={4}
+							stroke="#3690c0" strokeWidth={4}
 							x1={this.xScale(this.props.stats.percentiles["5.0"])} y1={this.height+2}
 							x2={this.xScale(this.props.stats.percentiles["25.0"])} y2={this.height+2}
 						/>
 						<line className="histogram-xaxis-75to95"
-							stroke="#525252" strokeWidth={4}
+							stroke="#3690c0" strokeWidth={4}
 							x1={this.xScale(this.props.stats.percentiles["75.0"])} y1={this.height+2}
 							x2={this.xScale(this.props.stats.percentiles["95.0"])} y2={this.height+2}
-						/>
-						<line className="histogram-xaxis-95to99"
-							stroke="#969696" strokeWidth={3}
-							x1={this.xScale(this.props.stats.percentiles["95.0"])} y1={this.height+1}
-							x2={this.xScale(this.props.stats.percentiles["99.0"])} y2={this.height+1}
 						/>
 						<line className="histogram-xaxis-25to75"
 							stroke="black" strokeWidth={6}
@@ -236,7 +236,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							x2={this.xScale(this.props.stats.percentiles["75.0"])} y2={this.height+3}
 						/>
 						<line className="histogram-xaxis-50"
-							stroke="#33a02c" strokeWidth={4}
+							stroke="#016450" strokeWidth={4}
 							x1={this.xScale(this.props.stats.percentiles["50.0"])} y1={this.height}
 							x2={this.xScale(this.props.stats.percentiles["50.0"])} y2={this.height+4}
 						/>
