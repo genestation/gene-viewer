@@ -211,22 +211,22 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					</g>
 					<g className="histogram-xaxis">
 						<line className="histogram-xaxis-1to5"
-							stroke="#67a9cf" strokeWidth={3}
+							stroke="#6796cf" strokeWidth={3}
 							x1={this.xScale(this.props.stats.percentiles["1.0"])} y1={this.height+1}
 							x2={this.xScale(this.props.stats.percentiles["5.0"])} y2={this.height+1}
 						/>
 						<line className="histogram-xaxis-95to99"
-							stroke="#67a9cf" strokeWidth={3}
+							stroke="#6796cf" strokeWidth={3}
 							x1={this.xScale(this.props.stats.percentiles["95.0"])} y1={this.height+1}
 							x2={this.xScale(this.props.stats.percentiles["99.0"])} y2={this.height+1}
 						/>
 						<line className="histogram-xaxis-5to25"
-							stroke="#3690c0" strokeWidth={4}
+							stroke="#337ab7" strokeWidth={4}
 							x1={this.xScale(this.props.stats.percentiles["5.0"])} y1={this.height+2}
 							x2={this.xScale(this.props.stats.percentiles["25.0"])} y2={this.height+2}
 						/>
 						<line className="histogram-xaxis-75to95"
-							stroke="#3690c0" strokeWidth={4}
+							stroke="#337ab7" strokeWidth={4}
 							x1={this.xScale(this.props.stats.percentiles["75.0"])} y1={this.height+2}
 							x2={this.xScale(this.props.stats.percentiles["95.0"])} y2={this.height+2}
 						/>
