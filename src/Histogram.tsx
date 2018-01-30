@@ -1,7 +1,7 @@
 import './Histogram.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {max} from 'd3-array';
+import {max, min} from 'd3-array';
 import {scaleLinear, scaleLog, ScaleLinear, ScaleLogarithmic} from 'd3-scale';
 import {area, curveStepAfter, Area} from 'd3-shape';
 
@@ -49,8 +49,7 @@ export function makeHistogramBuckets(stats: HistogramStats, numBuckets: number) 
 		last = x
 	}
 	ranges.push({from: x});
-	stats.histogram = ranges;
-	return stats;
+	return ranges;
 }
 export function readHistogramBuckets(stats: HistogramStats, buckets: HistogramBucket[]) {
 	const domain = scaleLinear().domain([stats.min,stats.max]).nice(4).domain()
@@ -69,14 +68,14 @@ export function findHistogramItems(buckets: HistogramBucket[], items: HistogramI
 
 
 interface HistogramProps {
-	value?: HistogramBucket,
+	value?: HistogramBucket[],
 	items?: HistogramItem[],
-	stats?: HistogramStats,
-	onHover?: (bucket: HistogramBucket)=>any,
-	onClick?: (bucket: HistogramBucket)=>any,
+	stats?: HistogramStats[],
+	onHover?: (bucket: HistogramBucket[])=>any,
+	onClick?: (bucket: HistogramBucket[])=>any,
 }
 interface HistogramState {
-	hoverBucket?: HistogramBucket,
+	hoverBucket?: HistogramBucket[],
 }
 export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
@@ -94,7 +93,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	xTicks: number[];
 	xTickLabels: string[];
 	yScale: ScaleLogarithmic<number,number>;
-	hist_points: point[];
+	hist_points: point[][];
 	hist_area: Area<point>;
 	constructor(props: HistogramProps) {
 		super(props);
@@ -115,7 +114,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 			this.props.onHover(null);
 		}
 	}
-	onClick = (bucket: HistogramBucket)=>{
+	onClick = (bucket: HistogramBucket[])=>{
 		if(this.props.onClick) {
 			this.props.onClick(bucket);
 		}
@@ -124,10 +123,12 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = this.xScale.invert(pageX - offsetLeft - this.margin.left);
-		const bucket = this.props.stats.histogram.find((bucket: HistogramBucket, idx: number)=>
-			coordX >= bucket.from && coordX < bucket.to
-			|| idx == this.props.stats.histogram.length-1 && coordX == bucket.to
-		);
+		const bucket = this.props.stats.map((stats: HistogramStats)=>{
+			return stats.histogram.find((bucket: HistogramBucket, idx: number)=>
+				coordX >= bucket.from && coordX < bucket.to
+				|| idx == stats.histogram.length-1 && coordX == bucket.to
+			);
+		});
 		this.setState({
 			hoverBucket: bucket,
 		},()=>{this.handlingMouseMove=false});
@@ -137,23 +138,30 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	}
 	updateD3 = ()=>{
 		this.xScale = scaleLinear()
-			.domain([this.props.stats.min, this.props.stats.max])
+			.domain([min(this.props.stats.map((stats: HistogramStats)=>stats.min)),
+				max(this.props.stats.map((stats: HistogramStats)=>stats.max))])
 			.range([0, this.width])
 			.nice(4)
 			.clamp(true);
 		this.xTicks = this.xScale.ticks(4);
 		this.xTickLabels = this.xTicks.map(this.xScale.tickFormat(4));
 		this.yScale = scaleLog()
-			.domain([1,max(this.props.stats.histogram,(bucket: HistogramBucket)=>{
-				return bucket.doc_count;
-			})+1])
+			.domain([1,
+				max([].concat.apply([],this.props.stats.map((stats: HistogramStats)=>stats.histogram)),
+					(bucket: HistogramBucket)=>{
+						return bucket.doc_count;
+					})+1])
 			.range([0,this.height]);
-		this.hist_points = this.props.stats.histogram.map((bucket: HistogramBucket)=>{
-			return {x: bucket.from, y: bucket.doc_count}
-		});
-		this.hist_points.push({
-			x: this.props.stats.histogram[this.props.stats.histogram.length-1].to,
-			y: 0
+		this.hist_points = this.props.stats.map((stats: HistogramStats)=>
+			stats.histogram.map((bucket: HistogramBucket)=>{
+				return {x: bucket.from, y: bucket.doc_count}
+			})
+		);
+		this.hist_points.map((points: point[], idx: number)=>{
+			points.push({
+				x: this.props.stats[idx].histogram[this.props.stats[idx].histogram.length-1].to,
+				y: 0
+			})
 		});
 		this.hist_area = area<point>()
 			.x((d: point)=>this.xScale(d.x))
@@ -163,8 +171,8 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	}
 	render() {
 		if(!this.props.stats
-		|| typeof this.props.stats.min != "number"
-		|| typeof this.props.stats.max != "number") {
+		|| typeof this.props.stats[0].min != "number"
+		|| typeof this.props.stats[0].max != "number") {
 			return <div className="histogram"
 				style={{marginRight: this.padding.right - this.margin.right + "px"}}>
 				<svg width={this.viewWidth} height={this.viewHeight}/>
@@ -180,10 +188,12 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 				<svg width={this.viewWidth} height={this.viewHeight}
 					viewBox={-this.margin.left+" "+-this.margin.top+" "+this.viewWidth+" "+this.viewHeight}>
 					<g className="histogram-plot">
-						<path className="histogram-plot-area"
-							fill="#808080" //stroke="black" strokeWidth={1}
-							d={this.hist_area(this.hist_points)}
-						/>
+						{this.hist_points.map((points: point[], idx: number)=>{
+							<path key={idx} className="histogram-plot-area"
+								fill="#808080" fillOpacity="0.5" //stroke="black" strokeWidth={1}
+								d={this.hist_area(points)}
+							/>
+						})}
 						{this.props.items?<g>{
 							this.props.items.map((item: HistogramItem, idx: number)=>{
 								return <line key={idx} className="histogram-item"
@@ -196,15 +206,16 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						{this.props.value?<g>
 							<rect className="histogram-plot-value"
 								style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.4}}
-								x={this.xScale(this.props.value.from)} y={0}
-								width={this.xScale(this.props.value.to) - this.xScale(this.props.value.from)}
+								x={this.xScale(this.props.value[0].from)} y={0}
+								width={this.xScale(this.props.value[0].to) - this.xScale(this.props.value[0].from)}
 								height={this.height}
 							/>
 							{!this.state.hoverBucket?
 								<text textAnchor="left" fontSize={this.fontSize}
-									x={this.xScale(this.props.value.to)}
+									x={this.xScale(this.props.value[0].to)}
 									y={0 - this.padding.top}>
-									{this.props.value.doc_count}
+									{this.props.value.map((bucket: HistogramBucket)=>bucket.doc_count)
+										.reverse().join('/')}
 								</text>
 							:null}
 						</g>:null}
@@ -212,33 +223,33 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					<g className="histogram-xaxis">
 						<line className="histogram-xaxis-1to5"
 							stroke="#6796cf" strokeWidth={3}
-							x1={this.xScale(this.props.stats.percentiles["1.0"])} y1={this.height+1}
-							x2={this.xScale(this.props.stats.percentiles["5.0"])} y2={this.height+1}
+							x1={this.xScale(this.props.stats[0].percentiles["1.0"])} y1={this.height+1}
+							x2={this.xScale(this.props.stats[0].percentiles["5.0"])} y2={this.height+1}
 						/>
 						<line className="histogram-xaxis-95to99"
 							stroke="#6796cf" strokeWidth={3}
-							x1={this.xScale(this.props.stats.percentiles["95.0"])} y1={this.height+1}
-							x2={this.xScale(this.props.stats.percentiles["99.0"])} y2={this.height+1}
+							x1={this.xScale(this.props.stats[0].percentiles["95.0"])} y1={this.height+1}
+							x2={this.xScale(this.props.stats[0].percentiles["99.0"])} y2={this.height+1}
 						/>
 						<line className="histogram-xaxis-5to25"
 							stroke="#337ab7" strokeWidth={4}
-							x1={this.xScale(this.props.stats.percentiles["5.0"])} y1={this.height+2}
-							x2={this.xScale(this.props.stats.percentiles["25.0"])} y2={this.height+2}
+							x1={this.xScale(this.props.stats[0].percentiles["5.0"])} y1={this.height+2}
+							x2={this.xScale(this.props.stats[0].percentiles["25.0"])} y2={this.height+2}
 						/>
 						<line className="histogram-xaxis-75to95"
 							stroke="#337ab7" strokeWidth={4}
-							x1={this.xScale(this.props.stats.percentiles["75.0"])} y1={this.height+2}
-							x2={this.xScale(this.props.stats.percentiles["95.0"])} y2={this.height+2}
+							x1={this.xScale(this.props.stats[0].percentiles["75.0"])} y1={this.height+2}
+							x2={this.xScale(this.props.stats[0].percentiles["95.0"])} y2={this.height+2}
 						/>
 						<line className="histogram-xaxis-25to75"
 							stroke="black" strokeWidth={6}
-							x1={this.xScale(this.props.stats.percentiles["25.0"])} y1={this.height+3}
-							x2={this.xScale(this.props.stats.percentiles["75.0"])} y2={this.height+3}
+							x1={this.xScale(this.props.stats[0].percentiles["25.0"])} y1={this.height+3}
+							x2={this.xScale(this.props.stats[0].percentiles["75.0"])} y2={this.height+3}
 						/>
 						<line className="histogram-xaxis-50"
 							stroke="#016450" strokeWidth={4}
-							x1={this.xScale(this.props.stats.percentiles["50.0"])} y1={this.height}
-							x2={this.xScale(this.props.stats.percentiles["50.0"])} y2={this.height+4}
+							x1={this.xScale(this.props.stats[0].percentiles["50.0"])} y1={this.height}
+							x2={this.xScale(this.props.stats[0].percentiles["50.0"])} y2={this.height+4}
 						/>
 						<line className="histogram-xaxis-domain"
 							stroke="black" strokeWidth={1}
@@ -256,20 +267,23 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					{this.state.hoverBucket?<g>
 						<rect className="histogram-plot-hover"
 							fill="#1e26d28a"
-							x={this.xScale(this.state.hoverBucket.from)} y={0}
-							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
+							x={this.xScale(this.state.hoverBucket[0].from)} y={0}
+							width={this.xScale(this.state.hoverBucket[0].to)
+								- this.xScale(this.state.hoverBucket[0].from)}
 							height={this.height}
 						/>
 						<text textAnchor="left" fontSize={this.fontSize}
-							x={this.xScale(this.state.hoverBucket.to)}
+							x={this.xScale(this.state.hoverBucket[0].to)}
 							y={0 - this.padding.top}>
-							{this.state.hoverBucket.doc_count}
+							{this.state.hoverBucket.map((bucket: HistogramBucket)=>bucket.doc_count)
+								.reverse().join('/')}
 						</text>
 						<rect className="histogram-plot-button"
 							onClick={()=>{this.onClick(this.state.hoverBucket)}}
 							fillOpacity="0"
-							x={this.xScale(this.state.hoverBucket.from)} y={-this.margin.top}
-							width={this.xScale(this.state.hoverBucket.to) - this.xScale(this.state.hoverBucket.from)}
+							x={this.xScale(this.state.hoverBucket[0].from)} y={-this.margin.top}
+							width={this.xScale(this.state.hoverBucket[0].to)
+								- this.xScale(this.state.hoverBucket[0].from)}
 							height={this.viewHeight}
 						/>
 					</g>:null}

@@ -185,30 +185,57 @@ function scrollToEnd(client: ElasticSearch.Client, response: ElasticSearch.Searc
 	}
 	return recursiveScroll(response, response.hits.hits);
 }
-function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<HistogramStats> {
-	let stats: HistogramStats;
+function getRangeStats(client: ElasticSearch.Client, index: string, params: {[key: string]: any}): Promise<HistogramStats[]> {
+	let stats: HistogramStats[] = [];
 	return client.searchTemplate({
 		index: index,
 		type: "Homo_sapiens",
 		body: {
-			id: "range_stats",
-			params: params,
+			id: "field_stats",
+			params: {field: params.field},
 		},
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		stats = makeHistogramBuckets(response.aggregations.field_stats, 100);
-		stats.percentiles = response.aggregations.field_percentiles.values;
+		stats[0].histogram = makeHistogramBuckets(response.aggregations.field_stats, 100);
+		stats[1].histogram = makeHistogramBuckets(response.aggregations.field_stats, 100);
+		stats[0].percentiles = response.aggregations.field_percentiles.values;
+		return client.searchTemplate({
+			index: index,
+			type: "Homo_sapiens",
+			body: {
+				id: "field_buckets",
+				params: {
+					field: params.field,
+					ranges: stats[0].histogram,
+				},
+			}
+		})
+	}).then((response: ElasticSearch.SearchResponse<any>)=>{
+		readHistogramBuckets(stats[0], response.aggregations.field_buckets.buckets);
+		return client.searchTemplate({
+			index: index,
+			type: "Homo_sapiens",
+			body: {
+				id: "range_stats",
+				params: params,
+			},
+		})
+	}).then((response: ElasticSearch.SearchResponse<any>)=>{
+		stats[1].max = response.aggregations.field_stats.max;
+		stats[1].min = response.aggregations.field_stats.min;
+		stats[1].percentiles = response.aggregations.field_percentiles.values;
 		return client.searchTemplate({
 			index: index,
 			type: "Homo_sapiens",
 			body: {
 				id: "range_buckets",
 				params: Object.assign(params, {
-					ranges: stats.histogram,
+					ranges: stats[1].histogram,
 				}),
 			}
 		})
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		return readHistogramBuckets(stats, response.aggregations.field_buckets.buckets);
+		readHistogramBuckets(stats[1], response.aggregations.field_buckets.buckets);
+		return stats;
 	});
 }
 
@@ -223,13 +250,13 @@ export interface GeneViewerState{
 	end?: number,
 	srcfeature?: string,
 	name?: string,
-	stats?: HistogramStats,
+	stats?: HistogramStats[],
 
 	focus?: number,
 	selectedRegion?: number[],
 	selectedFeature?: string,
-	hoverBucket?: HistogramBucket,
-	clickBucket?: HistogramBucket,
+	hoverBucket?: HistogramBucket[],
+	clickBucket?: HistogramBucket[],
 	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
@@ -350,7 +377,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					start: scale.domain[0],
 					end: scale.domain[1],
 					srcfeature: this.state.srcfeature,
-				}).then((stats: HistogramStats)=>{
+				}).then((stats: HistogramStats[])=>{
 					this.setState({stats: stats});
 				});
 			}
@@ -431,12 +458,12 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			control: control
 		}, this.fetchSnps);
 	}
-	handleHoverBucket = (bucket?: HistogramBucket)=>{
+	handleHoverBucket = (bucket?: HistogramBucket[])=>{
 		this.setState({
 			hoverBucket: bucket
 		});
 	}
-	handleClickBucket = (bucket?: HistogramBucket)=>{
+	handleClickBucket = (bucket?: HistogramBucket[])=>{
 		this.setState({
 			clickBucket: bucket
 		});
@@ -526,9 +553,11 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				const x = getFeatureData(feature,
 					(this.state.control.view?this.state.control.view:this.state.control.filter));
 				if(this.state.hoverBucket) {
-					return x >= this.state.hoverBucket.from && x <= this.state.hoverBucket.to
+					return this.state.hoverBucket.reduce((found: boolean, curr: HistogramBucket)=>
+						found || x >= curr.from && x <= curr.to, false)
 				} else {
-					return x >= this.state.clickBucket.from && x <= this.state.clickBucket.to
+					return this.state.clickBucket.reduce((found: boolean, curr: HistogramBucket)=>
+						found || x >= curr.from && x <= curr.to, false)
 				}
 			})
 		}
