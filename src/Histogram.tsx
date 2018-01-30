@@ -55,8 +55,7 @@ export function readHistogramBuckets(stats: HistogramStats, buckets: HistogramBu
 	const domain = scaleLinear().domain([stats.min,stats.max]).nice(4).domain()
 	buckets[0].from = domain[0];
 	buckets[buckets.length-1].to = domain[1];
-	stats.histogram = buckets;
-	return stats;
+	return buckets;
 }
 export function findHistogramItems(buckets: HistogramBucket[], items: HistogramItem[]) {
 	return items.filter((item: HistogramItem)=>{

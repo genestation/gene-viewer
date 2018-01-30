@@ -213,7 +213,7 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 			}
 		})
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		readHistogramBuckets(stats[0], response.aggregations.field_buckets.buckets);
+		stats[0].histogram = readHistogramBuckets(stats[0], response.aggregations.field_buckets.buckets);
 		return client.searchTemplate({
 			index: index,
 			type: "Homo_sapiens",
@@ -237,7 +237,7 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 			}
 		})
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
-		readHistogramBuckets(stats[1], response.aggregations.field_buckets.buckets);
+		stats[1].histogram = readHistogramBuckets(stats[0], response.aggregations.field_buckets.buckets);
 		return stats;
 	});
 }
