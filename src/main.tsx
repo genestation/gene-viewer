@@ -195,8 +195,11 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 			params: {field: params.field},
 		},
 	}).then((response: ElasticSearch.SearchResponse<any>)=>{
+		stats[0] = response.aggregations.field_stats;
 		stats[0].histogram = makeHistogramBuckets(response.aggregations.field_stats, 100);
-		stats[1].histogram = makeHistogramBuckets(response.aggregations.field_stats, 100);
+		stats[1] = {
+			histogram: makeHistogramBuckets(response.aggregations.field_stats, 100),
+		};
 		stats[0].percentiles = response.aggregations.field_percentiles.values;
 		return client.searchTemplate({
 			index: index,

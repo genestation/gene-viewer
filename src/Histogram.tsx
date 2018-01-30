@@ -28,10 +28,10 @@ export interface HistogramPercentiles {
 	"99.0": number,
 }
 export interface HistogramStats {
-	min: number,
-	max: number,
-	percentiles: HistogramPercentiles,
-	histogram: HistogramBucket[],
+	min?: number,
+	max?: number,
+	percentiles?: HistogramPercentiles,
+	histogram?: HistogramBucket[],
 }
 
 // Generate range aggregation buckets
@@ -189,8 +189,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 					viewBox={-this.margin.left+" "+-this.margin.top+" "+this.viewWidth+" "+this.viewHeight}>
 					<g className="histogram-plot">
 						{this.hist_points.map((points: point[], idx: number)=>{
-							<path key={idx} className="histogram-plot-area"
-								fill="#808080" fillOpacity="0.5" //stroke="black" strokeWidth={1}
+							return <path key={idx} className="histogram-plot-area"
+								fill="#808080" fillOpacity="0.5"
+								stroke="black" strokeOpacity="0.5" strokeWidth="1"
 								d={this.hist_area(points)}
 							/>
 						})}
