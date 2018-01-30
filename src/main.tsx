@@ -190,6 +190,7 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 	return client.searchTemplate({
 		index: index,
 		type: "Homo_sapiens",
+		requestTimeout: 300000, // 5 minutes
 		body: {
 			id: "field_stats",
 			params: {field: params.field},
@@ -458,7 +459,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	handleChangeControl = (control?: Controls)=>{
 		this.setState({
-			control: control
+			control: control,
 			stats: null,
 		}, this.fetchSnps);
 	}
