@@ -214,8 +214,11 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 								<text textAnchor="left" fontSize={this.fontSize}
 									x={this.xScale(this.props.value[0].to)}
 									y={0 - this.padding.top}>
-									{this.props.value.map((bucket: HistogramBucket)=>bucket.doc_count)
-										.reverse().join('/')}
+									{this.props.value.map((bucket: HistogramBucket)=>{
+										return bucket.doc_count >= 1000 ?
+											bucket.doc_count.toExponential(2).replace('+','')
+											: bucket.doc_count})
+									.reverse().join('/')}
 								</text>
 							:null}
 						</g>:null}
@@ -275,8 +278,11 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 						<text textAnchor="left" fontSize={this.fontSize}
 							x={this.xScale(this.state.hoverBucket[0].to)}
 							y={0 - this.padding.top}>
-							{this.state.hoverBucket.map((bucket: HistogramBucket)=>bucket.doc_count)
-								.reverse().join('/')}
+							{this.state.hoverBucket.map((bucket: HistogramBucket)=>{
+								return bucket.doc_count >= 1000 ?
+									bucket.doc_count.toExponential(2).replace('+','')
+									: bucket.doc_count})
+							.reverse().join('/')}
 						</text>
 						<rect className="histogram-plot-button"
 							onClick={()=>{this.onClick(this.state.hoverBucket)}}
