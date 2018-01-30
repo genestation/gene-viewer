@@ -375,16 +375,14 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				scale: scale,
 			});
 			if(this.state.control.view || this.state.control.filter) {
-				return this.setState({
-					stats: null,
-				}, ()=>getRangeStats(this.elastic, "variant_v1.4", {
+				return getRangeStats(this.elastic, "variant_v1.4", {
 					field: 'data.'+(this.state.control.view?this.state.control.view:this.state.control.filter),
 					start: scale.domain[0],
 					end: scale.domain[1],
 					srcfeature: this.state.srcfeature,
 				}).then((stats: HistogramStats[])=>{
 					this.setState({stats: stats});
-				}));
+				});
 			}
 		});
 		/*
@@ -461,6 +459,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	handleChangeControl = (control?: Controls)=>{
 		this.setState({
 			control: control
+			stats: null,
 		}, this.fetchSnps);
 	}
 	handleHoverBucket = (bucket?: HistogramBucket[])=>{
