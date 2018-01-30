@@ -80,7 +80,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	margin = {top: 15, right: 40, bottom: 20, left: 20};
+	margin = {top: 15, right: 80, bottom: 20, left: 20};
 	padding = {top: 1, right: 20, bottom: 4, left: 0};
 	width = 350;
 	height = 40;
