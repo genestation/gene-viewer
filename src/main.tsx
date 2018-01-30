@@ -255,9 +255,9 @@ export interface GeneViewerState{
 	name?: string,
 	stats?: HistogramStats[],
 
-	focus?: number,
-	selectedRegion?: number[],
 	selectedFeature?: string,
+	hoverRegion?: number[],
+	clickRegion?: number[],
 	hoverBucket?: HistogramBucket[],
 	clickBucket?: HistogramBucket[],
 	hoverFeature?: string,
@@ -311,8 +311,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			end: scale.domain[1],
 			srcfeature: props.features[0].srcfeature,
 			name: props.features[0].name,
-			focus: -1,
-			selectedRegion: null,
+			hoverRegion: null,
+			clickRegion: null,
 			selectedFeature: null,
 			hoverFeature: null,
 			features: props.features,
@@ -408,7 +408,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	onMouseLeave = (e: React.MouseEvent)=>{
 		this.setState({
-			focus: -1,
+			hoverRegion: null,
 		});
 	}
 	handleMouseMove = (pageX: number)=>{
@@ -416,18 +416,18 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = (pageX - offsetLeft)/offsetWidth * (this.viewWidth) - this.margin.left;
 		this.setState({
-			focus: this.state.scale.invert(coordX),
+			hoverRegion: this.state.scale.region(this.state.scale.invert(coordX)),
 		}, ()=>{this.handlingMouseMove=false});
 	}
 	selectRegion = (region: number[])=>{
-		if (this.state.selectedRegion && region[0] == this.state.selectedRegion[0]) {
+		if (this.state.clickRegion && region[0] == this.state.clickRegion[0]) {
 			this.setState({
-				selectedRegion: null,
+				clickRegion: null,
 				selectedFeature: null,
 			})
 		} else {
 			this.setState({
-				selectedRegion: region,
+				clickRegion: region,
 				selectedFeature: null,
 			})
 		}
@@ -473,13 +473,18 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 	}
 	renderGenome = (features: Feature[])=>{
-		const region = this.state.scale.region(this.state.focus);
-		const draw_region = [this.state.scale.get(region[0]),this.state.scale.get(region[1])]
-		const draw_region_width = draw_region[1]-draw_region[0]
-		const draw_selectedRegion = this.state.selectedRegion?
-			[this.state.scale.get(this.state.selectedRegion[0]),this.state.scale.get(this.state.selectedRegion[1])] : null
-		const draw_selectedRegion_width = this.state.selectedRegion?
-			draw_selectedRegion[1]-draw_selectedRegion[0] : null
+		const draw_hoverRegion = this.state.hoverRegion?
+			[this.state.scale.get(this.state.hoverRegion[0]),
+				this.state.scale.get(this.state.hoverRegion[1])]
+			: null ;
+		const draw_hoverRegion_width = this.state.hoverRegion?
+			draw_hoverRegion[1]-draw_hoverRegion[0] : null ;
+		const draw_clickRegion = this.state.clickRegion?
+			[this.state.scale.get(this.state.clickRegion[0]),
+				this.state.scale.get(this.state.clickRegion[1])]
+			: null;
+		const draw_clickRegion_width = this.state.clickRegion?
+			draw_clickRegion[1]-draw_clickRegion[0] : null ;
 		return <svg width="100%" height={this.viewHeight}
 		 viewBox={this.minX+" "+this.minY+" "+this.viewWidth+" "+this.viewHeight}>
 			<rect x="0" y={this.dnaY}
@@ -490,19 +495,19 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 					selected={this.state.hoverFeature?this.state.hoverFeature:this.state.selectedFeature}
 				/>
 			}) }
-			{this.state.selectedRegion && !this.state.selectedFeature ?
-				<rect x={draw_selectedRegion[0]} y={this.dnaY}
-					width={draw_selectedRegion_width} height={this.dnaHeight}
+			{this.state.clickRegion && !this.state.selectedFeature ?
+				<rect x={draw_clickRegion[0]} y={this.dnaY}
+					width={draw_clickRegion_width} height={this.dnaHeight}
 					style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.2}} />
 			: null}
-			{draw_region_width? <g>
-				<rect onClick={()=>this.selectRegion(region)}
-					x={draw_region[0]} y={this.dnaY}
-					width={draw_region_width} height={this.dnaHeight}
+			{this.state.hoverRegion ? <g>
+				<rect onClick={()=>this.selectRegion(this.state.hoverRegion)}
+					x={draw_hoverRegion[0]} y={this.dnaY}
+					width={draw_hoverRegion_width} height={this.dnaHeight}
 					style={{fill:"#FFFFFF", fillOpacity:0.2}} />
 				<text textAnchor="middle" fontSize={this.fontSize}
-					 x={draw_region[0]+draw_region_width/2} y={this.dnaY-this.padding.top}>
-						{region[1]-region[0]} bp
+					 x={draw_hoverRegion[0]+draw_hoverRegion_width/2} y={this.dnaY-this.padding.top}>
+						{this.state.hoverRegion[1]-this.state.hoverRegion[0]} bp
 				</text>
 			</g>: null}
 		</svg>;
@@ -530,15 +535,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		</div>;
 	}
 	render() {
-		const region = this.state.focus > -1 ?
-			this.state.scale.region(this.state.focus) :
-			this.state.selectedRegion;
+		const region = this.state.hoverRegion ?  this.state.hoverRegion : this.state.clickRegion;
 		let features = this.state.features.filter((feature: Feature)=>
-			this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+			this.state.hoverRegion || !this.state.selectedFeature || this.state.selectedFeature == feature.name
 		)
 		if(region) {
 			features = this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
-				this.state.focus != -1 || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+				this.state.hoverRegion || !this.state.selectedFeature || this.state.selectedFeature == feature.name
 			)
 		}
 		let histItems = features.map((feature: Feature)=>{
