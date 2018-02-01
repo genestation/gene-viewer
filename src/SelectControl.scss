@@ -1,10 +1,21 @@
 .selectcontrol-container {
 	display: flex;
 	height: 100%;
+	flex-direction: column;
+}
+
+.selectcontrol-row {
+	display: flex;
+	height: 100%;
 }
 
 .selectcontrol-element {
 	margin-right: 0.25em;
+}
+
+.selectcontrol-placeholder {
+	visibility: hidden;
+	flex-shrink: 100;
 }
 
 .selectcontrol-view {
