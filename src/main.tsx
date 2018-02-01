@@ -375,10 +375,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				scale: scale,
 			});
 			if(this.state.control.view || this.state.control.filter) {
+				const region = this.state.hoverRegion ? this.state.hoverRegion :
+					this.state.clickRegion ? this.state.clickRegion :
+						[scale.domain[0], scale.domain[1]];
 				return getRangeStats(this.elastic, "variant_v1.4", {
 					field: 'data.'+(this.state.control.view?this.state.control.view:this.state.control.filter),
-					start: scale.domain[0],
-					end: scale.domain[1],
+					start: region[0],
+					end: region[1],
 					srcfeature: this.state.srcfeature,
 				}).then((stats: HistogramStats[])=>{
 					this.setState({stats: stats});
@@ -409,7 +412,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	onMouseLeave = (e: React.MouseEvent)=>{
 		this.setState({
 			hoverRegion: null,
-		});
+		}, this.fetchSnps);
 	}
 	handleMouseMove = (pageX: number)=>{
 		const offsetLeft = this.child.navigation.offsetLeft;
@@ -417,7 +420,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const coordX = (pageX - offsetLeft)/offsetWidth * (this.viewWidth) - this.margin.left;
 		this.setState({
 			hoverRegion: this.state.scale.region(this.state.scale.invert(coordX)),
-		}, ()=>{this.handlingMouseMove=false});
+		}, ()=>{this.handlingMouseMove=false; this.fetchSnps()});
 	}
 	selectRegion = (region: number[])=>{
 		if (this.state.clickRegion && region[0] == this.state.clickRegion[0]) {
