@@ -80,8 +80,8 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	child: {
 		navigation?: HTMLElement;
 	} = {};
-	margin = {top: 15, right: 80, bottom: 20, left: 20};
-	padding = {top: 1, right: 20, bottom: 4, left: 0};
+	margin = {top: 15, right: 80, bottom: 20, left: 40};
+	padding = {top: 1, right: 20, bottom: 4, left: 20};
 	width = 350;
 	height = 40;
 	viewWidth = this.width + this.margin.left + this.margin.right;
@@ -173,13 +173,19 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 		|| typeof this.props.stats[0].min != "number"
 		|| typeof this.props.stats[0].max != "number") {
 			return <div className="histogram"
-				style={{marginRight: this.padding.right - this.margin.right + "px"}}>
+				style={{
+					marginRight: this.padding.right - this.margin.right,
+					marginLeft: this.padding.left - this.margin.left,
+				}}>
 				<svg width={this.viewWidth} height={this.viewHeight}/>
 			</div>
 		} else {
 			this.updateD3();
 			return <div className="histogram"
-					style={{marginRight: this.padding.right - this.margin.right + "px"}}
+					style={{
+						marginRight: this.padding.right - this.margin.right,
+						marginLeft: this.padding.left - this.margin.left,
+					}}
 					ref={ref => this.child.navigation = ref}
 					onMouseMove={this.onMouseMove}
 					onMouseLeave={this.onMouseLeave}
@@ -203,6 +209,13 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 								/>
 							})
 						}</g>:null}
+						{this.props.items.length == 1 && !this.state.hoverBucket ?
+							<text textAnchor="middle" fontSize={this.fontSize}
+									x={this.xScale(this.props.items[0].x)}
+									y={0 - this.padding.top}>
+								{this.props.items[0].x.toExponential(4)}
+							</text>
+						:null}
 						{this.props.value?<g>
 							<rect className="histogram-plot-value"
 								style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.4}}
@@ -210,17 +223,6 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 								width={this.xScale(this.props.value[0].to) - this.xScale(this.props.value[0].from)}
 								height={this.height}
 							/>
-							{!this.state.hoverBucket?
-								<text textAnchor="left" fontSize={this.fontSize}
-									x={this.xScale(this.props.value[0].to)}
-									y={0 - this.padding.top}>
-									{this.props.value.map((bucket: HistogramBucket)=>{
-										return bucket.doc_count >= 1000 ?
-											bucket.doc_count.toExponential(2).replace('+','')
-											: bucket.doc_count})
-									.reverse().join('/')}
-								</text>
-							:null}
 						</g>:null}
 					</g>
 					<g className="histogram-xaxis">
