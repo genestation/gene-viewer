@@ -255,12 +255,6 @@ export interface GeneViewerState{
 	name?: string,
 	stats?: HistogramStats[],
 
-	clickFeature?: string,
-	hoverRegion?: number[],
-	clickRegion?: number[],
-	hoverBucket?: HistogramBucket[],
-	clickBucket?: HistogramBucket[],
-	hoverFeature?: string,
 	currFeature?: Feature,
 	features?: Feature[],
 	scale?: Scale,
@@ -311,10 +305,6 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			end: scale.domain[1],
 			srcfeature: props.features[0].srcfeature,
 			name: props.features[0].name,
-			hoverRegion: null,
-			clickRegion: null,
-			clickFeature: null,
-			hoverFeature: null,
 			features: props.features,
 			scale: scale,
 			control: {
@@ -322,6 +312,12 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				filter: null,
 				order: "desc",
 				limit: 10,
+				hoverRegion: null,
+				clickRegion: null,
+				hoverFeature: null,
+				clickFeature: null,
+				hoverBucket: null,
+				clickBucket: null,
 			},
 		}
 		this.elastic = new ElasticSearch.Client({
@@ -375,8 +371,8 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				scale: scale,
 			});
 			if(this.state.control.view || this.state.control.filter) {
-				const region = this.state.hoverRegion ? this.state.hoverRegion :
-					this.state.clickRegion ? this.state.clickRegion :
+				const region = this.state.control.hoverRegion ? this.state.control.hoverRegion :
+					this.state.control.clickRegion ? this.state.control.clickRegion :
 						[scale.domain[0], scale.domain[1]];
 				return getRangeStats(this.elastic, "variant_v1.4", {
 					field: 'data.'+(this.state.control.view?this.state.control.view:this.state.control.filter),
@@ -402,6 +398,14 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}).then((json:any)=>{console.log(json)})
 		*/
 	}
+	setControlState = (control: Controls, callback?: ()=>void)=>{
+		this.setState({
+			control: {
+				...this.state.control,
+				...control,
+			}
+		}, callback);
+	}
 	onMouseMove = (e: React.MouseEvent)=>{
 		if(!this.handlingMouseMove) {
 			let pageX = e.pageX;
@@ -410,7 +414,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		this.handlingMouseMove = true;
 	}
 	onMouseLeave = (e: React.MouseEvent)=>{
-		this.setState({
+		this.setControlState({
 			hoverRegion: null,
 		}, this.fetchSnps);
 	}
@@ -418,28 +422,21 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const offsetLeft = this.child.navigation.offsetLeft;
 		const offsetWidth = this.child.navigation.offsetWidth;
 		const coordX = (pageX - offsetLeft)/offsetWidth * (this.viewWidth) - this.margin.left;
-		this.setState({
+		this.setControlState({
 			hoverRegion: this.state.scale.region(this.state.scale.invert(coordX)),
 		}, ()=>{this.handlingMouseMove=false; this.fetchSnps()});
 	}
-	selectRegion = (region: number[])=>{
-		if (this.state.clickRegion && region[0] == this.state.clickRegion[0]) {
-			this.setState({
+	clickRegion = (region: number[])=>{
+		if (this.state.control.clickRegion && region[0] == this.state.control.clickRegion[0]) {
+			this.setControlState({
 				clickRegion: null,
 				clickFeature: null,
 			})
 		} else {
-			this.setState({
+			this.setControlState({
 				clickRegion: region,
 				clickFeature: null,
 			})
-		}
-	}
-	selectFeature = (feature: string)=>{
-		if (this.state.clickFeature && feature == this.state.clickFeature) {
-			this.setState({clickFeature: null})
-		} else {
-			this.setState({clickFeature: feature})
 		}
 	}
 	onHoverFeature = (feature?: string)=>{
@@ -450,14 +447,31 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	handleHoverFeature = (feature?: string)=>{
 		if (!feature) {
-			this.setState({
+			this.setControlState({
 				hoverFeature: null,
 			}, ()=>{this.handlingMouseMove=false});
 		} else {
-			this.setState({
+			this.setControlState({
 				hoverFeature: feature,
 			}, ()=>{this.handlingMouseMove=false});
 		}
+	}
+	clickFeature = (feature: string)=>{
+		if (this.state.control.clickFeature && feature == this.state.control.clickFeature) {
+			this.setControlState({clickFeature: null})
+		} else {
+			this.setControlState({clickFeature: feature})
+		}
+	}
+	handleHoverBucket = (bucket?: HistogramBucket[])=>{
+		this.setControlState({
+			hoverBucket: bucket
+		});
+	}
+	handleClickBucket = (bucket?: HistogramBucket[])=>{
+		this.setControlState({
+			clickBucket: bucket
+		});
 	}
 	handleChangeControl = (control?: Controls)=>{
 		this.setState({
@@ -465,28 +479,18 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			stats: null,
 		}, this.fetchSnps);
 	}
-	handleHoverBucket = (bucket?: HistogramBucket[])=>{
-		this.setState({
-			hoverBucket: bucket
-		});
-	}
-	handleClickBucket = (bucket?: HistogramBucket[])=>{
-		this.setState({
-			clickBucket: bucket
-		});
-	}
 	renderGenome = (features: Feature[])=>{
-		const draw_hoverRegion = this.state.hoverRegion?
-			[this.state.scale.get(this.state.hoverRegion[0]),
-				this.state.scale.get(this.state.hoverRegion[1])]
+		const draw_hoverRegion = this.state.control.hoverRegion?
+			[this.state.scale.get(this.state.control.hoverRegion[0]),
+				this.state.scale.get(this.state.control.hoverRegion[1])]
 			: null ;
-		const draw_hoverRegion_width = this.state.hoverRegion?
+		const draw_hoverRegion_width = this.state.control.hoverRegion?
 			draw_hoverRegion[1]-draw_hoverRegion[0] : null ;
-		const draw_clickRegion = this.state.clickRegion?
-			[this.state.scale.get(this.state.clickRegion[0]),
-				this.state.scale.get(this.state.clickRegion[1])]
+		const draw_clickRegion = this.state.control.clickRegion?
+			[this.state.scale.get(this.state.control.clickRegion[0]),
+				this.state.scale.get(this.state.control.clickRegion[1])]
 			: null;
-		const draw_clickRegion_width = this.state.clickRegion?
+		const draw_clickRegion_width = this.state.control.clickRegion?
 			draw_clickRegion[1]-draw_clickRegion[0] : null ;
 		return <svg width="100%" height={this.viewHeight}
 		 viewBox={this.minX+" "+this.minY+" "+this.viewWidth+" "+this.viewHeight}>
@@ -495,22 +499,23 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 style={{fill:"#8b96a8"}} />
 			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={this.shape} feature={feature}
-					selected={this.state.hoverFeature?this.state.hoverFeature:this.state.clickFeature}
+					selected={this.state.control.hoverFeature?
+						this.state.control.hoverFeature:this.state.control.clickFeature}
 				/>
 			}) }
-			{this.state.clickRegion && !this.state.clickFeature ?
+			{this.state.control.clickRegion && !this.state.control.clickFeature ?
 				<rect x={draw_clickRegion[0]} y={this.dnaY}
 					width={draw_clickRegion_width} height={this.dnaHeight}
 					style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.2}} />
 			: null}
-			{this.state.hoverRegion ? <g>
-				<rect onClick={()=>this.selectRegion(this.state.hoverRegion)}
+			{this.state.control.hoverRegion ? <g>
+				<rect onClick={()=>this.clickRegion(this.state.control.hoverRegion)}
 					x={draw_hoverRegion[0]} y={this.dnaY}
 					width={draw_hoverRegion_width} height={this.dnaHeight}
 					style={{fill:"#FFFFFF", fillOpacity:0.2}} />
 				<text textAnchor="middle" fontSize={this.fontSize}
 					 x={draw_hoverRegion[0]+draw_hoverRegion_width/2} y={this.dnaY-this.padding.top}>
-						{this.state.hoverRegion[1]-this.state.hoverRegion[0]} bp
+						{this.state.control.hoverRegion[1]-this.state.control.hoverRegion[0]} bp
 				</text>
 			</g>: null}
 		</svg>;
@@ -519,7 +524,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		return <div key={idx}>
 			<div onMouseMove={()=>{this.onHoverFeature(feature.name)}}
 				onMouseLeave={()=>{this.onHoverFeature()}}
-				onClick={()=>this.selectFeature(feature.name)}>
+				onClick={()=>this.clickFeature(feature.name)}>
 				<span className="geneviewer-title">{feature.name}</span>
 				&nbsp;
 				<span className="geneviewer-subtitle">{feature.ftype}</span>
@@ -538,14 +543,20 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		</div>;
 	}
 	render() {
-		const region = this.state.hoverRegion ?  this.state.hoverRegion : this.state.clickRegion;
-		const focusFeature = this.state.hoverFeature ? this.state.hoverFeature : this.state.clickFeature;
+		const region = this.state.control.hoverRegion ?
+			this.state.control.hoverRegion : this.state.control.clickRegion;
+		const focusFeature = this.state.control.hoverFeature ?
+			this.state.control.hoverFeature : this.state.control.clickFeature;
 		let features = this.state.features.filter((feature: Feature)=>
-			this.state.hoverRegion || !this.state.clickFeature || this.state.clickFeature == feature.name
+			this.state.control.hoverRegion
+			|| !this.state.control.clickFeature
+			|| this.state.control.clickFeature == feature.name
 		)
 		if(region) {
 			features = this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
-				this.state.hoverRegion || !this.state.clickFeature || this.state.clickFeature == feature.name
+				this.state.control.hoverRegion
+				|| !this.state.control.clickFeature
+				|| this.state.control.clickFeature == feature.name
 			)
 		}
 		let histItems = features.map((feature: Feature)=>{
@@ -557,15 +568,15 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		}).filter((item: {x:any, data: Feature})=>{
 			return typeof item.x == "number" && (!focusFeature || focusFeature == item.data.name)
 		});
-		if(this.state.hoverBucket || this.state.clickBucket) {
+		if(this.state.control.hoverBucket || this.state.control.clickBucket) {
 			features = features.filter((feature: Feature)=>{
 				const x = getFeatureData(feature,
 					(this.state.control.view?this.state.control.view:this.state.control.filter));
-				if(this.state.hoverBucket) {
-					return this.state.hoverBucket.reduce((found: boolean, curr: HistogramBucket)=>
+				if(this.state.control.hoverBucket) {
+					return this.state.control.hoverBucket.reduce((found: boolean, curr: HistogramBucket)=>
 						found || x >= curr.from && x <= curr.to, false)
 				} else {
-					return this.state.clickBucket.reduce((found: boolean, curr: HistogramBucket)=>
+					return this.state.control.clickBucket.reduce((found: boolean, curr: HistogramBucket)=>
 						found || x >= curr.from && x <= curr.to, false)
 				}
 			})
@@ -579,7 +590,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				{this.renderGenome(this.state.features)}
 			</div>
 			<div className="geneviewer-controls">
-				<Histogram value={this.state.clickBucket} items={histItems} stats={this.state.stats}
+				<Histogram value={this.state.control.clickBucket} items={histItems} stats={this.state.stats}
 					onHover={this.handleHoverBucket} onClick={this.handleClickBucket} />
 				<SelectControl value={this.state.control} onChange={this.handleChangeControl} fields={this.props.numericFields}/>
 			</div>

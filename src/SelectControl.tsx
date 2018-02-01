@@ -4,6 +4,7 @@ import './SelectControl.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {TreeSelect, TreeNode} from './TreeSelect.tsx';
+import {HistogramBucket} from './Histogram.tsx';
 import {Dropdown, DropdownList, DropdownListFind, DropdownListOption} from './Dropdown.tsx';
 
 export interface Controls {
@@ -11,6 +12,12 @@ export interface Controls {
 	filter?: string,
 	order?: string,
 	limit?: number,
+	hoverRegion?: number[],
+	clickRegion?: number[],
+	hoverFeature?: string,
+	clickFeature?: string,
+	hoverBucket?: HistogramBucket[],
+	clickBucket?: HistogramBucket[],
 }
 interface SelectControlProps {
 	value: Controls,
