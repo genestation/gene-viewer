@@ -255,7 +255,7 @@ export interface GeneViewerState{
 	name?: string,
 	stats?: HistogramStats[],
 
-	selectedFeature?: string,
+	clickFeature?: string,
 	hoverRegion?: number[],
 	clickRegion?: number[],
 	hoverBucket?: HistogramBucket[],
@@ -313,7 +313,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			name: props.features[0].name,
 			hoverRegion: null,
 			clickRegion: null,
-			selectedFeature: null,
+			clickFeature: null,
 			hoverFeature: null,
 			features: props.features,
 			scale: scale,
@@ -426,20 +426,20 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		if (this.state.clickRegion && region[0] == this.state.clickRegion[0]) {
 			this.setState({
 				clickRegion: null,
-				selectedFeature: null,
+				clickFeature: null,
 			})
 		} else {
 			this.setState({
 				clickRegion: region,
-				selectedFeature: null,
+				clickFeature: null,
 			})
 		}
 	}
 	selectFeature = (feature: string)=>{
-		if (this.state.selectedFeature && feature == this.state.selectedFeature) {
-			this.setState({selectedFeature: null})
+		if (this.state.clickFeature && feature == this.state.clickFeature) {
+			this.setState({clickFeature: null})
 		} else {
-			this.setState({selectedFeature: feature})
+			this.setState({clickFeature: feature})
 		}
 	}
 	onHoverFeature = (feature?: string)=>{
@@ -495,10 +495,10 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			 style={{fill:"#8b96a8"}} />
 			{ features.map((feature: Feature, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={this.shape} feature={feature}
-					selected={this.state.hoverFeature?this.state.hoverFeature:this.state.selectedFeature}
+					selected={this.state.hoverFeature?this.state.hoverFeature:this.state.clickFeature}
 				/>
 			}) }
-			{this.state.clickRegion && !this.state.selectedFeature ?
+			{this.state.clickRegion && !this.state.clickFeature ?
 				<rect x={draw_clickRegion[0]} y={this.dnaY}
 					width={draw_clickRegion_width} height={this.dnaHeight}
 					style={{stroke:"#FFFFFF", strokeOpacity:0.5, fill:"#6666FF", fillOpacity:0.2}} />
@@ -539,12 +539,13 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	}
 	render() {
 		const region = this.state.hoverRegion ?  this.state.hoverRegion : this.state.clickRegion;
+		const focusFeature = this.state.hoverFeature ? this.state.hoverFeature : this.state.clickFeature;
 		let features = this.state.features.filter((feature: Feature)=>
-			this.state.hoverRegion || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+			this.state.hoverRegion || !this.state.clickFeature || this.state.clickFeature == feature.name
 		)
 		if(region) {
 			features = this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
-				this.state.hoverRegion || !this.state.selectedFeature || this.state.selectedFeature == feature.name
+				this.state.hoverRegion || !this.state.clickFeature || this.state.clickFeature == feature.name
 			)
 		}
 		let histItems = features.map((feature: Feature)=>{
@@ -554,9 +555,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				data: feature,
 			};
 		}).filter((item: {x:any, data: Feature})=>{
-			return typeof item.x == "number"
-				&& (!this.state.selectedFeature || this.state.selectedFeature == item.data.name)
-				&& (!this.state.hoverFeature || this.state.hoverFeature == item.data.name)
+			return typeof item.x == "number" && (!focusFeature || focusFeature == item.data.name)
 		});
 		if(this.state.hoverBucket || this.state.clickBucket) {
 			features = features.filter((feature: Feature)=>{
