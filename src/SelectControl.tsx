@@ -90,6 +90,9 @@ export class SelectControl extends React.Component<SelectControlProps,SelectCont
 				{region?
 					<Dropdown className="selectcontrol-element" label="Region"
 						value={region.join('..')}>
+						<div className="selectcontrol-button" onClick={()=>this.handleChange({clickRegion: null})}>
+							<i>clear</i>
+						</div>
 					</Dropdown>
 				:null}
 				{bucket?
@@ -99,11 +102,17 @@ export class SelectControl extends React.Component<SelectControlProps,SelectCont
 								bucket.from.toExponential(2)+'..'+bucket.to.toExponential(2))
 							.join(', ')
 						}>
+						<div className="selectcontrol-button" onClick={()=>this.handleChange({clickBucket: null})}>
+							<i>clear</i>
+						</div>
 					</Dropdown>
 				:null}
 				{feature?
 					<Dropdown className="selectcontrol-element" label="Feature"
 						value={feature}>
+						<div className="selectcontrol-button" onClick={()=>this.handleChange({clickFeature: null})}>
+							<i>clear</i>
+						</div>
 					</Dropdown>
 				:null}
 				<Dropdown className="selectcontrol-placeholder" label="" value="0" />

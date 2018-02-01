@@ -1,7 +1,4 @@
 .selectcontrol-container {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
 }
 
 .selectcontrol-row {
@@ -21,4 +18,12 @@
 
 .selectcontrol-view {
 	width: 14em;
+}
+
+.selectcontrol-button {
+	min-width: 5em;
+	text-align: center;
+	&:hover {
+		background: rgba(180, 180, 180, 0.3);
+	}
 }
