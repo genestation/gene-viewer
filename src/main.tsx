@@ -4,157 +4,11 @@ import './main.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ElasticSearch from 'elasticsearch-browser';
+import {GenomeFeatureObject, GenomeFeature, getFeatureData} from './GenomeFeature.tsx';
 import {Scale} from './scale.tsx';
 import {SelectControl, Controls} from './SelectControl.tsx';
 import {Histogram, HistogramStats, HistogramBucket, makeHistogramBuckets, readHistogramBuckets} from './Histogram.tsx';
 
-export interface Feature {
-	name?: string,
-	ftype?: string,
-	srcfeature?: string,
-	start?: number,
-	end?: number,
-	strand?: number,
-	child?: Feature[],
-	data?: {[key: string]: any[]},
-}
-
-function getFeatureData(feature: Feature, key: string): any {
-	if(typeof key != "string") {
-		return undefined;
-	}
-	let path = key.split('.');
-	let ptr: any = feature.data;
-	while(path.length && ptr !== undefined) {
-		if(ptr.hasOwnProperty(path[0])) {
-			ptr = ptr[path.shift()];
-		} else if (path.length > 1) {
-			path.splice(0,2,path[0]+'.'+path[1]);
-		} else {
-			ptr = undefined;
-			break;
-		}
-	}
-	return ptr;
-};
-
-interface GenomeShape {
-	dnaY: number,
-	dnaHeight: number,
-	strandHeight: number,
-	intronHeight: number,
-	plusStrandY: number,
-	minusStrandY: number,
-	minWidth: number,
-}
-
-interface GenomeFeatureProps {
-	scale: Scale,
-	shape: GenomeShape,
-	feature: Feature,
-	selected?: string | boolean,
-}
-class GenomeFeature extends React.Component<GenomeFeatureProps,{}> {
-	constructor(props: GenomeFeatureProps) {
-		super(props);
-		this.state = { }
-	}
-	featureColor(ftype = this.props.feature.ftype):string {
-		switch(ftype) {
-		case 'exon':
-			return '#56876a';
-		case 'CDS':
-			return '#3e53bc';
-		case 'sequence_alteration':
-			return '#e00f24';
-		case 'enhancer':
-			return '#62138c';
-		case 'repetitive_element':
-			return 'none';
-		default:
-			return null;
-		}
-	}
-	renderLeaf(opacity: number):JSX.Element {
-		if(typeof this.props.feature.start == "number" && typeof this.props.feature.end == "number") {
-			const rectX = this.props.scale.get(this.props.feature.start);
-			const rectWidth = Math.max(this.props.scale.get(this.props.feature.end) - this.props.scale.get(this.props.feature.start),
-				this.props.shape.minWidth);
-			switch(this.props.feature.strand) {
-			case 1:
-				return <rect x={rectX} y={this.props.shape.plusStrandY}
-					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor(), opacity: opacity}} />
-			case -1:
-				return <rect x={rectX} y={this.props.shape.minusStrandY}
-					width={rectWidth} height={this.props.shape.strandHeight}
-					style={{fill:this.featureColor(), opacity: opacity}} />
-			default:
-				return <rect x={rectX} y={this.props.shape.dnaY}
-					width={rectWidth} height={this.props.shape.dnaHeight}
-					style={{fill:this.featureColor(), opacity: opacity}} />
-			}
-		}
-	}
-	render():JSX.Element {
-		let selected = true;
-		let childSelected = false;
-		if(typeof this.props.selected == 'boolean') {
-			selected = this.props.selected;
-			childSelected = this.props.selected;
-		} else if(typeof this.props.selected == 'string') {
-			selected = (this.props.feature.name == this.props.selected);
-			childSelected = (this.props.feature.name == this.props.selected);
-		}
-		const opacity = selected ? (this.props.selected ? 0.8 : 0.6) : 0.1;
-		if(this.props.feature.child) {
-			return <g>
-				<rect />
-				{ this.props.feature.child.map((feature: Feature, idx: number)=>{
-					return <GenomeFeature key={idx}
-						scale={this.props.scale} shape={this.props.shape} feature={feature} selected={childSelected?childSelected:this.props.selected}/>
-				}) }
-				{this.props.feature.child.map((child: Feature, idx: number, array: Feature[])=>{
-					if(idx > 0) {
-						const lastChild = array[idx-1];
-						if(child.ftype != lastChild.ftype || child.child || lastChild.child) {
-							return null
-						}
-						if(child.strand == 1 && lastChild.strand == 1) {
-							const startX = this.props.scale.get(lastChild.end);
-							const endX = this.props.scale.get(child.start);
-							const strandY = this.props.shape.plusStrandY
-							const midX = (startX + endX)/2;
-							const midY = this.props.shape.plusStrandY - this.props.shape.intronHeight;
-							return <path key={idx}
-								d={"M "+startX+" "+strandY
-									+" L "+midX+" "+midY
-									+" L "+endX+" "+strandY
-								} style={{fill: "none", opacity: opacity, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
-						} else if(child.strand == -1 && lastChild.strand == -1) {
-							const startX = this.props.scale.get(lastChild.start);
-							const endX = this.props.scale.get(child.end);
-							const strandY = this.props.shape.minusStrandY + this.props.shape.strandHeight;
-							const midX = (startX + endX)/2;
-							const midY = this.props.shape.minusStrandY + this.props.shape.strandHeight + this.props.shape.intronHeight;
-							return <path key={idx}
-								d={"M "+startX+" "+strandY
-									+" L "+midX+" "+midY
-									+" L "+endX+" "+strandY
-								} style={{fill: "none", opacity: opacity, stroke: this.featureColor(child.ftype), strokeWidth: 1}} />
-						}
-					} else {
-						return null
-					}
-				})}
-			</g>;
-		} else {
-			return <g>
-				{this.renderLeaf(opacity)}
-			</g>;
-		}
-	}
-}
 
 type HitsArray<T> = Array<{
 	_index: string;
@@ -243,7 +97,7 @@ function getRangeStats(client: ElasticSearch.Client, index: string, params: {[ke
 }
 
 export interface GeneViewerProps{
-	features: Feature[],
+	features: GenomeFeatureObject[],
 	elastic: string,
 	index: Object,
 	numericFields: string[],
@@ -255,8 +109,8 @@ export interface GeneViewerState{
 	name?: string,
 	stats?: HistogramStats[],
 
-	currFeature?: Feature,
-	features?: Feature[],
+	currFeature?: GenomeFeatureObject,
+	features?: GenomeFeatureObject[],
 	scale?: Scale,
 	control?: Controls,
 }
@@ -479,7 +333,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			stats: null,
 		}, this.fetchSnps);
 	}
-	renderGenome = (features: Feature[])=>{
+	renderGenome = (features: GenomeFeatureObject[])=>{
 		const draw_hoverRegion = this.state.control.hoverRegion?
 			[this.state.scale.get(this.state.control.hoverRegion[0]),
 				this.state.scale.get(this.state.control.hoverRegion[1])]
@@ -497,7 +351,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			<rect x="0" y={this.dnaY}
 			 width={this.width} height={this.dnaHeight}
 			 style={{fill:"#8b96a8"}} />
-			{ features.map((feature: Feature, idx: number)=>{
+			{ features.map((feature: GenomeFeatureObject, idx: number)=>{
 				return <GenomeFeature key={idx} scale={this.state.scale} shape={this.shape} feature={feature}
 					selected={this.state.control.hoverFeature?
 						this.state.control.hoverFeature:this.state.control.clickFeature}
@@ -520,7 +374,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			</g>: null}
 		</svg>;
 	}
-	renderData = (feature: Feature, idx: number)=>{
+	renderData = (feature: GenomeFeatureObject, idx: number)=>{
 		return <div key={idx}>
 			<div onMouseMove={()=>{this.onHoverFeature(feature.name)}}
 				onMouseLeave={()=>{this.onHoverFeature()}}
@@ -547,29 +401,29 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			this.state.control.hoverRegion : this.state.control.clickRegion;
 		const focusFeature = this.state.control.hoverFeature ?
 			this.state.control.hoverFeature : this.state.control.clickFeature;
-		let features = this.state.features.filter((feature: Feature)=>
+		let features = this.state.features.filter((feature: GenomeFeatureObject)=>
 			this.state.control.hoverRegion
 			|| !this.state.control.clickFeature
 			|| this.state.control.clickFeature == feature.name
 		)
 		if(region) {
-			features = this.state.scale.overlap(region[0], region[1]).filter((feature: Feature)=>
+			features = this.state.scale.overlap(region[0], region[1]).filter((feature: GenomeFeatureObject)=>
 				this.state.control.hoverRegion
 				|| !this.state.control.clickFeature
 				|| this.state.control.clickFeature == feature.name
 			)
 		}
-		let histItems = features.map((feature: Feature)=>{
+		let histItems = features.map((feature: GenomeFeatureObject)=>{
 			return {
 				x: getFeatureData(feature,
 					(this.state.control.view?this.state.control.view:this.state.control.filter)),
 				data: feature,
 			};
-		}).filter((item: {x:any, data: Feature})=>{
+		}).filter((item: {x:any, data: GenomeFeatureObject})=>{
 			return typeof item.x == "number" && (!focusFeature || focusFeature == item.data.name)
 		});
 		if(this.state.control.hoverBucket || this.state.control.clickBucket) {
-			features = features.filter((feature: Feature)=>{
+			features = features.filter((feature: GenomeFeatureObject)=>{
 				const x = getFeatureData(feature,
 					(this.state.control.view?this.state.control.view:this.state.control.filter));
 				if(this.state.control.hoverBucket) {

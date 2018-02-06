@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {GeneViewer, Feature} from '../src/main.tsx';
+import {GeneViewer} from '../src/main.tsx';
+import {GenomeFeatureObject} from '../src/GenomeFeature.tsx';
 
 export function init(element: Element) {
 	ReactDOM.render(<GeneViewer
@@ -12,7 +13,7 @@ export function init(element: Element) {
 		features={[gene].concat(snps)}/>, element);
 }
 
-let gene: Feature = {
+let gene: GenomeFeatureObject = {
 	name: 'FSHR',
 	ftype: 'gene',
 	start: 48962156,
@@ -77,7 +78,7 @@ snp     afr     amr     eas     eur     sas     afr-amr afr-eas afr-eur afr-sas 
 rs2268363       0.113779        0.026431        0.00134515      0.0279357       0.0290877       0.203539        0.128487        0.214874        0.216831       0.0161782        0.0     0.0     0.0176604       0.0187636       0.0
 rs2268361       0.109442        0.0376274       0.0     0.0457116       0.00440635      0.265012        0.134323        0.276761        0.166512        0.0295718       0.0     0.015344        0.0373124       0.00126936      0.0212528
 */
-let snps: Feature[] = [{
+let snps: GenomeFeatureObject[] = [{
 	name: 'rs2268363',
 	ftype: 'sequence_alteration',
 	start: 48974188,
