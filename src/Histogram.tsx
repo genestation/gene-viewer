@@ -91,9 +91,9 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 	xScale: ScaleLinear<number,number>;
 	xTicks: number[];
 	xTickLabels: string[];
-	yScale: ScaleLogarithmic<number,number>;
+	yScale: ScaleLogarithmic<number,number>[];
 	hist_points: point[][];
-	hist_area: Area<point>;
+	hist_area: Area<point>[];
 	constructor(props: HistogramProps) {
 		super(props);
 		this.state={};
@@ -144,13 +144,14 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 			.clamp(true);
 		this.xTicks = this.xScale.ticks(4);
 		this.xTickLabels = this.xTicks.map(this.xScale.tickFormat(4));
-		this.yScale = scaleLog()
-			.domain([1,
-				max([].concat.apply([],this.props.stats.map((stats: HistogramStats)=>stats.histogram)),
-					(bucket: HistogramBucket)=>{
+		this.yScale = this.props.stats.map((stats: HistogramStats)=>{
+			return scaleLog()
+				.domain([1,
+					max(stats.histogram, (bucket: HistogramBucket)=>{
 						return bucket.doc_count;
 					})+1])
-			.range([0,this.height]);
+				.range([0,this.height]);
+		});
 		this.hist_points = this.props.stats.map((stats: HistogramStats)=>
 			stats.histogram.map((bucket: HistogramBucket)=>{
 				return {x: bucket.from, y: bucket.doc_count}
@@ -162,11 +163,13 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 				y: 0
 			})
 		});
-		this.hist_area = area<point>()
-			.x((d: point)=>this.xScale(d.x))
-			.y0((d: point)=>this.height - this.yScale(d.y+1))
-			.y1((d: point)=>this.height)
-			.curve(curveStepAfter);
+		this.hist_area = this.yScale.map((yScale: ScaleLogarithmic<number,number>)=>{
+			return area<point>()
+				.x((d: point)=>this.xScale(d.x))
+				.y0((d: point)=>this.height - yScale(d.y+1))
+				.y1((d: point)=>this.height)
+				.curve(curveStepAfter);
+		});
 	}
 	render() {
 		if(!this.props.stats
@@ -197,7 +200,7 @@ export class Histogram extends React.Component<HistogramProps,HistogramState> {
 							return <path key={idx} className="histogram-plot-area"
 								fill="#808080" fillOpacity="0.5"
 								stroke="black" strokeOpacity="0.5" strokeWidth="1"
-								d={this.hist_area(points)}
+								d={this.hist_area[idx](points)}
 							/>
 						})}
 						{this.props.items?<g>{
