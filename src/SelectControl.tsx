@@ -115,7 +115,7 @@ export class SelectControl extends React.Component<SelectControlProps,SelectCont
 						</div>
 					</Dropdown>
 				:null}
-				<Dropdown className="selectcontrol-placeholder" label="" value="0" />
+				<Dropdown className="selectcontrol-element selectcontrol-placeholder" label="" value="0" />
 			</div>
 		</div>
 	}
