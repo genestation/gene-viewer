@@ -178,9 +178,9 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 			host: props.elastic,
 			apiVersion: '5.6',
 		});
-		this.fetchSnps();
+		this.fetchStats();
 	}
-	fetchSnps = ()=>{
+	fetchStats = ()=>{
 		let searchBody = {};
 		let limit: undefined | number = undefined;
 		if(this.props.numericFields.indexOf(this.state.control.filter) != -1) {
@@ -225,16 +225,40 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 				scale: scale,
 			});
 			if(this.state.control.view || this.state.control.filter) {
+				let data_field = this.state.control.view?this.state.control.view:this.state.control.filter;
 				const region = this.state.control.hoverRegion ? this.state.control.hoverRegion :
 					this.state.control.clickRegion ? this.state.control.clickRegion :
 						[scale.domain[0], scale.domain[1]];
 				return getRangeStats(this.elastic, "variant_v1.4", {
-					field: 'data.'+(this.state.control.view?this.state.control.view:this.state.control.filter),
+					field: "data."+data_field,
 					start: region[0],
 					end: region[1],
 					srcfeature: this.state.srcfeature,
 				}).then((stats: HistogramStats[])=>{
 					this.setState({stats: stats});
+				}).then(()=>{
+					return this.elastic.searchTemplate({
+						index: "variant_v1.4",
+						type: "Homo_sapiens",
+						body: {
+							id: "filtered_range_query",
+							params: {
+								field: "data."+data_field,
+								start: region[0],
+								end: region[1],
+								srcfeature: this.state.srcfeature,
+							}
+						},
+						scroll: "10s",
+					});
+				}).then((response:ElasticSearch.SearchResponse<any>)=>{
+					return scrollToEnd(this.elastic, response, limit)
+				}).then((hits: HitsArray<any>)=>{
+					let values = hits.map((hit)=>getFeatureData(hit._source, data_field));
+					let unique = Array.from(new Set(values));
+					console.log(unique)
+					console.log(unique[0] == unique[1]);
+					//let features = hits.map((hit)=>hit._source);
 				});
 			}
 		});
@@ -270,7 +294,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 	onMouseLeave = (e: React.MouseEvent)=>{
 		this.setControlState({
 			hoverRegion: null,
-		}, this.fetchSnps);
+		}, this.fetchStats);
 	}
 	handleMouseMove = (pageX: number)=>{
 		const offsetLeft = this.child.navigation.offsetLeft;
@@ -278,7 +302,7 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		const coordX = (pageX - offsetLeft)/offsetWidth * (this.viewWidth) - this.margin.left;
 		this.setControlState({
 			hoverRegion: this.state.scale.region(this.state.scale.invert(coordX)),
-		}, ()=>{this.handlingMouseMove=false; this.fetchSnps()});
+		}, ()=>{this.handlingMouseMove=false; this.fetchStats()});
 	}
 	clickRegion = (region: number[])=>{
 		if (this.state.control.clickRegion && region[0] == this.state.control.clickRegion[0]) {
@@ -328,10 +352,19 @@ export class GeneViewer extends React.Component<GeneViewerProps,GeneViewerState>
 		});
 	}
 	handleChangeControl = (control?: Controls)=>{
-		this.setState({
-			control: control,
-			stats: null,
-		}, this.fetchSnps);
+		if(this.state.control.view != control.view
+			|| this.state.control.filter != control.filter
+			|| this.state.control.limit != control.limit
+			|| this.state.control.region != control.region) {
+			this.setState({
+				control: control,
+				stats: null,
+			}, this.fetchStats);
+		} else {
+			this.setState({
+				control: control,
+			});
+		}
 	}
 	renderGenome = (features: GenomeFeatureObject[])=>{
 		const draw_hoverRegion = this.state.control.hoverRegion?
